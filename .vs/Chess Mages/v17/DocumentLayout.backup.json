@@ -1,0 +1,53 @@
+{
+  "Version": 1,
+  "WorkspaceRootPath": "C:\\Users\\Ralph Ghnatios\\Chess Mages\\",
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{0D28EC39-3CEB-25DE-BC76-4A2FDAA4C310}|Assembly-CSharp.csproj|c:\\users\\ralph ghnatios\\chess mages\\assets\\scripts\\cards\\cardui.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{0D28EC39-3CEB-25DE-BC76-4A2FDAA4C310}|Assembly-CSharp.csproj|solutionrelative:assets\\scripts\\cards\\cardui.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{0D28EC39-3CEB-25DE-BC76-4A2FDAA4C310}|Assembly-CSharp.csproj|C:\\Users\\Ralph Ghnatios\\Chess Mages\\assets\\scripts\\cards\\carddrawer.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{0D28EC39-3CEB-25DE-BC76-4A2FDAA4C310}|Assembly-CSharp.csproj|solutionrelative:assets\\scripts\\cards\\carddrawer.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    }
+  ],
+  "DocumentGroupContainers": [
+    {
+      "Orientation": 0,
+      "VerticalTabListWidth": 256,
+      "DocumentGroups": [
+        {
+          "DockedWidth": 200,
+          "SelectedChildIndex": 0,
+          "Children": [
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "CardUI.cs",
+              "DocumentMoniker": "C:\\Users\\Ralph Ghnatios\\Chess Mages\\Assets\\Scripts\\Cards\\CardUI.cs",
+              "RelativeDocumentMoniker": "Assets\\Scripts\\Cards\\CardUI.cs",
+              "ToolTip": "C:\\Users\\Ralph Ghnatios\\Chess Mages\\Assets\\Scripts\\Cards\\CardUI.cs",
+              "RelativeToolTip": "Assets\\Scripts\\Cards\\CardUI.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABEAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-05-20T02:32:11.589Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "CardDrawer.cs",
+              "DocumentMoniker": "C:\\Users\\Ralph Ghnatios\\Chess Mages\\Assets\\Scripts\\Cards\\CardDrawer.cs",
+              "RelativeDocumentMoniker": "Assets\\Scripts\\Cards\\CardDrawer.cs",
+              "ToolTip": "C:\\Users\\Ralph Ghnatios\\Chess Mages\\Assets\\Scripts\\Cards\\CardDrawer.cs",
+              "RelativeToolTip": "Assets\\Scripts\\Cards\\CardDrawer.cs",
+              "ViewState": "AgIAAAUAAAAAAAAAAAAAwCAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-05-20T02:30:14.805Z"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
