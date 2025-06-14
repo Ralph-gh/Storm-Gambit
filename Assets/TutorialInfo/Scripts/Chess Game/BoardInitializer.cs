@@ -68,7 +68,7 @@ public class BoardInitializer : MonoBehaviour
         {
             for (int x = 0; x < 8; x++)
             {
-                string pieceName = boardLayout[y, x];
+                string pieceName = boardLayout[7 - y, x];
                 if (pieceName != null && prefabLookup.ContainsKey(pieceName))
                 {
                     Vector3Int cell = new Vector3Int(x, y, 0);
@@ -78,7 +78,13 @@ public class BoardInitializer : MonoBehaviour
                     // Optional: assign logical position
                     ChessPiece cp = piece.GetComponent<ChessPiece>();
                     if (cp != null)
+                    {
                         cp.SetPosition(new Vector2Int(x, y), worldPos);
+                        cp.team = pieceName.StartsWith("White") ? TeamColor.White : TeamColor.Black;
+
+                        // Register the piece on the board
+                        ChessBoard.Instance.PlacePiece(cp, new Vector2Int(x, y));
+                    }
                 }
             }
         }
