@@ -61,6 +61,7 @@ public class PromotionSelector : MonoBehaviour
 
         Destroy(ChessBoard.Instance.pawnToPromote.gameObject);
         ChessBoard.Instance.pawnToPromote = null;
+        TurnManager.Instance.NextTurn(); // switch turn after successful promotion
         gameObject.SetActive(false);
     }
 }

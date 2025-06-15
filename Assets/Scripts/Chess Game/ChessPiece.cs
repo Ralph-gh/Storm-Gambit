@@ -16,6 +16,7 @@ public class ChessPiece : MonoBehaviour
     public Vector2Int currentCell;
     public AudioClip moveClip;
     public AudioSource audioSource;
+    private bool canDrag = true; //  new flag
 
     public void SetPosition(Vector2Int cellPosition, Vector3 worldPosition)
     {
@@ -26,8 +27,14 @@ public class ChessPiece : MonoBehaviour
     void OnMouseDown()
     {
         if (ChessBoard.Instance.gameOver) return;
-        if (!TurnManager.Instance.IsPlayersTurn(team)) return;
-
+        if (!TurnManager.Instance.IsPlayersTurn(team))
+        {
+            canDrag = false;
+            isDragging = false; // critical line to avoid pieces dragging by mistake
+            return;
+        }
+        canDrag = true;
+        isDragging = true;
         originalPosition = transform.position;
         offset = transform.position - Camera.main.ScreenToWorldPoint(Input.mousePosition);
         offset.z = 0; // lock to 2D plane
@@ -36,9 +43,11 @@ public class ChessPiece : MonoBehaviour
 
     void OnMouseDrag()
     {
-        if (isDragging)
+        if (!isDragging || !canDrag || ChessBoard.Instance.gameOver)
+            return;
+        if (!TurnManager.Instance.IsPlayersTurn(team)) return; // double protection
         {
-            if (ChessBoard.Instance.gameOver) return;
+            
             Vector3 mousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
             mousePos.z = 0f; // Force to 2D layer
             transform.position = mousePos + offset;
@@ -47,65 +56,64 @@ public class ChessPiece : MonoBehaviour
 
     void OnMouseUp()
     {
-        isDragging = false;
-        if (ChessBoard.Instance.gameOver)
+       
+
+        // Cancel interaction early if dragging was denied or game is over
+        if (!isDragging || ChessBoard.Instance.gameOver || !canDrag)
         {
+            
             return;
         }
-        // Block mouse-up logic if it’s not your turn
+        isDragging = false;
+        canDrag = false;
+
+        // Turn enforcement
         if (!TurnManager.Instance.IsPlayersTurn(team))
         {
             transform.position = originalPosition;
             return;
         }
 
-
-        
-
-
-        // Snap to grid or validate move
         Vector3 snappedPosition = SnapToGrid(transform.position);
-        if (IsValidMove(snappedPosition))
+        Vector2Int newCell = WorldToCell(snappedPosition);
+
+        if (!IsValidMove(snappedPosition))
         {
-            Vector2Int newCell = WorldToCell(snappedPosition);
-            if (pieceType == PieceType.Pawn && Pawn.ShouldPromote(newCell, team))
-            {
-                ChessBoard.Instance.TriggerPromotion(this); // store pawn, call UI
-                return;
-            }
-            ChessPiece target = ChessBoard.Instance.GetPieceAt(newCell);
-            if (target != null && target.team != team)
-            {
-                ChessBoard.Instance.CapturePiece(newCell); //  Use new method
-                
-            }
-            ChessBoard.Instance.MovePiece(currentCell, newCell);
-            currentCell = newCell;
-
-            hasMoved = true; // <-- Mark the piece as having moved
-            transform.position = SnapToGrid(transform.position);
-            if (audioSource != null && moveClip != null)
-                audioSource.PlayOneShot(moveClip);//play move sound
-            TurnManager.Instance.NextTurn();
-            if (pieceType == PieceType.Pawn && Pawn.ShouldPromote(newCell, team))
-            {
-                ChessBoard.Instance.TriggerPromotion(this);
-                return;
-            }
-
-
-
+            transform.position = originalPosition;
+            return;
         }
-        else
+
+        // Capture logic (before promotion)
+        ChessPiece target = ChessBoard.Instance.GetPieceAt(newCell);
+        if (target != null && target.team != team)
         {
-            transform.position = originalPosition; // Invalid move, reset
+            ChessBoard.Instance.CapturePiece(newCell);
         }
-        if (IsValidMove(snappedPosition))
+
+        // Promotion logic (AFTER capture)
+        if (pieceType == PieceType.Pawn && Pawn.ShouldPromote(newCell, team))
         {
             transform.position = snappedPosition;
-            currentCell = WorldToCell(snappedPosition);
-            TurnManager.Instance.NextTurn();
+            currentCell = newCell;
+            ChessBoard.Instance.pawnToPromote = this;
+            ChessBoard.Instance.TriggerPromotion(this);
+            
+            return; // stop here to avoid switching turns before promotion
         }
+
+        // Finalize move
+        ChessBoard.Instance.MovePiece(currentCell, newCell);
+        currentCell = newCell;
+        hasMoved = true;
+        transform.position = snappedPosition;
+
+        if (audioSource != null && moveClip != null)
+            audioSource.PlayOneShot(moveClip);
+
+        TurnManager.Instance.NextTurn();
+
+        // Now reset drag flag
+        
     }
 
     Vector3 SnapToGrid(Vector3 rawPosition)
