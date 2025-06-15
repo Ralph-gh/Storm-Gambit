@@ -99,4 +99,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   team: 1
   pieceType: 4
+  hasMoved: 0
   currentCell: {x: 0, y: 0}
+  moveClip: {fileID: 8300000, guid: bf4f510130605234cb57de82ceed91db, type: 3}
+  audioSource: {fileID: 0}

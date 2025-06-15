@@ -14,6 +14,8 @@ public class ChessPiece : MonoBehaviour
     public PieceType pieceType;
     public bool hasMoved= false;
     public Vector2Int currentCell;
+    public AudioClip moveClip;
+    public AudioSource audioSource;
 
     public void SetPosition(Vector2Int cellPosition, Vector3 worldPosition)
     {
@@ -23,6 +25,7 @@ public class ChessPiece : MonoBehaviour
     }
     void OnMouseDown()
     {
+        if (ChessBoard.Instance.gameOver) return;
         if (!TurnManager.Instance.IsPlayersTurn(team)) return;
 
         originalPosition = transform.position;
@@ -35,6 +38,7 @@ public class ChessPiece : MonoBehaviour
     {
         if (isDragging)
         {
+            if (ChessBoard.Instance.gameOver) return;
             Vector3 mousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
             mousePos.z = 0f; // Force to 2D layer
             transform.position = mousePos + offset;
@@ -44,7 +48,10 @@ public class ChessPiece : MonoBehaviour
     void OnMouseUp()
     {
         isDragging = false;
-
+        if (ChessBoard.Instance.gameOver)
+        {
+            return;
+        }
         // Block mouse-up logic if it’s not your turn
         if (!TurnManager.Instance.IsPlayersTurn(team))
         {
@@ -52,25 +59,42 @@ public class ChessPiece : MonoBehaviour
             return;
         }
 
+
+        
+
+
         // Snap to grid or validate move
         Vector3 snappedPosition = SnapToGrid(transform.position);
         if (IsValidMove(snappedPosition))
         {
             Vector2Int newCell = WorldToCell(snappedPosition);
-
+            if (pieceType == PieceType.Pawn && Pawn.ShouldPromote(newCell, team))
+            {
+                ChessBoard.Instance.TriggerPromotion(this); // store pawn, call UI
+                return;
+            }
             ChessPiece target = ChessBoard.Instance.GetPieceAt(newCell);
             if (target != null && target.team != team)
             {
                 ChessBoard.Instance.CapturePiece(newCell); //  Use new method
+                
             }
             ChessBoard.Instance.MovePiece(currentCell, newCell);
             currentCell = newCell;
 
             hasMoved = true; // <-- Mark the piece as having moved
             transform.position = SnapToGrid(transform.position);
+            if (audioSource != null && moveClip != null)
+                audioSource.PlayOneShot(moveClip);//play move sound
             TurnManager.Instance.NextTurn();
+            if (pieceType == PieceType.Pawn && Pawn.ShouldPromote(newCell, team))
+            {
+                ChessBoard.Instance.TriggerPromotion(this);
+                return;
+            }
 
-            
+
+
         }
         else
         {
@@ -113,6 +137,36 @@ public class ChessPiece : MonoBehaviour
                     team,
                     ChessBoard.Instance.GetPieceAt 
                 );
+
+            case PieceType.Rook:
+                return Rook.IsValidMove(
+                    currentCell,
+                    targetCell,
+                    team,
+                    ChessBoard.Instance.GetPieceAt
+                );
+            case PieceType.Bishop:
+                return Bishop.IsValidMove(
+                    currentCell,
+                    targetCell,
+                    team,
+                    ChessBoard.Instance.GetPieceAt
+                );
+            case PieceType.Queen:
+                return Queen.IsValidMove(
+                    currentCell,
+                    targetCell,
+                    team,
+                    ChessBoard.Instance.GetPieceAt
+                );
+            case PieceType.King:
+                return King.IsValidMove(
+                    currentCell,
+                    targetCell,
+                    team,
+                    ChessBoard.Instance.GetPieceAt
+                );
+
 
             // Add other piece cases later...
 

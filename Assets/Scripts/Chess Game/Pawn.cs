@@ -3,6 +3,7 @@ using System.Collections.Generic;
 
 public static class Pawn
 {
+   
     public static bool IsValidMove(Vector2Int currentCell, Vector2Int targetCell, TeamColor team, bool hasMoved, System.Func<Vector2Int, ChessPiece> getPieceAt)
     {
         int direction = (team == TeamColor.White) ? 1 : -1;
@@ -31,7 +32,12 @@ public static class Pawn
             ChessPiece target = getPieceAt(targetCell);
             return target != null && target.team != team;
         }
-
+  
         return false;
+    }
+    public static bool ShouldPromote(Vector2Int targetCell, TeamColor team)
+    {
+        return (team == TeamColor.White && targetCell.y == 7)
+            || (team == TeamColor.Black && targetCell.y == 0);
     }
 }

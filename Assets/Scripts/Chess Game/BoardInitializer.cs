@@ -23,6 +23,33 @@ public class BoardInitializer : MonoBehaviour
     public GameObject Black_King;
 
     private Dictionary<string, GameObject> prefabLookup;
+    public static BoardInitializer Instance;
+    void Awake()
+    {
+        Instance = this;
+    }
+    public Vector3 GetWorldPosition(Vector2Int cell)
+    {
+        return tilemap.GetCellCenterWorld(new Vector3Int(cell.x, cell.y, 0));
+    }
+
+    public GameObject GetPromotionPrefab(string type, TeamColor team)
+    {
+        return (type, team) switch
+        {
+            ("Queen", TeamColor.White) => White_Queen,
+            ("Rook", TeamColor.White) => White_Rook,
+            ("Bishop", TeamColor.White) => White_Bishop,
+            ("Knight", TeamColor.White) => White_Knight,
+
+            ("Queen", TeamColor.Black) => Black_Queen,
+            ("Rook", TeamColor.Black) => Black_Rook,
+            ("Bishop", TeamColor.Black) => Black_Bishop,
+            ("Knight", TeamColor.Black) => Black_Knight,
+
+            _ => null
+        };
+    }
 
     private string[,] boardLayout = new string[8, 8]
     {
