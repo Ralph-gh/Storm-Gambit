@@ -18,6 +18,11 @@ public class ChessPiece : MonoBehaviour
     public AudioSource audioSource;
     private bool canDrag = true; //  new flag
 
+    public Vector2Int startingCell; //used to store the starting position of a piece for later use in spells
+    public GameObject originalPrefab; //Hard reset on resurrection 
+
+    public Vector2Int GetStartingCell() => startingCell;
+
     public void SetPosition(Vector2Int cellPosition, Vector3 worldPosition)
     {
         currentCell = cellPosition;

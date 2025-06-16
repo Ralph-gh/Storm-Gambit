@@ -108,6 +108,8 @@ public class BoardInitializer : MonoBehaviour
                     {
                         cp.SetPosition(new Vector2Int(x, y), worldPos);
                         cp.team = pieceName.StartsWith("White") ? TeamColor.White : TeamColor.Black;
+                        cp.startingCell = new Vector2Int(x, y);
+                        cp.originalPrefab = prefabLookup[pieceName];
 
                         // Register the piece on the board
                         ChessBoard.Instance.PlacePiece(cp, new Vector2Int(x, y));

@@ -85,14 +85,52 @@ public class ChessBoard : MonoBehaviour
                 }
             }
             
-            // Optionally: track captured pieces in a list
-            // capturedPieces.Add(target);
+            
+            
            
             // Destroy the game object
             if (audioSource != null && captureClip != null)
                 audioSource.PlayOneShot(captureClip);
-            capturedPieces.Add(target);
-            GameObject.Destroy(target.gameObject);
+            capturedPieces.Add(target); // Optionally: track captured pieces in a list
+            GameObject.Destroy(target.gameObject); // capturedPieces.Add(target);
         }
     }
+
+    public List<ChessPiece> GetCapturedPieces(TeamColor team)
+    {
+        return capturedPieces.FindAll(p => p.team == team);
+    }
+
+    public bool HasCapturedPieces(TeamColor team)
+    {
+        return GetCapturedPieces(team).Count > 0;
+    }
+
+    public void RemoveCapturedPiece(TeamColor team, ChessPiece piece)
+    {
+        capturedPieces.Remove(piece);
+    }
+
+    public Vector2Int FindNearestAvailableSquare(Vector2Int origin)
+    {
+        Vector2Int[] directions = {
+        Vector2Int.zero,
+        Vector2Int.up, Vector2Int.down, Vector2Int.left, Vector2Int.right,
+        new Vector2Int(1,1), new Vector2Int(-1,1), new Vector2Int(1,-1), new Vector2Int(-1,-1)
+    };
+
+        foreach (var dir in directions)
+        {
+            Vector2Int candidate = origin + dir;
+            if (IsInsideBoard(candidate) && GetPieceAt(candidate) == null)
+                return candidate;
+        }
+
+        return new Vector2Int(-1, -1); // No valid square
+    }
+    public bool IsInsideBoard(Vector2Int cell)
+    {
+        return cell.x >= 0 && cell.x < 8 && cell.y >= 0 && cell.y < 8;
+    }
+
 }
