@@ -14,3 +14,5 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   fullCardSprite: {fileID: 21300000, guid: 5633341bd029f8845a97bfd89d2dfb35, type: 3}
   type: 2
+  spellPrefab: {fileID: 0}
+  cardName: Freezing Field

@@ -1363,6 +1363,8 @@ MonoBehaviour:
   - {fileID: 11400000, guid: c4333441743a9d74da4dced875bbab3f, type: 2}
   - {fileID: 11400000, guid: 43d4564fc58f6294889bb3b90acf396a, type: 2}
   - {fileID: 11400000, guid: 319719a370c023842826015f2aebcb54, type: 2}
+  - {fileID: 11400000, guid: 599f0b34562101e48b2a43d18dbafcdf, type: 2}
+  - {fileID: 11400000, guid: 1c263c1cb7ac19b46adbfb744c121df7, type: 2}
   cardPrefab: {fileID: 8266617551161481807, guid: 4fe99c99d28ad844e8761355c0a9e700, type: 3}
   handPanel: {fileID: 80146427}
   startingCardCount: 3

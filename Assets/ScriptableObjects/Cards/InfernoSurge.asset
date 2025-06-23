@@ -14,3 +14,5 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   fullCardSprite: {fileID: 21300000, guid: 68225dde59f0d1a4c8b5d2bd830efccc, type: 3}
   type: 0
+  spellPrefab: {fileID: 0}
+  cardName: Inferno Surge

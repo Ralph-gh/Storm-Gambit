@@ -15,7 +15,10 @@ public class CardDrawer : MonoBehaviour
 
     void Start()
     {
-        DrawCards(startingCardCount);
+        DrawFixedCard("Resurrection Stone");
+        DrawFixedCard("Teleportation");
+
+        DrawCards(startingCardCount - 2); // Draw the rest randomly
     }
 
     void DrawCards(int count)
@@ -25,8 +28,33 @@ public class CardDrawer : MonoBehaviour
             if (cardPool.Count == 0) return;
 
             CardData drawn = cardPool[Random.Range(0, cardPool.Count)];
+
             GameObject cardObj = Instantiate(cardPrefab, handPanel);
-            cardObj.GetComponent<CardUI>().LoadCard(drawn);
+            CardUI cardUI = cardObj.GetComponent<CardUI>();
+
+            if (cardUI != null)
+            {
+                cardUI.LoadCard(drawn, TeamColor.White);
+                Debug.Log($"Drew card: {drawn.cardName}");
+            }
+            else
+            {
+                Debug.LogError("Card prefab missing CardUI script!");
+            }
         }
     }
+
+    void DrawFixedCard(string cardName)
+    {
+        CardData fixedCard = cardPool.Find(c => c.cardName == cardName);
+        if (fixedCard == null)
+        {
+            Debug.LogWarning($"Card '{cardName}' not found in card pool!");
+            return;
+        }
+
+        GameObject cardObj = Instantiate(cardPrefab, handPanel);
+        cardObj.GetComponent<CardUI>().LoadCard(fixedCard, TeamColor.White); // Assuming White by default
+    }
+
 }

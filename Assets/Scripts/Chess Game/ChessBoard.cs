@@ -14,7 +14,7 @@ public class ChessBoard : MonoBehaviour
     public AudioClip victoryClip;
     public AudioClip captureClip;
     public AudioSource audioSource;
-    string winner = "Me";// a sense of humour does not hurt a coder
+    string winner;// a sense of humour does not hurt a coder
     public GameObject promotionUI;
     public ChessPiece pawnToPromote;
     public BoardInitializer initializer;
