@@ -12,5 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d60c194c2f4418b4fa2430d64dd67010, type: 3}
   m_Name: PortalMage
   m_EditorClassIdentifier: 
+  cardName: Portal Mage
   fullCardSprite: {fileID: 21300000, guid: 14e4876620cf83e40b2915590c743e85, type: 3}
-  type: 0
+  cardtype: 0
+  spellType: 0
+  spellUI: {fileID: 0}

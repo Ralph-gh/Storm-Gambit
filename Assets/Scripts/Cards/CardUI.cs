@@ -28,7 +28,7 @@ public class CardUI : MonoBehaviour
         else
         {
             // Immediate spells can resolve directly
-            SpellManager.Instance.ResolveSpell(cardData );
+            //SpellManager.Instance.ResolveSpell(cardData );
         }
     }
 

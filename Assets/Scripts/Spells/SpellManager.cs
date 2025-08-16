@@ -8,16 +8,31 @@ public class SpellManager : MonoBehaviour
 
     private void Awake()
     {
+        if (Instance != null && Instance != this)
+        {
+            Destroy(gameObject);
+            return;
+        }
         Instance = this;
     }
+   
+    
+
+
 
     public void ResolveSpell(CardData data, object context = null)
     {
         switch (data.spellType)
         {
             case SpellType.Teleport:
-                Debug.Log("Teleport spell resolving.");
-                // Add teleport logic
+                if (data.spellUI != null)
+                {
+                    Instantiate(data.spellUI, GameObject.Find("Canvas").transform);
+                }
+                else
+                {
+                    Debug.LogWarning("Teleport spell has no UI assigned.");
+                }
                 break;
 
             case SpellType.Resurrect:

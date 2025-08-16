@@ -12,5 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d60c194c2f4418b4fa2430d64dd67010, type: 3}
   m_Name: Lightning Mage
   m_EditorClassIdentifier: 
+  cardName: Lightning Mage
   fullCardSprite: {fileID: 21300000, guid: 7be8ce89700f1344dbcaad12beb4f97d, type: 3}
-  type: 0
+  cardtype: 0
+  spellType: 0
+  spellUI: {fileID: 0}

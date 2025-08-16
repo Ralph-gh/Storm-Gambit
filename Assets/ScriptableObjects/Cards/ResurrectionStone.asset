@@ -12,5 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d60c194c2f4418b4fa2430d64dd67010, type: 3}
   m_Name: ResurrectionStone
   m_EditorClassIdentifier: 
+  cardName: Resurrection Spell
   fullCardSprite: {fileID: 21300000, guid: 5cdf8ea40e3a2444b9b24439537deff5, type: 3}
-  type: 0
+  cardtype: 0
+  spellType: 0
+  spellUI: {fileID: 0}
