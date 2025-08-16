@@ -12,5 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d60c194c2f4418b4fa2430d64dd67010, type: 3}
   m_Name: DarkGambit
   m_EditorClassIdentifier: 
+  cardName: 
   fullCardSprite: {fileID: 21300000, guid: 0b96ef579b029364d987632fd8accd8f, type: 3}
-  type: 0
+  cardtype: 1
+  spellType: 0
+  spellUI: {fileID: 2577088289371655588, guid: 08fda00330f32ac4384326c27efda8d5, type: 3}

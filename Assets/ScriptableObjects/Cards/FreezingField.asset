@@ -12,5 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d60c194c2f4418b4fa2430d64dd67010, type: 3}
   m_Name: FreezingField
   m_EditorClassIdentifier: 
+  cardName: 
   fullCardSprite: {fileID: 21300000, guid: 5633341bd029f8845a97bfd89d2dfb35, type: 3}
-  type: 2
+  cardtype: 2
+  spellType: 0
+  spellUI: {fileID: 0}

@@ -4,9 +4,32 @@ using UnityEngine.UI;
 public class CardUI : MonoBehaviour
 {
     public Image fullImage;
+    public Button cardButton; // Add this in the prefab
+    public CardData cardData;
 
     public void LoadCard(CardData data)
     {
+        cardData = data;
         fullImage.sprite = data.fullCardSprite;
+
+        cardButton.onClick.RemoveAllListeners();
+        cardButton.onClick.AddListener(() => ActivateSpell());
     }
+    void ActivateSpell()
+    {
+        Debug.Log($"Card clicked: {cardData.name}");
+
+        // Optional: play sound or animate
+
+        if (cardData.spellUI != null)
+        {
+            Instantiate(cardData.spellUI, GameObject.Find("Canvas").transform);
+        }
+        else
+        {
+            // Immediate spells can resolve directly
+            SpellManager.Instance.ResolveSpell(cardData );
+        }
+    }
+
 }
