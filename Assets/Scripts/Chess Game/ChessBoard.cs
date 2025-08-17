@@ -19,6 +19,7 @@ public class ChessBoard : MonoBehaviour
     public ChessPiece pawnToPromote;
     public BoardInitializer initializer;
     public PromotionSelector promotionSelector;
+    public Graveyard graveyard = new();
 
     public void TriggerPromotion(ChessPiece pawn)
     {
@@ -69,7 +70,7 @@ public class ChessBoard : MonoBehaviour
         {
             // Clear from board array
             board[targetPosition.x, targetPosition.y] = null;
-            capturedPieces.Add(target);
+            
             if (target.pieceType == PieceType.King && !resurrectionAllowed)
             {
                 gameOver = true;
@@ -84,14 +85,11 @@ public class ChessBoard : MonoBehaviour
                         audioSource.PlayOneShot(victoryClip);
                 }
             }
-            
-            
-            
-           
+            graveyard.AddPiece(target); 
+
             // Destroy the game object
             if (audioSource != null && captureClip != null)
                 audioSource.PlayOneShot(captureClip);
-            capturedPieces.Add(target); // Optionally: track captured pieces in a list
             GameObject.Destroy(target.gameObject); // capturedPieces.Add(target);
         }
     }
@@ -131,6 +129,25 @@ public class ChessBoard : MonoBehaviour
     public bool IsInsideBoard(Vector2Int cell)
     {
         return cell.x >= 0 && cell.x < 8 && cell.y >= 0 && cell.y < 8;
+    }
+
+    public class Graveyard
+    {
+        public List<ChessPiece> whiteCaptured = new();
+        public List<ChessPiece> blackCaptured = new();
+
+        public void AddPiece(ChessPiece piece)
+        {
+            if (piece.team == TeamColor.White)
+                whiteCaptured.Add(piece);
+            else
+                blackCaptured.Add(piece);
+        }
+
+        public List<ChessPiece> GetCapturedByTeam(TeamColor team)
+        {
+            return team == TeamColor.White ? whiteCaptured : blackCaptured;
+        }
     }
 
 }

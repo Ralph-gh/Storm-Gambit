@@ -1130,7 +1130,7 @@ Camera:
   m_Enabled: 1
   serializedVersion: 2
   m_ClearFlags: 2
-  m_BackGroundColor: {r: 0.19215687, g: 0.3019608, b: 0.4745098, a: 0}
+  m_BackGroundColor: {r: 0.030497186, g: 0.03331221, b: 0.03773582, a: 0}
   m_projectionMatrixMode: 1
   m_GateFitMode: 2
   m_FOVAxisMode: 0
@@ -1155,7 +1155,7 @@ Camera:
   far clip plane: 10
   field of view: 60
   orthographic: 1
-  orthographic size: 4.5
+  orthographic size: 4.35
   m_Depth: -1
   m_CullingMask:
     serializedVersion: 2
@@ -1363,6 +1363,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: c4333441743a9d74da4dced875bbab3f, type: 2}
   - {fileID: 11400000, guid: 43d4564fc58f6294889bb3b90acf396a, type: 2}
   - {fileID: 11400000, guid: 319719a370c023842826015f2aebcb54, type: 2}
+  - {fileID: 11400000, guid: f874d798c78f9304abd73e89300cdf3c, type: 2}
   cardPrefab: {fileID: 8266617551161481807, guid: 4fe99c99d28ad844e8761355c0a9e700, type: 3}
   handPanel: {fileID: 80146427}
   startingCardCount: 3

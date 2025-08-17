@@ -1,0 +1,19 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d60c194c2f4418b4fa2430d64dd67010, type: 3}
+  m_Name: TeleportationSpell
+  m_EditorClassIdentifier: 
+  cardName: Teleportation
+  fullCardSprite: {fileID: 0}
+  cardtype: 1
+  spellType: 1
+  spellUI: {fileID: 6763589432106491609, guid: fd9ef4d7275af2d4e8772c71991fd515, type: 3}

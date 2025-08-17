@@ -5,6 +5,11 @@ public class TeleportationSpellUI : MonoBehaviour
 {
     private ChessPiece selectedPiece = null;
 
+    void Start()
+    {
+        Debug.Log("Teleportation Spell UI instantiated and active.");
+    }
+
     void Update()
     {
         if (Input.GetMouseButtonDown(0) && !EventSystem.current.IsPointerOverGameObject())

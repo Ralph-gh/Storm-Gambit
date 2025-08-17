@@ -6,8 +6,16 @@ public class CardUI : MonoBehaviour
     public Image fullImage;
     public Button cardButton; // Add this in the prefab
     public CardData cardData;
-
-    public void LoadCard(CardData data)
+    private void Start()
+    {
+        if (cardData.spellUI == null)
+        {
+            Debug.LogError("Spell UI is not assigned in CardData: " + cardData.name);
+            return;
+        }
+    }
+    
+public void LoadCard(CardData data)
     {
         cardData = data;
         fullImage.sprite = data.fullCardSprite;
@@ -23,13 +31,18 @@ public class CardUI : MonoBehaviour
 
         if (cardData.spellUI != null)
         {
-            Instantiate(cardData.spellUI, GameObject.Find("Canvas").transform);
+            Instantiate(cardData.spellUI, GameObject.Find("MainCanvas").transform);
         }
+
         else
         {
             // Immediate spells can resolve directly
             //SpellManager.Instance.ResolveSpell(cardData );
         }
+
+        Destroy(gameObject); //  Remove the card from the hand after play
     }
+
+    
 
 }
