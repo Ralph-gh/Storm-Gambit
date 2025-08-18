@@ -143,7 +143,13 @@ public class ChessBoard : MonoBehaviour
             else
                 blackCaptured.Add(piece);
         }
-
+        public void RemoveCapturedPiece(TeamColor team, ChessPiece piece)
+        {
+            if (team == TeamColor.White)
+                whiteCaptured.Remove(piece);
+            else
+                blackCaptured.Remove(piece);
+        }
         public List<ChessPiece> GetCapturedByTeam(TeamColor team)
         {
             return team == TeamColor.White ? whiteCaptured : blackCaptured;

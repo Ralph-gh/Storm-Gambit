@@ -17,6 +17,8 @@ public class ChessPiece : MonoBehaviour
     public AudioClip moveClip;
     public AudioSource audioSource;
     private bool canDrag = true; //  new flag
+    public Vector2Int initialCell { get; private set; } // Added tracked initial cell
+    public bool hasBeenInitialized = false;
 
     public Vector2Int startingCell; //used to store the starting position of a piece for later use in spells
     public GameObject originalPrefab; //Hard reset on resurrection 
@@ -28,6 +30,12 @@ public class ChessPiece : MonoBehaviour
         currentCell = cellPosition;
         transform.position = worldPosition;
         hasMoved = false; // Reset in case piece is re-used or repositioned
+
+        if (!hasBeenInitialized)
+        {
+            initialCell = cellPosition;
+            hasBeenInitialized = true;
+        }
     }
     void OnMouseDown()
     {

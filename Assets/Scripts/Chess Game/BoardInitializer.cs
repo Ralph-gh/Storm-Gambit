@@ -118,4 +118,46 @@ public class BoardInitializer : MonoBehaviour
             }
         }
     }
+    public Vector2Int GetStartingSquare(ChessPiece piece)
+    {
+        // Example: Adjust based on your initialization logic
+        if (piece.team == TeamColor.White)
+        {
+            switch (piece.pieceType)
+            {
+                case PieceType.Pawn: return new Vector2Int(0, 1); // Update logic for the actual pawn
+                case PieceType.Rook: return new Vector2Int(0, 0);
+                case PieceType.Knight: return new Vector2Int(1, 0);
+                case PieceType.Bishop: return new Vector2Int(2, 0);
+                case PieceType.Queen: return new Vector2Int(3, 0);
+                case PieceType.King: return new Vector2Int(4, 0);
+            }
+        }
+        else
+        {
+            switch (piece.pieceType)
+            {
+                case PieceType.Pawn: return new Vector2Int(0, 6);
+                case PieceType.Rook: return new Vector2Int(0, 7);
+                case PieceType.Knight: return new Vector2Int(1, 7);
+                case PieceType.Bishop: return new Vector2Int(2, 7);
+                case PieceType.Queen: return new Vector2Int(3, 7);
+                case PieceType.King: return new Vector2Int(4, 7);
+            }
+        }
+        return Vector2Int.zero;
+    }
+
+    public Dictionary<PieceType, GameObject> whitePrefabs;
+    public Dictionary<PieceType, GameObject> blackPrefabs;
+
+    public GameObject GetPiecePrefab(ChessPiece piece)
+    {
+        return piece.team == TeamColor.White
+            ? whitePrefabs[piece.pieceType]
+            : blackPrefabs[piece.pieceType];
+    }
+
+
+
 }
