@@ -9,6 +9,10 @@ public class CharacterPanelUI : MonoBehaviour
 
     public void Show(CardData character)
     {
+        Debug.Log("[HUD] Show " + (character ? character.cardName : "NULL"));
+
+        if (!cardPrefab) { Debug.LogError("[HUD] cardPrefab is NULL."); return; }
+        if (!slot || !slot.gameObject.scene.IsValid()) { Debug.LogError("[HUD] slot is NULL or not in scene."); return; }
         Clear();
         var go = Instantiate(cardPrefab, slot);
         active = go.GetComponent<CardUI>();

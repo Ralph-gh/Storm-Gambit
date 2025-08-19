@@ -109,7 +109,7 @@ public class BoardInitializer : MonoBehaviour
                         if (sr != null)
                         {
                             cp.pieceSprite = sr.sprite; //  Assign sprite to be used in resurrection UI
-                            Debug.Log($"[INIT] Stored sprite for {cp.pieceType}: {sr.sprite?.name}");
+                           // Debug.Log($"[INIT] Stored sprite for {cp.pieceType}: {sr.sprite?.name}");
                         }
                        
                         cp.SetPosition(new Vector2Int(x, y), worldPos);
