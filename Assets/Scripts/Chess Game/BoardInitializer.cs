@@ -100,10 +100,27 @@ public class BoardInitializer : MonoBehaviour
                 {
                     Vector3Int cell = new Vector3Int(x, y, 0);
                     Vector3 worldPos = tilemap.GetCellCenterWorld(cell);
-                    GameObject piece = Instantiate(prefabLookup[pieceName], worldPos, Quaternion.identity);
+                    GameObject pieceGO = Instantiate(prefabLookup[pieceName], worldPos, Quaternion.identity);
+                    ChessPiece cp = pieceGO.GetComponent<ChessPiece>();
 
-                    // Optional: assign logical position
-                    ChessPiece cp = piece.GetComponent<ChessPiece>();
+                    if (cp != null)
+                    {
+                        SpriteRenderer sr = pieceGO.GetComponent<SpriteRenderer>();
+                        if (sr != null)
+                        {
+                            cp.pieceSprite = sr.sprite; //  Assign sprite to be used in resurrection UI
+                            Debug.Log($"[INIT] Stored sprite for {cp.pieceType}: {sr.sprite?.name}");
+                        }
+                       
+                        cp.SetPosition(new Vector2Int(x, y), worldPos);
+                        cp.team = pieceName.StartsWith("White") ? TeamColor.White : TeamColor.Black;
+                        cp.startingCell = new Vector2Int(x, y);
+                        cp.originalPrefab = prefabLookup[pieceName];
+                        cp.pieceSprite = pieceGO.GetComponent<SpriteRenderer>().sprite;
+
+                        ChessBoard.Instance.PlacePiece(cp, new Vector2Int(x, y));
+                    }
+
                     if (cp != null)
                     {
                         cp.SetPosition(new Vector2Int(x, y), worldPos);
@@ -113,6 +130,7 @@ public class BoardInitializer : MonoBehaviour
 
                         // Register the piece on the board
                         ChessBoard.Instance.PlacePiece(cp, new Vector2Int(x, y));
+
                     }
                 }
             }

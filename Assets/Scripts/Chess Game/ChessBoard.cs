@@ -66,11 +66,21 @@ public class ChessBoard : MonoBehaviour
         if (gameOver) return; // prevent multiple endings
 
         ChessPiece target = GetPieceAt(targetPosition);
+
         if (target != null)
         {
             // Clear from board array
             board[targetPosition.x, targetPosition.y] = null;
-            
+            SpriteRenderer sr = target.GetComponent<SpriteRenderer>();
+            if (sr != null)
+            {
+                target.pieceSprite = sr.sprite;
+                Debug.Log($"[CAPTURE] Stored sprite: {target.pieceSprite.name}");
+            }
+            else
+            {
+                Debug.LogWarning("[CAPTURE]  SpriteRenderer missing on target.");
+            }
             if (target.pieceType == PieceType.King && !resurrectionAllowed)
             {
                 gameOver = true;
@@ -85,8 +95,14 @@ public class ChessBoard : MonoBehaviour
                         audioSource.PlayOneShot(victoryClip);
                 }
             }
-            graveyard.AddPiece(target); 
-
+            // Backup the sprite before destruction
+            Sprite savedSprite = target.pieceSprite;
+            target.pieceSprite = savedSprite; // Redundant in theory, but keeps the reference alive
+            CapturedPieceData data = new CapturedPieceData(target);
+            data.originalPosition = target.startingCell; // add this to the constructor if you prefer
+            graveyard.AddPiece(data); // CORRECT
+            
+            Debug.Log($"[CAPTURE] Captured {target.pieceType}, sprite: {target.pieceSprite?.name}");
             // Destroy the game object
             if (audioSource != null && captureClip != null)
                 audioSource.PlayOneShot(captureClip);
@@ -130,27 +146,46 @@ public class ChessBoard : MonoBehaviour
     {
         return cell.x >= 0 && cell.x < 8 && cell.y >= 0 && cell.y < 8;
     }
+    public class CapturedPieceData
+    {
+        public PieceType pieceType;
+        public TeamColor team;
+        public GameObject originalPrefab;
+        public Vector2Int originalPosition;
+        public Sprite pieceSprite;
+
+        public CapturedPieceData(ChessPiece piece)
+        {
+            pieceType = piece.pieceType;
+            team = piece.team;
+            originalPrefab = piece.originalPrefab;
+            pieceSprite = piece.pieceSprite;
+            originalPosition = piece.startingCell;
+        }
+    }
 
     public class Graveyard
     {
-        public List<ChessPiece> whiteCaptured = new();
-        public List<ChessPiece> blackCaptured = new();
+        public List<CapturedPieceData> whiteCaptured = new();
+        public List<CapturedPieceData> blackCaptured = new();
 
-        public void AddPiece(ChessPiece piece)
+        public void AddPiece(CapturedPieceData data)
         {
-            if (piece.team == TeamColor.White)
-                whiteCaptured.Add(piece);
+            if (data.team == TeamColor.White)
+                whiteCaptured.Add(data);
             else
-                blackCaptured.Add(piece);
+                blackCaptured.Add(data);
         }
-        public void RemoveCapturedPiece(TeamColor team, ChessPiece piece)
+
+        public void RemoveCapturedPiece(CapturedPieceData data)
         {
-            if (team == TeamColor.White)
-                whiteCaptured.Remove(piece);
+            if (data.team == TeamColor.White)
+                whiteCaptured.Remove(data);
             else
-                blackCaptured.Remove(piece);
+                blackCaptured.Remove(data);
         }
-        public List<ChessPiece> GetCapturedByTeam(TeamColor team)
+
+        public List<CapturedPieceData> GetCapturedByTeam(TeamColor team)
         {
             return team == TeamColor.White ? whiteCaptured : blackCaptured;
         }

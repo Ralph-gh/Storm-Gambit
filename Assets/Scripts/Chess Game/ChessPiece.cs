@@ -24,7 +24,9 @@ public class ChessPiece : MonoBehaviour
     public GameObject originalPrefab; //Hard reset on resurrection 
 
     public Vector2Int GetStartingCell() => startingCell;
+    public Sprite pieceSprite;
 
+  
     public void SetPosition(Vector2Int cellPosition, Vector3 worldPosition)
     {
         currentCell = cellPosition;

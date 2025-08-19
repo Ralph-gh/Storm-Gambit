@@ -1,6 +1,7 @@
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
-using System.Collections.Generic;
+using static ChessBoard;
 
 public class ResurrectionSpellUI : MonoBehaviour
 {
@@ -16,21 +17,23 @@ public class ResurrectionSpellUI : MonoBehaviour
     void GenerateButtons()
     {
         TeamColor currentTeam = TurnManager.Instance.currentTurn;
-        List<ChessPiece> capturedPieces = ChessBoard.Instance.graveyard.GetCapturedByTeam(currentTeam);
+        List<CapturedPieceData> captured = ChessBoard.Instance.graveyard.GetCapturedByTeam(currentTeam);
 
         Transform container = currentTeam == TeamColor.White ? whiteContainer : blackContainer;
 
-        foreach (ChessPiece piece in capturedPieces)
+        foreach (CapturedPieceData data in captured)
         {
             GameObject buttonObj = Instantiate(buttonPrefab, container);
             ResurrectionButton resButton = buttonObj.GetComponent<ResurrectionButton>();
-            resButton.Initialize(piece, this);
+            resButton.Initialize(data, this);
         }
     }
 
-    public void Resurrect(ChessPiece piece)
+    public void Resurrect(CapturedPieceData data)
     {
-        Vector2Int spawn = BoardInitializer.Instance.GetStartingSquare(piece);
+        Vector2Int spawn = data.originalPosition;
+        if (ChessBoard.Instance.GetPieceAt(spawn) != null)
+            spawn = ChessBoard.Instance.FindNearestAvailableSquare(spawn);
 
         if (ChessBoard.Instance.GetPieceAt(spawn) != null)
             spawn = ChessBoard.Instance.FindNearestAvailableSquare(spawn);
@@ -41,16 +44,16 @@ public class ResurrectionSpellUI : MonoBehaviour
             return;
         }
 
-        GameObject resurrected = Instantiate(piece.originalPrefab, BoardInitializer.Instance.GetWorldPosition(spawn), Quaternion.identity);
+        GameObject resurrected = Instantiate(data.originalPrefab, BoardInitializer.Instance.GetWorldPosition(spawn), Quaternion.identity);
         ChessPiece newPiece = resurrected.GetComponent<ChessPiece>();
 
-        newPiece.team = piece.team;
-        newPiece.pieceType = piece.pieceType;
+        newPiece.team = data.team;
+        newPiece.pieceType = data.pieceType;
+        newPiece.pieceSprite = data.pieceSprite;
         newPiece.SetPosition(spawn, BoardInitializer.Instance.GetWorldPosition(spawn));
 
         ChessBoard.Instance.PlacePiece(newPiece, spawn);
-        ChessBoard.Instance.graveyard.RemoveCapturedPiece(piece.team, piece);
-
+        ChessBoard.Instance.graveyard.RemoveCapturedPiece(data);
         TurnManager.Instance.NextTurn();
         Destroy(gameObject); // close UI
     }

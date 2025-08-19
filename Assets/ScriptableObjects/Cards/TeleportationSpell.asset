@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: TeleportationSpell
   m_EditorClassIdentifier: 
   cardName: Teleportation
-  fullCardSprite: {fileID: 0}
+  fullCardSprite: {fileID: 21300000, guid: 78db45559bf1e9e45bc0dd775c999aad, type: 3}
   cardtype: 1
   spellType: 1
   spellUI: {fileID: 6763589432106491609, guid: fd9ef4d7275af2d4e8772c71991fd515, type: 3}

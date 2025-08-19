@@ -1,30 +1,41 @@
 using UnityEngine;
 using UnityEngine.UI;
+using static ChessBoard;
 
 public class ResurrectionButton : MonoBehaviour
 {
-    private ChessPiece piece;
+    private CapturedPieceData data;
     private ResurrectionSpellUI spellUI;
+
     public Button button;
     public Image icon;
 
-    public void Initialize(ChessPiece pieceToResurrect, ResurrectionSpellUI ui)
+    public void Initialize(CapturedPieceData data, ResurrectionSpellUI ui)
     {
-        piece = pieceToResurrect;
+        this.data = data;
         spellUI = ui;
 
         if (button == null)
             button = GetComponent<Button>();
 
-        if (icon != null && pieceToResurrect != null)
-            icon.sprite = pieceToResurrect.GetComponent<SpriteRenderer>().sprite;
+        if (icon == null)
+            icon = GetComponent<Image>(); // <- not GetComponentInChildren, unless you're nesting!
+
+        if (data.pieceSprite != null)
+        {
+            icon.sprite = data.pieceSprite;
+        }
+        else
+        {
+            Debug.LogWarning("[ResurrectionButton] Missing sprite for piece: " + data.pieceType);
+        }
 
         button.onClick.RemoveAllListeners();
-        button.onClick.AddListener(OnClick);
+        button.onClick.AddListener(() => spellUI.Resurrect(data));
     }
 
-    void OnClick()
+    private void OnClick()
     {
-        spellUI.Resurrect(piece);
+        spellUI.Resurrect(data);
     }
 }
