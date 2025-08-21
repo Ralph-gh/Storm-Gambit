@@ -17,7 +17,7 @@ public class CharacterPanelUI : MonoBehaviour
         var go = Instantiate(cardPrefab, slot);
         active = go.GetComponent<CardUI>();
         active.LoadCard(character, false, null); // normal load
-        active.SetInteractable(false);           // keep displayed, not clickable (for now)
+        active.SetInteractable(true);           // keep displayed, not clickable (for now)
         gameObject.SetActive(true);
     }
 
