@@ -7,9 +7,7 @@ public enum TeamColor { White, Black }
 public enum PieceType { Pawn, Knight, Bishop, Rook, Queen, King}
 public class ChessPiece : MonoBehaviour
 {
-    private bool isDragging = false;
-    private Vector3 originalPosition;
-    private Vector3 offset;
+    
     public TeamColor team;
     public PieceType pieceType;
     public bool hasMoved= false;
@@ -26,7 +24,16 @@ public class ChessPiece : MonoBehaviour
     public Vector2Int GetStartingCell() => startingCell;
     public Sprite pieceSprite;
 
-  
+    private bool divinelyProtected = false; // Divine protection state
+    public bool IsDivinelyProtected => divinelyProtected;
+    private TeamColor protectionOwnerTeam; //Divine protection Owner
+    private System.Action<TeamColor> _turnListener;//Used for turn logic
+    //Apply protection for exactly one opponent turn
+
+    private bool isDragging = false;
+    private Vector3 originalPosition;
+    private Vector3 offset;
+
     public void SetPosition(Vector2Int cellPosition, Vector3 worldPosition)
     {
         currentCell = cellPosition;
@@ -38,6 +45,44 @@ public class ChessPiece : MonoBehaviour
             initialCell = cellPosition;
             hasBeenInitialized = true;
         }
+    }
+
+    public void ApplyDivineProtectionOneTurn()
+    {
+        if (divinelyProtected) return;
+
+        divinelyProtected = true;
+        protectionOwnerTeam = team;
+
+        // Optional: add a glow/icon here
+        // e.g. GetComponent<SpriteRenderer>().color = new Color(1f, 1f, 1f, 0.8f);
+
+        // When it becomes the owner's turn again, the opponent's turn has finished -> remove
+        _turnListener = (TeamColor activeTeam) =>
+        {
+            if (activeTeam == protectionOwnerTeam)
+            {
+                RemoveDivineProtection();
+                TurnManager.Instance.OnTurnChanged -= _turnListener;
+                _turnListener = null;
+            }
+        };
+        TurnManager.Instance.OnTurnChanged += _turnListener;
+    }
+
+    public void RemoveDivineProtection()
+    {
+        if (!divinelyProtected) return;
+        divinelyProtected = false;
+
+        // Optional: remove glow/icon here
+        // e.g. GetComponent<SpriteRenderer>().color = Color.white;
+    }
+
+    private void OnDestroy()
+    {
+        if (_turnListener != null && TurnManager.Instance != null)
+            TurnManager.Instance.OnTurnChanged -= _turnListener;
     }
     void OnMouseDown()
     {
@@ -102,6 +147,14 @@ public class ChessPiece : MonoBehaviour
         ChessPiece target = ChessBoard.Instance.GetPieceAt(newCell);
         if (target != null && target.team != team)
         {
+            // NEW: block capture if target has Divine Protection
+            if (target.IsDivinelyProtected)
+            {
+                // invalid move: snap back and let the player try another move
+                transform.position = originalPosition;
+                return;
+            }
+
             ChessBoard.Instance.CapturePiece(newCell);
         }
 

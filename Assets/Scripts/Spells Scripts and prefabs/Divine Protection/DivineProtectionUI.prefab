@@ -219,9 +219,9 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 5779560302267585775}
-  - component: {fileID: -8419444988946241917}
+  - component: {fileID: -4098352304055156389}
   m_Layer: 0
-  m_Name: TeleportationSpellUI 1
+  m_Name: DivineProtectionUI
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -243,7 +243,7 @@ Transform:
   - {fileID: 4839121313262506563}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &-8419444988946241917
+--- !u!114 &-4098352304055156389
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -252,6 +252,6 @@ MonoBehaviour:
   m_GameObject: {fileID: 6763589432106491609}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 017cb86a94187a44ba2625e26aa89403, type: 3}
+  m_Script: {fileID: 11500000, guid: 6cbbe51f53c413c4c848e2b53f2d2776, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 

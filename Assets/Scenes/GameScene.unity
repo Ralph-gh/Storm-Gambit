@@ -1289,6 +1289,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 319719a370c023842826015f2aebcb54, type: 2}
   - {fileID: 11400000, guid: f874d798c78f9304abd73e89300cdf3c, type: 2}
   - {fileID: 11400000, guid: 1c263c1cb7ac19b46adbfb744c121df7, type: 2}
+  - {fileID: 11400000, guid: 05e9cd83c97665a458018dbae5341145, type: 2}
   cardPrefab: {fileID: 8266617551161481807, guid: 4fe99c99d28ad844e8761355c0a9e700, type: 3}
   handPanel: {fileID: 80146427}
   startingCardCount: 3
@@ -3729,6 +3730,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   currentTurn: 0
+  turnNumber: 0
 --- !u!82 &2129786012
 AudioSource:
   m_ObjectHideFlags: 0

@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 
 public class TurnManager : MonoBehaviour
@@ -6,6 +7,8 @@ public class TurnManager : MonoBehaviour
 
     public TeamColor currentTurn = TeamColor.White;
 
+    public int turnNumber = 0;
+    public event Action<TeamColor> OnTurnChanged;
     void Awake()
     {
         if (Instance == null)
@@ -17,6 +20,8 @@ public class TurnManager : MonoBehaviour
     public void NextTurn()
     {
         currentTurn = (currentTurn == TeamColor.White) ? TeamColor.Black : TeamColor.White;
+        turnNumber++;
+        OnTurnChanged?.Invoke(currentTurn); // NEW: notify listeners
     }
 
     public bool IsPlayersTurn(TeamColor team)
