@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.EventSystems;
+using static UnityEngine.UI.Image;
 
 public class TeleportationSpellUI : MonoBehaviour
 {
@@ -28,6 +29,7 @@ public class TeleportationSpellUI : MonoBehaviour
                 {
                     selectedPiece = piece;
                     Debug.Log("Selected " + piece.name);
+                    // (Optional) TeleportVFX.Instance?.PlayAt(pieceAtCell.transform.position); // selection ping
                 }
             }
             else
@@ -48,9 +50,16 @@ public class TeleportationSpellUI : MonoBehaviour
 
     void Teleport(ChessPiece piece, Vector2Int targetCell)
     {
+        Vector3 origin = piece.transform.position;
         Vector3 world = BoardInitializer.Instance.GetWorldPosition(targetCell);
         ChessBoard.Instance.MovePiece(piece.currentCell, targetCell);
         piece.SetPosition(targetCell, world);
+        // Balance/logic: teleported piece should count as having moved this turn
+        piece.hasMoved = true;
+        // after move:
+        Vector3 dest = piece.transform.position;
+        TeleportVFX.Instance?.PlayJump(origin, dest);
+
         TurnManager.Instance.NextTurn();
         Debug.Log("Teleported to " + targetCell);
     }

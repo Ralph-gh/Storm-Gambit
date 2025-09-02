@@ -51,6 +51,7 @@ public class ResurrectionSpellUI : MonoBehaviour
         newPiece.pieceType = data.pieceType;
         newPiece.pieceSprite = data.pieceSprite;
         newPiece.SetPosition(spawn, BoardInitializer.Instance.GetWorldPosition(spawn));
+        newPiece.MarkAsResurrected();//Used for visual only inside ChessPiece.cs for now
 
         ChessBoard.Instance.PlacePiece(newPiece, spawn);
         ChessBoard.Instance.graveyard.RemoveCapturedPiece(data);

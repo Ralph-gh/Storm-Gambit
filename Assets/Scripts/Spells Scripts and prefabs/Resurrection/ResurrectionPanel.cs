@@ -54,6 +54,7 @@ public class ResurrectionPanel : MonoBehaviour
         newPiece.pieceType = data.pieceType;
         newPiece.pieceSprite = data.pieceSprite;
         newPiece.SetPosition(spawn, BoardInitializer.Instance.GetWorldPosition(spawn));
+        newPiece.MarkAsResurrected();//for visual only for now
 
         ChessBoard.Instance.PlacePiece(newPiece, spawn);
         ChessBoard.Instance.graveyard.RemoveCapturedPiece(data);

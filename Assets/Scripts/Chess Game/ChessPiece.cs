@@ -42,6 +42,7 @@ public class ChessPiece : MonoBehaviour
     [SerializeField] private Color hoverColor = new Color(0.4f, 0.6f, 1f, 0.85f); // soft icy tint
     private SpriteRenderer _sr;
     private Color _baseColor;
+    private bool isResurrected = false;
 
     void Awake()
     {
@@ -302,4 +303,16 @@ public class ChessPiece : MonoBehaviour
         int y = Mathf.FloorToInt(worldPos.y / cellSize);
         return new Vector2Int(x, y);
     }
+
+    public void MarkAsResurrected()                 //currently used for visual coloring only
+    {
+        isResurrected = true;
+        if (_sr != null)
+        {
+            // Soft yellow tint (permanent)
+            _sr.color = new Color(1f, 0.95f, 0.5f, 1f);
+        }
+    }
 }
+
+
