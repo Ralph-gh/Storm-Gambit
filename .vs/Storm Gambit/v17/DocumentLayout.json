@@ -7,11 +7,11 @@
       "RelativeMoniker": "D:0:0:{4F775C81-8B19-1FBE-4E5F-B4483DFBD379}|Assembly-CSharp.csproj|solutionrelative:assets\\scripts\\spells scripts and prefabs\\teleportation\\teleportationspellui.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{4F775C81-8B19-1FBE-4E5F-B4483DFBD379}|Assembly-CSharp.csproj|c:\\users\\ralph ghnatios\\storm gambit\\assets\\scripts\\spells scripts and prefabs\\teleportation\\teleportpulse.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "AbsoluteMoniker": "D:0:0:{4F775C81-8B19-1FBE-4E5F-B4483DFBD379}|Assembly-CSharp.csproj|C:\\Users\\Ralph Ghnatios\\Storm Gambit\\assets\\scripts\\spells scripts and prefabs\\teleportation\\teleportpulse.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{4F775C81-8B19-1FBE-4E5F-B4483DFBD379}|Assembly-CSharp.csproj|solutionrelative:assets\\scripts\\spells scripts and prefabs\\teleportation\\teleportpulse.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{4F775C81-8B19-1FBE-4E5F-B4483DFBD379}|Assembly-CSharp.csproj|c:\\users\\ralph ghnatios\\storm gambit\\assets\\scripts\\spells scripts and prefabs\\teleportation\\teleportvfx.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "AbsoluteMoniker": "D:0:0:{4F775C81-8B19-1FBE-4E5F-B4483DFBD379}|Assembly-CSharp.csproj|C:\\Users\\Ralph Ghnatios\\Storm Gambit\\assets\\scripts\\spells scripts and prefabs\\teleportation\\teleportvfx.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{4F775C81-8B19-1FBE-4E5F-B4483DFBD379}|Assembly-CSharp.csproj|solutionrelative:assets\\scripts\\spells scripts and prefabs\\teleportation\\teleportvfx.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
@@ -124,7 +124,7 @@
               "RelativeDocumentMoniker": "Assets\\Scripts\\Spells Scripts and prefabs\\Teleportation\\TeleportationSpellUI.cs",
               "ToolTip": "C:\\Users\\Ralph Ghnatios\\Storm Gambit\\Assets\\Scripts\\Spells Scripts and prefabs\\Teleportation\\TeleportationSpellUI.cs",
               "RelativeToolTip": "Assets\\Scripts\\Spells Scripts and prefabs\\Teleportation\\TeleportationSpellUI.cs",
-              "ViewState": "AgIAAAoAAAAAAAAAAAAQwCAAAAARAAAAAAAAAA==",
+              "ViewState": "AgIAAAgAAAAAAAAAAAA+wCEAAAANAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2025-09-02T18:09:10.037Z",
               "EditorCaption": ""
@@ -139,8 +139,7 @@
               "RelativeToolTip": "Assets\\Scripts\\Spells Scripts and prefabs\\Teleportation\\TeleportPulse.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAC8AAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-09-02T17:55:13.955Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-09-02T17:55:13.955Z"
             },
             {
               "$type": "Document",
@@ -152,8 +151,7 @@
               "RelativeToolTip": "Assets\\Scripts\\Spells Scripts and prefabs\\Teleportation\\TeleportVFX.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAACMAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-09-02T17:54:25.749Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-09-02T17:54:25.749Z"
             },
             {
               "$type": "Document",
