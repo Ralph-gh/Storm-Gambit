@@ -38,6 +38,16 @@ public class ChessPiece : MonoBehaviour
     public GameObject divineSpherePrefab;   // assign the sphere prefab in the Inspector
     private GameObject _divineSphere;       // runtime instance
 
+    //Hover Highlights
+    [SerializeField] private Color hoverColor = new Color(0.4f, 0.6f, 1f, 0.85f); // soft icy tint
+    private SpriteRenderer _sr;
+    private Color _baseColor;
+
+    void Awake()
+    {
+        _sr = GetComponent<SpriteRenderer>();
+        if (_sr != null) _baseColor = _sr.color;
+    }
     public void SetPosition(Vector2Int cellPosition, Vector3 worldPosition)
     {
         currentCell = cellPosition;
@@ -104,6 +114,16 @@ public class ChessPiece : MonoBehaviour
         if (_turnListener != null && TurnManager.Instance != null)
             TurnManager.Instance.OnTurnChanged -= _turnListener;
     }
+
+    void OnMouseEnter()
+    {
+        if (_sr != null) _sr.color = hoverColor;
+    }
+
+    void OnMouseExit()
+    {
+        if (_sr != null) _sr.color = _baseColor;
+    }
     void OnMouseDown()
     {
         if (ChessBoard.Instance.gameOver) return;
@@ -146,6 +166,10 @@ public class ChessPiece : MonoBehaviour
         }
         isDragging = false;
         canDrag = false;
+        if (_sr != null)
+        {
+            _sr.color = _baseColor;
+        }
 
         // Turn enforcement
         if (!TurnManager.Instance.IsPlayersTurn(team))
