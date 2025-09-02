@@ -29,7 +29,7 @@ public class TeleportationSpellUI : MonoBehaviour
                 {
                     selectedPiece = piece;
                     Debug.Log("Selected " + piece.name);
-                    // (Optional) TeleportVFX.Instance?.PlayAt(pieceAtCell.transform.position); // selection ping
+                    TeleportVFX.Instance?.PlayAt(piece.transform.position); // selection ping
                 }
             }
             else
