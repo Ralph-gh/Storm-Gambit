@@ -121,4 +121,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   team: 1
   pieceType: 3
+  hasMoved: 0
   currentCell: {x: 0, y: 0}
+  moveClip: {fileID: 0}
+  audioSource: {fileID: 0}
+  hasBeenInitialized: 0
+  startingCell: {x: 0, y: 0}
+  originalPrefab: {fileID: 0}
+  pieceSprite: {fileID: 0}
+  divineSpherePrefab: {fileID: 111949520822619133, guid: cc0c7e9db27178a41851d50010eff978, type: 3}

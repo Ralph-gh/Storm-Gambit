@@ -126,6 +126,11 @@ MonoBehaviour:
   currentCell: {x: 0, y: 0}
   moveClip: {fileID: 8300000, guid: bf4f510130605234cb57de82ceed91db, type: 3}
   audioSource: {fileID: 757212991241222918}
+  hasBeenInitialized: 0
+  startingCell: {x: 0, y: 0}
+  originalPrefab: {fileID: 0}
+  pieceSprite: {fileID: 0}
+  divineSpherePrefab: {fileID: 111949520822619133, guid: cc0c7e9db27178a41851d50010eff978, type: 3}
 --- !u!82 &757212991241222918
 AudioSource:
   m_ObjectHideFlags: 0

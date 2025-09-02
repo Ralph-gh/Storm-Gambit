@@ -34,6 +34,10 @@ public class ChessPiece : MonoBehaviour
     private Vector3 originalPosition;
     private Vector3 offset;
 
+    // For visual purpose only
+    public GameObject divineSpherePrefab;   // assign the sphere prefab in the Inspector
+    private GameObject _divineSphere;       // runtime instance
+
     public void SetPosition(Vector2Int cellPosition, Vector3 worldPosition)
     {
         currentCell = cellPosition;
@@ -53,6 +57,16 @@ public class ChessPiece : MonoBehaviour
 
         divinelyProtected = true;
         protectionOwnerTeam = team;
+
+        // Spawn + parent the sphere (uses prefab's preset scale)
+        if (divineSpherePrefab != null && _divineSphere == null)
+        {
+            _divineSphere = Instantiate(divineSpherePrefab, transform.position, Quaternion.identity);
+            _divineSphere.transform.SetParent(transform, worldPositionStays: true);
+            _divineSphere.transform.localPosition = Vector3.zero; // sit on the piece
+                                                                  // NOTE: we don't touch localScale, so it keeps the prefab’s preset scale
+        }
+
 
         // Optional: add a glow/icon here
         // e.g. GetComponent<SpriteRenderer>().color = new Color(1f, 1f, 1f, 0.8f);
@@ -75,6 +89,12 @@ public class ChessPiece : MonoBehaviour
         if (!divinelyProtected) return;
         divinelyProtected = false;
 
+        // Clean up the sphere if present
+        if (_divineSphere != null)
+        {
+            Destroy(_divineSphere);
+            _divineSphere = null;
+        }
         // Optional: remove glow/icon here
         // e.g. GetComponent<SpriteRenderer>().color = Color.white;
     }
