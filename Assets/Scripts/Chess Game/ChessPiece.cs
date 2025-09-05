@@ -215,10 +215,35 @@ public class ChessPiece : MonoBehaviour
         }
 
         // Finalize move
+        Vector2Int oldCell = currentCell;  
         ChessBoard.Instance.MovePiece(currentCell, newCell);
         currentCell = newCell;
         hasMoved = true;
         transform.position = snappedPosition;
+
+        // If this was a king castling move, also move the rook
+        if (pieceType == PieceType.King && Mathf.Abs(newCell.x - oldCell.x) == 2)
+        {
+            bool kingSide = newCell.x > oldCell.x;
+
+            int rookFromX = kingSide ? 7 : 0;
+            int rookToX = kingSide ? (newCell.x - 1) : (newCell.x + 1);
+
+            Vector2Int rookFrom = new Vector2Int(rookFromX, newCell.y);
+            Vector2Int rookTo = new Vector2Int(rookToX, newCell.y);
+
+            ChessPiece rook = ChessBoard.Instance.GetPieceAt(rookFrom);
+            if (rook != null && rook.pieceType == PieceType.Rook && rook.team == team)
+            {
+                // Update board array
+                ChessBoard.Instance.MovePiece(rookFrom, rookTo);
+
+                // Update rook component and transform
+                rook.currentCell = rookTo;
+                rook.hasMoved = true;
+                rook.transform.position = BoardInitializer.Instance.GetWorldPosition(rookTo);
+            }
+        }
 
         if (audioSource != null && moveClip != null)
             audioSource.PlayOneShot(moveClip);
@@ -287,9 +312,6 @@ public class ChessPiece : MonoBehaviour
                     team,
                     ChessBoard.Instance.GetPieceAt
                 );
-
-
-            // Add other piece cases later...
 
             default:
                 return false;
