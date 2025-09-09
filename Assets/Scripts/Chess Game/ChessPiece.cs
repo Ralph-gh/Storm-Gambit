@@ -216,7 +216,21 @@ public class ChessPiece : MonoBehaviour
             
             return; // stop here to avoid switching turns before promotion
         }
-
+        // If we’re in a networked session, send the request via RPC and STOP local apply.
+        var nm = Unity.Netcode.NetworkManager.Singleton;
+        if (nm && nm.IsListening)
+        {
+            if (NetPlayer.Local != null && NetPlayer.Local.CanAct())
+            {
+                NetPlayer.Local.TryRequestMove(this.Id, newCell);
+            }
+            else
+            {
+                // not your turn or not owned, snap back
+                transform.position = originalPosition;
+            }
+            return; // leave; server will validate and broadcast via ClientRpc
+        }
         // Finalize move
         Vector2Int oldCell = currentCell;  
         ChessBoard.Instance.MovePiece(currentCell, newCell);

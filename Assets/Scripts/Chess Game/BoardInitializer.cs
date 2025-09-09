@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 public class BoardInitializer : MonoBehaviour
 {
-    private int _nextPieceId = 0; // For network
+    private int nextId = 0;//assign ID
 
     [Header("References")]
     public Tilemap tilemap;
@@ -121,8 +121,8 @@ public class BoardInitializer : MonoBehaviour
                         cp.originalPrefab = prefabLookup[pieceName];
                         cp.pieceSprite = pieceGO.GetComponent<SpriteRenderer>().sprite;
 
-                        cp.Id = _nextPieceId++;
-                        ChessBoard.Instance.RegisterPiece(cp);
+                        cp.Id = nextId++;
+                        //ChessBoard.Instance.RegisterPiece(cp);
                         ChessBoard.Instance.PlacePiece(cp, new Vector2Int(x, y));
                     }
 
