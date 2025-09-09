@@ -131,64 +131,101 @@ public class ChessPiece : MonoBehaviour
     void OnMouseDown()
     {
         if (ChessBoard.Instance.gameOver) return;
-        if (!TurnManager.Instance.IsPlayersTurn(team))
+
+        bool isNet = Unity.Netcode.NetworkManager.Singleton && Unity.Netcode.NetworkManager.Singleton.IsListening;
+
+        // Multiplayer: only the local owner of this side AND only on their turn may drag
+        if (isNet)
+        {
+            if (NetPlayer.Local == null || NetPlayer.Local.Side.Value != team || !NetPlayer.Local.CanAct())
+            {
+                canDrag = false;
+                isDragging = false;
+                return;
+            }
+        }
+        // Offline: same as before
+        else if (!TurnManager.Instance.IsPlayersTurn(team))
         {
             canDrag = false;
-            isDragging = false; // critical line to avoid pieces dragging by mistake
+            isDragging = false;
             return;
         }
+
         canDrag = true;
         isDragging = true;
         originalPosition = transform.position;
         offset = transform.position - Camera.main.ScreenToWorldPoint(Input.mousePosition);
-        offset.z = 0; // lock to 2D plane
-        isDragging = true;
+        offset.z = 0;
     }
 
     void OnMouseDrag()
     {
-        if (!isDragging || !canDrag || ChessBoard.Instance.gameOver)
-            return;
-        if (!TurnManager.Instance.IsPlayersTurn(team)) return; // double protection
-        {
-            
-            Vector3 mousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-            mousePos.z = 0f; // Force to 2D layer
-            transform.position = mousePos + offset;
-        }
-    }
+        if (!isDragging || !canDrag || ChessBoard.Instance.gameOver) return;
 
+        bool isNet = Unity.Netcode.NetworkManager.Singleton && Unity.Netcode.NetworkManager.Singleton.IsListening;
+        if (isNet)
+        {
+            if (NetPlayer.Local == null || NetPlayer.Local.Side.Value != team || !NetPlayer.Local.CanAct()) return;
+        }
+        else
+        {
+            if (!TurnManager.Instance.IsPlayersTurn(team)) return;
+        }
+
+        Vector3 mousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+        mousePos.z = 0f;
+        transform.position = mousePos + offset;
+    }
     void OnMouseUp()
     {
-       
 
-        // Cancel interaction early if dragging was denied or game is over
-        if (!isDragging || ChessBoard.Instance.gameOver || !canDrag)
-        {
-            
-            return;
-        }
+
+        if (!isDragging || ChessBoard.Instance.gameOver || !canDrag) return;
         isDragging = false;
         canDrag = false;
-        if (_sr != null)
-        {
-            _sr.color = _baseColor;
-        }
 
-        // Turn enforcement
-        if (!TurnManager.Instance.IsPlayersTurn(team))
+        if (_sr != null) _sr.color = _baseColor;
+
+        bool isNet = Unity.Netcode.NetworkManager.Singleton && Unity.Netcode.NetworkManager.Singleton.IsListening;
+
+        Vector3 snappedPosition = SnapToGrid(transform.position);
+        Vector2Int newCell = WorldToCell(snappedPosition);
+
+        // Turn enforcement (net or offline)
+        if (isNet)
+        {
+            if (NetPlayer.Local != null && NetPlayer.Local.CanAct())
+                NetPlayer.Local.TryRequestMove(this.Id, newCell);
+
+            // Snap back only if NOT host
+            if (!Unity.Netcode.NetworkManager.Singleton.IsHost)
+                transform.position = originalPosition;
+
+            return;
+        }
+        else if (!TurnManager.Instance.IsPlayersTurn(team))
         {
             transform.position = originalPosition;
             return;
         }
 
-        Vector3 snappedPosition = SnapToGrid(transform.position);
-        Vector2Int newCell = WorldToCell(snappedPosition);
+        
 
         if (!IsValidMove(snappedPosition))
         {
             transform.position = originalPosition;
             return;
+        }
+
+        // --- NETWORKED PATH: request server, but DO NOT stick locally ---
+        if (isNet)
+        {
+            // Optional: block captures on divinely protected targets here and just snap back
+            // Ask server; immediately snap back so only server decides the final position
+            NetPlayer.Local.TryRequestMove(this.Id, newCell);
+            transform.position = originalPosition; // <— prevents "ghost move" before RPC
+            return; // wait for ApplyMoveClientRpc to move both boards
         }
 
         // Capture logic (before promotion)

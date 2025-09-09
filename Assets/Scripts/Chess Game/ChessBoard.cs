@@ -21,7 +21,8 @@ public class ChessBoard : MonoBehaviour
     public PromotionSelector promotionSelector;
     public Graveyard graveyard = new();
     private Dictionary<int, ChessPiece> idLookup = new Dictionary<int, ChessPiece>();//Dictionnary lookup for networking
-    
+    public void RegisterPiece(ChessPiece p) { if (p) idLookup[p.Id] = p; }
+    public void UnregisterPiece(ChessPiece p) { if (p) idLookup.Remove(p.Id); }
 
 
     public void TriggerPromotion(ChessPiece pawn)
@@ -238,19 +239,21 @@ public bool IsLegalMove(ChessPiece piece, Vector2Int to)
         }
     }
 
-    
+
 
     // === NEW: local visual+board apply (used by ClientRpc) ===
     public void MovePieceLocal(ChessPiece piece, Vector2Int to)
     {
-        Vector2Int from = piece.currentCell;
-        MovePiece(from, to);
+        var from = piece.currentCell;
+        board[to.x, to.y] = piece;
+        board[from.x, from.y] = null;
         piece.currentCell = to;
         piece.hasMoved = true;
-
-        // snap to world
-        piece.transform.position = BoardInitializer.Instance.GetWorldPosition(to);
+        piece.transform.position = BoardInitializer.Instance
+            ? BoardInitializer.Instance.GetWorldPosition(to)
+            : new Vector3((to.x + 0.5f) * 0.5f, (to.y + 0.5f) * 0.5f, 0f); // fallback
     }
+
 
     // === NEW: remove on clients (used when ApplyMoveClientRpc says a capture happened) ===
     public void RemovePieceLocal(ChessPiece piece)
@@ -260,8 +263,18 @@ public bool IsLegalMove(ChessPiece piece, Vector2Int to)
         if (piece) Destroy(piece.gameObject);
     }
 
+
+    
     public ChessPiece GetPieceById(int id)
     {
-        return idLookup.TryGetValue(id, out var p) ? p : null;
+        ChessPiece p;
+        return idLookup.TryGetValue(id, out p) ? p : null;
+    }
+
+    public void RebuildIndexFromScene()
+    {
+        idLookup.Clear();
+        var all = FindObjectsByType<ChessPiece>(FindObjectsInactive.Exclude, FindObjectsSortMode.None);
+        foreach (var p in all) idLookup[p.Id] = p;
     }
 }

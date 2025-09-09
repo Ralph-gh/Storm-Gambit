@@ -122,7 +122,7 @@ public class BoardInitializer : MonoBehaviour
                         cp.pieceSprite = pieceGO.GetComponent<SpriteRenderer>().sprite;
 
                         cp.Id = nextId++;
-                        //ChessBoard.Instance.RegisterPiece(cp);
+                        ChessBoard.Instance.RegisterPiece(cp);
                         ChessBoard.Instance.PlacePiece(cp, new Vector2Int(x, y));
                     }
 

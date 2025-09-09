@@ -35,8 +35,10 @@ public class NetGameBoot : MonoBehaviour
             nm.StartHost();
 
             // Spawn the GameState on the host
+            /*
             var gs = Instantiate(gameStatePrefab);
             gs.GetComponent<NetworkObject>().Spawn(true);
+            */
         }
 
         // Start Client

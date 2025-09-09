@@ -48,7 +48,16 @@ public class GameState : NetworkBehaviour
     private void ApplyMoveClientRpc(int pieceId, int fromX, int fromY, int toX, int toY, int capturedId)
     {
         var piece = ChessBoard.Instance.GetPieceById(pieceId);
-        if (piece == null) return;
+        if (piece == null)
+        {
+            ChessBoard.Instance.RebuildIndexFromScene();
+            piece = ChessBoard.Instance.GetPieceById(pieceId);
+            if (piece == null)
+            {
+                Debug.LogWarning($"[ApplyMoveClientRpc] Can't find piece id={pieceId} on this client.");
+                return;
+            }
+        }
 
         if (capturedId >= 0)
         {
@@ -57,8 +66,7 @@ public class GameState : NetworkBehaviour
         }
 
         ChessBoard.Instance.MovePieceLocal(piece, new Vector2Int(toX, toY));
-        var tm = TurnManager.Instance;
-        if (tm != null) tm.SyncTurn(CurrentTurn.Value);
+        TurnManager.Instance?.SyncTurn(CurrentTurn.Value);
     }
 
     // Optional: end turn without moving (e.g., skip/cast-only turn)
@@ -71,4 +79,13 @@ public class GameState : NetworkBehaviour
         if (netPlayer.Side.Value != CurrentTurn.Value) return;
         CurrentTurn.Value = (CurrentTurn.Value == TeamColor.White) ? TeamColor.Black : TeamColor.White;
     }
+    public override void OnNetworkSpawn()
+    {
+        base.OnNetworkSpawn();
+        Instance = this;
+        if (IsServer) CurrentTurn.Value = TeamColor.White; // start like single-player
+        Debug.Log($"[GameState] OnNetworkSpawn IsServer={IsServer} IsClient={IsClient}");
+    }
+
+
 }
