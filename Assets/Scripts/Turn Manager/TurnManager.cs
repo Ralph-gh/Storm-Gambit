@@ -28,4 +28,10 @@ public class TurnManager : MonoBehaviour
     {
         return currentTurn == team;
     }
+
+    public void SyncTurn(TeamColor newTurn)
+    {
+        currentTurn = newTurn;
+        OnTurnChanged?.Invoke(newTurn);
+    }
 }

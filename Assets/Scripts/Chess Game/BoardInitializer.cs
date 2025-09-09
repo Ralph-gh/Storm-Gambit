@@ -4,8 +4,11 @@ using System.Collections.Generic;
 
 public class BoardInitializer : MonoBehaviour
 {
+    private int _nextPieceId = 0; // For network
+
     [Header("References")]
     public Tilemap tilemap;
+    
 
     [Header("Prefabs")]
     public GameObject White_Pawn;
@@ -109,15 +112,17 @@ public class BoardInitializer : MonoBehaviour
                         if (sr != null)
                         {
                             cp.pieceSprite = sr.sprite; //  Assign sprite to be used in resurrection UI
-                           // Debug.Log($"[INIT] Stored sprite for {cp.pieceType}: {sr.sprite?.name}");
+                           
                         }
-                       
+                        
                         cp.SetPosition(new Vector2Int(x, y), worldPos);
                         cp.team = pieceName.StartsWith("White") ? TeamColor.White : TeamColor.Black;
                         cp.startingCell = new Vector2Int(x, y);
                         cp.originalPrefab = prefabLookup[pieceName];
                         cp.pieceSprite = pieceGO.GetComponent<SpriteRenderer>().sprite;
 
+                        cp.Id = _nextPieceId++;
+                        ChessBoard.Instance.RegisterPiece(cp);
                         ChessBoard.Instance.PlacePiece(cp, new Vector2Int(x, y));
                     }
 

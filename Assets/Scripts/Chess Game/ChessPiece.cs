@@ -7,7 +7,7 @@ public enum TeamColor { White, Black }
 public enum PieceType { Pawn, Knight, Bishop, Rook, Queen, King}
 public class ChessPiece : MonoBehaviour
 {
-    
+    public int Id { get; set; }
     public TeamColor team;
     public PieceType pieceType;
     public bool hasMoved= false;
@@ -43,6 +43,9 @@ public class ChessPiece : MonoBehaviour
     private SpriteRenderer _sr;
     private Color _baseColor;
     private bool isResurrected = false;
+
+    //Network
+    
 
     void Awake()
     {

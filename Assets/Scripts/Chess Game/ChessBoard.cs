@@ -20,6 +20,8 @@ public class ChessBoard : MonoBehaviour
     public BoardInitializer initializer;
     public PromotionSelector promotionSelector;
     public Graveyard graveyard = new();
+    private readonly Dictionary<int, ChessPiece> _byId = new Dictionary<int, ChessPiece>();//Dictionnary for networking
+
 
     public void TriggerPromotion(ChessPiece pawn)
     {
@@ -190,5 +192,70 @@ public class ChessBoard : MonoBehaviour
             return team == TeamColor.White ? whiteCaptured : blackCaptured;
         }
     }
+    public void RegisterPiece(ChessPiece p)
+    {
+        if (!_byId.ContainsKey(p.Id))
+            _byId[p.Id] = p;
+    }
 
+    public void UnregisterPiece(ChessPiece p)
+    {
+        if (p != null) _byId.Remove(p.Id);
+    }
+
+    public ChessPiece GetPieceById(int id)
+    {
+        return _byId.TryGetValue(id, out var p) ? p : null;
+    }
+
+    public bool IsLegalMove(ChessPiece piece, Vector2Int targetCell)
+    {
+        switch (piece.pieceType)
+        {
+            case PieceType.Pawn: return Pawn.IsValidMove(piece.currentCell, targetCell, piece.team, piece.hasMoved, GetPieceAt);
+            case PieceType.Knight: return Knight.IsValidMove(piece.currentCell, targetCell, piece.team, GetPieceAt);
+            case PieceType.Bishop: return Bishop.IsValidMove(piece.currentCell, targetCell, piece.team, GetPieceAt);
+            case PieceType.Rook: return Rook.IsValidMove(piece.currentCell, targetCell, piece.team, GetPieceAt);
+            case PieceType.Queen: return Queen.IsValidMove(piece.currentCell, targetCell, piece.team, GetPieceAt);
+            case PieceType.King: return King.IsValidMove(piece.currentCell, targetCell, piece.team, GetPieceAt);
+            default: return false;
+        }
+    }
+
+    // Authoritative server-side apply (no input here)
+    public void ExecuteMoveServer(ChessPiece piece, Vector2Int to)
+    {
+        // capture (server-side)
+        var target = GetPieceAt(to);
+        if (target != null && target.team != piece.team)
+        {
+            CapturePiece(to);
+            UnregisterPiece(target);
+        }
+
+        // move board state
+        MovePiece(piece.currentCell, to);
+        piece.currentCell = to;
+        piece.hasMoved = true;
+
+        // (Optional) snap server transform; clients will mirror via RPC
+        piece.transform.position = BoardInitializer.Instance.GetWorldPosition(to);
+    }
+
+    // Client-side visuals only (called by RPC)
+    public void MovePieceLocal(ChessPiece piece, Vector2Int to)
+    {
+        MovePiece(piece.currentCell, to);
+        piece.currentCell = to;
+        piece.transform.position = BoardInitializer.Instance.GetWorldPosition(to);
+    }
+
+    public void RemovePieceLocal(ChessPiece piece)
+    {
+        if (piece == null) return;
+        // remove from board array
+        if (IsInsideBoard(piece.currentCell) && GetPieceAt(piece.currentCell) == piece)
+            MovePiece(piece.currentCell, piece.currentCell); // noop safety
+        piece.gameObject.SetActive(false);
+    }
 }
