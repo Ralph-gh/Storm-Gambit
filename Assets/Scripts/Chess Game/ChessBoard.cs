@@ -313,7 +313,7 @@ public class ChessBoard : MonoBehaviour
                 idLookup[p.Id] = p;
             }
         }
-        Debug.Log($"[BoardRebuild] Re-indexed {all.Length} pieces.");
+        
     }
 
     public void AddCaptured(CapturedPieceData data)

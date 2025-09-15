@@ -123,19 +123,22 @@ public class GameState : NetworkBehaviour
     public override void OnNetworkSpawn()
     {
         base.OnNetworkSpawn();
-        Instance = this;
-        if (IsServer)
+        if (IsServer) StartCoroutine(BoardHeartbeat());
+    }
+
+    private System.Collections.IEnumerator BoardHeartbeat()
+    {
+        // small delay to let initializers finish
+        yield return null;
+
+        var board = ChessBoard.Instance;
+        var wait = new WaitForSeconds(0.5f);   // tune to taste
+
+        while (Unity.Netcode.NetworkManager.Singleton && Unity.Netcode.NetworkManager.Singleton.IsListening)
         {
-            CurrentTurn.Value = TeamColor.White;
-            StartCoroutine(RebuildNextFrame());
+            board.RebuildBoardAndIndexFromScene();
+            yield return wait;
         }
     }
-
-    private System.Collections.IEnumerator RebuildNextFrame()
-    {
-        yield return null; // wait for BoardInitializer.Start() to finish
-        ChessBoard.Instance.RebuildBoardAndIndexFromScene();
-    }
-
 
 }
