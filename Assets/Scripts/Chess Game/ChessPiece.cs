@@ -8,13 +8,14 @@ public enum PieceType { Pawn, Knight, Bishop, Rook, Queen, King}
 public class ChessPiece : MonoBehaviour
 {
     public int Id { get; set; }
+    private bool _divineOppTurnSeen = false; 
     public TeamColor team;
     public PieceType pieceType;
     public bool hasMoved= false;
     public Vector2Int currentCell;
     public AudioClip moveClip;
     public AudioSource audioSource;
-    private bool canDrag = true; //  new flag
+    private bool canDrag = true; 
     public Vector2Int initialCell { get; private set; } // Added tracked initial cell
     public bool hasBeenInitialized = false;
 
@@ -72,23 +73,36 @@ public class ChessPiece : MonoBehaviour
         divinelyProtected = true;
         protectionOwnerTeam = team;
 
-        // Spawn + parent the sphere (uses prefab's preset scale)
+        // Spawn + parent
         if (divineSpherePrefab != null && _divineSphere == null)
         {
             _divineSphere = Instantiate(divineSpherePrefab, transform.position, Quaternion.identity);
-            _divineSphere.transform.SetParent(transform, worldPositionStays: true);
-            _divineSphere.transform.localPosition = Vector3.zero; // sit on the piece
-                                                                  // NOTE: we don't touch localScale, so it keeps the prefab’s preset scale
+            _divineSphere.transform.SetParent(transform, worldPositionStays: false); // inherit scale
+            _divineSphere.transform.localPosition = Vector3.zero;
+
+            // Make sure it renders above the piece
+            var pieceSR = GetComponent<SpriteRenderer>();
+            var sphereSR = _divineSphere.GetComponent<SpriteRenderer>();
+            if (pieceSR && sphereSR)
+            {
+                sphereSR.sortingLayerID = pieceSR.sortingLayerID;
+                sphereSR.sortingOrder = pieceSR.sortingOrder + 1;
+            }
         }
 
-
-        // Optional: add a glow/icon here
-        // e.g. GetComponent<SpriteRenderer>().color = new Color(1f, 1f, 1f, 0.8f);
-
-        // When it becomes the owner's turn again, the opponent's turn has finished -> remove
+        // Wait for: owner -> opponent -> owner, then remove
+        _divineOppTurnSeen = false; // reset every time we apply
         _turnListener = (TeamColor activeTeam) =>
         {
-            if (activeTeam == protectionOwnerTeam)
+            // First time we see the opponent's turn, arm the removal
+            if (!_divineOppTurnSeen && activeTeam != protectionOwnerTeam)
+            {
+                _divineOppTurnSeen = true;
+                return;
+            }
+
+            // After we've seen opponent, remove when it returns to owner
+            if (_divineOppTurnSeen && activeTeam == protectionOwnerTeam)
             {
                 RemoveDivineProtection();
                 TurnManager.Instance.OnTurnChanged -= _turnListener;

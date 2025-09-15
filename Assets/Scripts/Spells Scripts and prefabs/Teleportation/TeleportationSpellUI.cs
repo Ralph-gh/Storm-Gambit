@@ -59,8 +59,11 @@ public class TeleportationSpellUI : MonoBehaviour
         // after move:
         Vector3 dest = piece.transform.position;
         TeleportVFX.Instance?.PlayJump(origin, dest);
+        var myTeam = piece.team;
+        if (TurnManager.Instance.IsPlayersTurn(myTeam))
+            TurnManager.Instance.RegisterFreeSpellCast();
 
-        TurnManager.Instance.NextTurn();
+
         Debug.Log("Teleported to " + targetCell);
     }
 

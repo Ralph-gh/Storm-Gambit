@@ -23,7 +23,9 @@ public class DivineProtectionSpellUI : MonoBehaviour
             if (piece != null && piece.team == TurnManager.Instance.currentTurn)
             {
                 piece.ApplyDivineProtectionOneTurn();  // <-- core effect
-                TurnManager.Instance.NextTurn();       // same UX as Teleport: ends your turn
+                //TurnManager.Instance.NextTurn();       commented to no longer end turn
+                if (TurnManager.Instance.IsPlayersTurn(piece.team))
+                    TurnManager.Instance.RegisterFreeSpellCast();
                 Destroy(gameObject);                   // close spell UI
             }
         }

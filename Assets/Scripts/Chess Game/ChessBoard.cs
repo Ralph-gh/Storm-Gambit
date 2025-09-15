@@ -204,30 +204,37 @@ public class ChessBoard : MonoBehaviour
     // Authoritative server-side apply (no input here)
     public void ExecuteMoveServer(ChessPiece piece, Vector2Int to)
     {
-        // capture if opponent on target
+        // capture bookkeeping (server-side)
         var capture = GetPieceAt(to);
         if (capture != null && capture.team != piece.team)
         {
-            // keep your capture side-effects minimal on server
-            // board bookkeeping only; visual destroy is done on clients in ApplyMoveClientRpc
             board[to.x, to.y] = null;
         }
 
-        // move board state server-side
+        // authoritative write – DO NOT read from board[from]
         Vector2Int from = piece.currentCell;
-        MovePiece(from, to);
+        board[from.x, from.y] = null;   // clear whatever might be there
+        board[to.x, to.y] = piece;    // write the mover directly
         piece.currentCell = to;
         piece.hasMoved = true;
     }
 
     // Client-side visuals only (called by RPC)
     // === NEW: rules check wrapper (reuses your existing validators) ===
-public bool IsLegalMove(ChessPiece piece, Vector2Int to)
+    public bool IsLegalMove(ChessPiece piece, Vector2Int to)
     {
+        var victim = GetPieceAt(to);
         switch (piece.pieceType)
         {
             case PieceType.Pawn:
-                return Pawn.IsValidMove(piece.currentCell, to, piece.team, piece.hasMoved, GetPieceAt);
+                return Pawn.IsValidMove(
+                    piece.currentCell,
+                    to,
+                    piece.team,
+                    piece.hasMoved,
+                    GetPieceAt,
+                    victim != null
+                );
             case PieceType.Knight:
                 return Knight.IsValidMove(piece.currentCell, to, piece.team, GetPieceAt);
             case PieceType.Bishop:
@@ -319,5 +326,15 @@ public bool IsLegalMove(ChessPiece piece, Vector2Int to)
     {
         graveyard.RemoveCapturedPiece(data);
         OnGraveyardChanged?.Invoke();
+    }
+    public void EnsureBoardEntry(ChessPiece piece)
+    {
+        var c = piece.currentCell;
+        if (IsInsideBoard(c) && board[c.x, c.y] != piece)
+        {
+            board[c.x, c.y] = piece;
+            RegisterPiece(piece);
+            Debug.Log($"[BoardRepair] restored {piece.pieceType}#{piece.Id} at {c}");
+        }
     }
 }

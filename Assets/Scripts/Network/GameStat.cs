@@ -21,6 +21,7 @@ public class GameState : NetworkBehaviour
 
     public void RequestMoveServerRpc(int pieceId, int targetX, int targetY, ServerRpcParams p = default)
     {
+        
         var sender = p.Receive.SenderClientId;
         var player = NetPlayer.FindByClient(sender);
         if (player == null || player.Side.Value != CurrentTurn.Value)
@@ -31,6 +32,8 @@ public class GameState : NetworkBehaviour
 
         var piece = ChessBoard.Instance.GetPieceById(pieceId);
         if (piece == null) { Debug.Log($"[SRPC] no piece id={pieceId}"); return; }
+
+        ChessBoard.Instance.EnsureBoardEntry(piece);   // <- add this line
 
         Vector2Int to = new Vector2Int(targetX, targetY);
         if (!ChessBoard.Instance.IsInsideBoard(to)) { Debug.Log($"[SRPC] outside {to}"); return; }
@@ -121,8 +124,17 @@ public class GameState : NetworkBehaviour
     {
         base.OnNetworkSpawn();
         Instance = this;
-        if (IsServer) CurrentTurn.Value = TeamColor.White; // start like single-player
-        Debug.Log($"[GameState] OnNetworkSpawn IsServer={IsServer} IsClient={IsClient}");
+        if (IsServer)
+        {
+            CurrentTurn.Value = TeamColor.White;
+            StartCoroutine(RebuildNextFrame());
+        }
+    }
+
+    private System.Collections.IEnumerator RebuildNextFrame()
+    {
+        yield return null; // wait for BoardInitializer.Start() to finish
+        ChessBoard.Instance.RebuildBoardAndIndexFromScene();
     }
 
 

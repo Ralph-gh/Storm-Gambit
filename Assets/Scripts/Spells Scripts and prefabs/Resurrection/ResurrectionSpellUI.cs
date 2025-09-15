@@ -55,7 +55,9 @@ public class ResurrectionSpellUI : MonoBehaviour
 
         ChessBoard.Instance.PlacePiece(newPiece, spawn);
         ChessBoard.Instance.graveyard.RemoveCapturedPiece(data);
-        TurnManager.Instance.NextTurn();
+        if (TurnManager.Instance.IsPlayersTurn(data.team))
+            TurnManager.Instance.RegisterFreeSpellCast();
+
         Destroy(gameObject); // close UI
     }
 }
