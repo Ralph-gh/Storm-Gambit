@@ -18,56 +18,94 @@ public class GameState : NetworkBehaviour
     public bool IsMyTurn(TeamColor mySide) => CurrentTurn.Value == mySide;
 
     [ServerRpc(RequireOwnership = false)]
+
     public void RequestMoveServerRpc(int pieceId, int targetX, int targetY, ServerRpcParams p = default)
     {
-        var senderClientId = p.Receive.SenderClientId;
-        var netPlayer = NetPlayer.FindByClient(senderClientId);
-        if (netPlayer == null) return;
-        if (netPlayer.Side.Value != CurrentTurn.Value) return; // not your turn
+        var sender = p.Receive.SenderClientId;
+        var player = NetPlayer.FindByClient(sender);
+        if (player == null || player.Side.Value != CurrentTurn.Value)
+        {
+            Debug.Log($"[SRPC] not your turn | sender={sender} side={player?.Side.Value} turn={CurrentTurn.Value}");
+            return;
+        }
 
         var piece = ChessBoard.Instance.GetPieceById(pieceId);
-        if (piece == null) return;
+        if (piece == null) { Debug.Log($"[SRPC] no piece id={pieceId}"); return; }
 
-        Vector2Int from = piece.currentCell;
         Vector2Int to = new Vector2Int(targetX, targetY);
+        if (!ChessBoard.Instance.IsInsideBoard(to)) { Debug.Log($"[SRPC] outside {to}"); return; }
 
-        if (!ChessBoard.Instance.IsInsideBoard(to)) return;
-        if (!ChessBoard.Instance.IsLegalMove(piece, to)) return;
+        //  log what server sees on target before legality
+        var victim = ChessBoard.Instance.GetPieceAt(to);
+        Debug.Log($"[SRPC] check {piece.pieceType}#{piece.Id} {piece.team}  {to} | victim={(victim ? victim.pieceType.ToString() : "null")}");
 
-        var capture = ChessBoard.Instance.GetPieceAt(to);
-        if (capture != null && capture.team == piece.team) return;
+        if (victim != null && victim.team == piece.team) { Debug.Log("[SRPC] own piece on target"); return; }
+
+        // Validate chess rules (pawn-diagonal depends on victim != null)
+        bool legal = ChessBoard.Instance.IsLegalMove(piece, to);
+        if (!legal)
+        {
+            if (piece.pieceType == PieceType.Pawn)
+                Debug.Log($"[SRPC] illegal (pawn) to={to} victim={(victim ? victim.pieceType.ToString() : "null")} currentCell={piece.currentCell}");
+            else
+                Debug.Log($"[SRPC] illegal ({piece.pieceType}) to={to} currentCell={piece.currentCell}");
+            return;
+        }
+
+        int capturedId = -1;
+        if (victim != null)
+        {
+            capturedId = victim.Id;
+            Debug.Log($"[SRPC] CAPTURE {victim.pieceType}#{victim.Id} at {to}");
+            ChessBoard.Instance.CapturePiece(to);
+        }
+
+        // For diagnostics: log board “from” and “to”
+        var from = piece.currentCell;
+        Debug.Log($"[SRPC] MOVE {piece.pieceType}#{piece.Id} {from} {to}");
 
         ChessBoard.Instance.ExecuteMoveServer(piece, to);
 
-        ApplyMoveClientRpc(piece.Id, from.x, from.y, to.x, to.y, capture ? capture.Id : -1);
+        ApplyMoveClientRpc(piece.Id, to.x, to.y, capturedId);
 
-        CurrentTurn.Value = (CurrentTurn.Value == TeamColor.White) ? TeamColor.Black : TeamColor.White;
+        var next = (CurrentTurn.Value == TeamColor.White) ? TeamColor.Black : TeamColor.White;
+        CurrentTurn.Value = next;
+        Debug.Log($"[SRPC] Turn  {next}");
     }
 
     [ClientRpc]
-    private void ApplyMoveClientRpc(int pieceId, int fromX, int fromY, int toX, int toY, int capturedId)
+    void ApplyMoveClientRpc(int moverId, int toX, int toY, int capturedId)
     {
-        var piece = ChessBoard.Instance.GetPieceById(pieceId);
-        if (piece == null)
+        string role = Unity.Netcode.NetworkManager.Singleton.IsHost ? "HOST" : "CLIENT";
+        Debug.Log($"[RPC/{role}] mover={moverId} to=({toX},{toY}) captured={capturedId}");
+
+        var mover = ChessBoard.Instance.GetPieceById(moverId);
+        if (mover == null)
         {
+            Debug.LogWarning($"[RPC/{role}] mover {moverId} missing  rebuilding index");
             ChessBoard.Instance.RebuildIndexFromScene();
-            piece = ChessBoard.Instance.GetPieceById(pieceId);
-            if (piece == null)
-            {
-                Debug.LogWarning($"[ApplyMoveClientRpc] Can't find piece id={pieceId} on this client.");
-                return;
-            }
+            mover = ChessBoard.Instance.GetPieceById(moverId);
+            if (mover == null) { Debug.LogWarning($"[RPC/{role}] mover {moverId} STILL missing"); return; }
         }
 
         if (capturedId >= 0)
         {
-            var dead = ChessBoard.Instance.GetPieceById(capturedId);
-            if (dead) ChessBoard.Instance.RemovePieceLocal(dead);
+            var victim = ChessBoard.Instance.GetPieceById(capturedId);
+            if (victim != null)
+            {
+                Debug.Log($"[RPC/{role}] removing victim id={capturedId} at {victim.currentCell}");
+                ChessBoard.Instance.RemovePieceLocal(victim);
+            }
+            else
+            {
+                Debug.LogWarning($"[RPC/{role}] victim {capturedId} not found (already removed?)");
+            }
         }
 
-        ChessBoard.Instance.MovePieceLocal(piece, new Vector2Int(toX, toY));
+        ChessBoard.Instance.MovePieceLocal(mover, new Vector2Int(toX, toY));
         TurnManager.Instance?.SyncTurn(CurrentTurn.Value);
     }
+
 
     // Optional: end turn without moving (e.g., skip/cast-only turn)
     [ServerRpc(RequireOwnership = false)]

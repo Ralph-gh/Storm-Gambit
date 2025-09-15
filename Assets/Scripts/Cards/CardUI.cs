@@ -1,3 +1,6 @@
+using System.Collections.Generic;
+using System.Runtime.CompilerServices;
+using System.Text.RegularExpressions;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.UI;
@@ -25,6 +28,28 @@ public class CardUI : MonoBehaviour
     public void LoadCard(CardData data)
     {
         LoadCard(data, false, null);
+        if (cardData.spellType == SpellType.Resurrect)
+        {
+            TeamColor currentTeam = TurnManager.Instance.currentTurn;
+            var captured = ChessBoard.Instance.graveyard.GetCapturedByTeam(currentTeam);
+            SetInteractable(captured.Count > 0);
+        }
+    }
+
+    private void OnEnable()
+    {
+        // If card already loaded and it's Resurrect, ensure we’re listening
+        if (cardData != null && cardData.spellType == SpellType.Resurrect && ChessBoard.Instance != null)
+        {
+            ChessBoard.Instance.OnGraveyardChanged += UpdateResurrectInteractable;
+            UpdateResurrectInteractable(); // initial state
+        }
+    }
+
+    private void OnDisable()
+    {
+        if (cardData != null && cardData.spellType == SpellType.Resurrect && ChessBoard.Instance != null)
+            ChessBoard.Instance.OnGraveyardChanged -= UpdateResurrectInteractable;
     }
 
     public void LoadCard(CardData data, bool selectionMode, System.Action<CardData> onSelected)
@@ -34,19 +59,19 @@ public class CardUI : MonoBehaviour
         onSelectedCallback = onSelected;
 
         if (fullImage) fullImage.sprite = data.fullCardSprite;
-
         cardButton.onClick.RemoveAllListeners();
 
+        if (cardData.spellType == SpellType.Resurrect && ChessBoard.Instance != null)
+        {
+            ChessBoard.Instance.OnGraveyardChanged -= UpdateResurrectInteractable; // avoid double-sub
+            ChessBoard.Instance.OnGraveyardChanged += UpdateResurrectInteractable;
+            UpdateResurrectInteractable(); // set initial interactable
+        }
+
         if (isSelectionMode)
-        {
-            // In selection mode, clicking just reports the choice; no spell, no destroy.
             cardButton.onClick.AddListener(() => onSelectedCallback?.Invoke(cardData));
-        }
         else
-        {
-            // Normal flow (playable card)
             cardButton.onClick.AddListener(() => ActivateSpell());
-        }
     }
     void ActivateSpell()
     {
@@ -60,7 +85,14 @@ public class CardUI : MonoBehaviour
             Debug.Log($"Character card clicked (ignored for spell): {cardData.name}");
             return;
         }
-
+        /*if (cardData.spellType == SpellType.Resurrect)
+        {
+            TeamColor currentTeam = TurnManager.Instance.currentTurn;
+            var captured = ChessBoard.Instance.graveyard.GetCapturedByTeam(currentTeam);
+            if (captured.Count == 0) { Debug.Log("No captured pieces - resurrection not available."); }
+            SetInteractable(false); // disable this card
+            return; //don't open UI
+        } */
         if (cardData.spellUI != null)
         {
             Instantiate(cardData.spellUI, GameObject.Find("MainCanvas").transform);
@@ -72,12 +104,29 @@ public class CardUI : MonoBehaviour
             //SpellManager.Instance.ResolveSpell(cardData );
         }
 
+
         Destroy(gameObject); //  Remove the card from the hand after play
     }
     public void SetInteractable(bool value)
     {
         if (cardButton) cardButton.interactable = value;
     }
+    private void UpdateResurrectInteractable()
+    {
+        if (cardButton == null || ChessBoard.Instance == null) return;
 
+        TeamColor currentTeam = TurnManager.Instance.currentTurn;
+        List<ChessBoard.CapturedPieceData> captured =
+            ChessBoard.Instance.graveyard.GetCapturedByTeam(currentTeam); // <— declared here
+
+        // Enable only if there is at least 1 captured piece for the current player
+        SetInteractable(captured != null && captured.Count > 0);
+    }
+
+   /* private void OnDestroy()
+    {
+        if (cardData != null && cardData.spellType == SpellType.Resurrect && ChessBoard.Instance != null)
+            ChessBoard.Instance.OnGraveyardChanged -= UpdateResurrectInteractable;
+    }*/
 
 }

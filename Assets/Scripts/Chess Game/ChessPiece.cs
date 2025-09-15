@@ -141,6 +141,7 @@ public class ChessPiece : MonoBehaviour
             {
                 canDrag = false;
                 isDragging = false;
+                SnapBackToCurrentCell(); // snap back to center during multiplayer
                 return;
             }
         }
@@ -192,24 +193,6 @@ public class ChessPiece : MonoBehaviour
         Vector3 snappedPosition = SnapToGrid(transform.position);
         Vector2Int newCell = WorldToCell(snappedPosition);
 
-        // Turn enforcement (net or offline)
-        if (isNet)
-        {
-            if (NetPlayer.Local != null && NetPlayer.Local.CanAct())
-                NetPlayer.Local.TryRequestMove(this.Id, newCell);
-
-            // Snap back only if NOT host
-            if (!Unity.Netcode.NetworkManager.Singleton.IsHost)
-                transform.position = originalPosition;
-
-            return;
-        }
-        else if (!TurnManager.Instance.IsPlayersTurn(team))
-        {
-            transform.position = originalPosition;
-            return;
-        }
-
         
 
         if (!IsValidMove(snappedPosition))
@@ -223,8 +206,11 @@ public class ChessPiece : MonoBehaviour
         {
             // Optional: block captures on divinely protected targets here and just snap back
             // Ask server; immediately snap back so only server decides the final position
-            NetPlayer.Local.TryRequestMove(this.Id, newCell);
-            transform.position = originalPosition; // <— prevents "ghost move" before RPC
+
+            if (NetPlayer.Local != null && NetPlayer.Local.CanAct() && NetPlayer.Local.Side.Value == team)
+                NetPlayer.Local.TryRequestMove(this.Id, newCell);
+
+            SnapBackToCurrentCell();   // <- prevents floating overlays
             return; // wait for ApplyMoveClientRpc to move both boards
         }
 
@@ -388,6 +374,13 @@ public class ChessPiece : MonoBehaviour
             // Soft yellow tint (permanent)
             _sr.color = new Color(1f, 0.95f, 0.5f, 1f);
         }
+    }
+    void SnapBackToCurrentCell()
+    {
+        Vector3 p = BoardInitializer.Instance
+            ? BoardInitializer.Instance.GetWorldPosition(currentCell)
+            : transform.position; // fallback
+        transform.position = p;
     }
 }
 

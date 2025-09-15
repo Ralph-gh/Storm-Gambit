@@ -20,6 +20,7 @@ public class ChessBoard : MonoBehaviour
     public BoardInitializer initializer;
     public PromotionSelector promotionSelector;
     public Graveyard graveyard = new();
+    public event System.Action OnGraveyardChanged;
     private Dictionary<int, ChessPiece> idLookup = new Dictionary<int, ChessPiece>();//Dictionnary lookup for networking
     public void RegisterPiece(ChessPiece p) { if (p) idLookup[p.Id] = p; }
     public void UnregisterPiece(ChessPiece p) { if (p) idLookup.Remove(p.Id); }
@@ -72,11 +73,12 @@ public class ChessBoard : MonoBehaviour
         if (gameOver) return; // prevent multiple endings
 
         ChessPiece target = GetPieceAt(targetPosition);
-
+        
         if (target != null) 
         {
             // Clear from board array
             board[targetPosition.x, targetPosition.y] = null;
+            UnregisterPiece(target); // <<< For network game
             SpriteRenderer sr = target.GetComponent<SpriteRenderer>();
             if (sr != null)
             {
@@ -106,12 +108,13 @@ public class ChessBoard : MonoBehaviour
             target.pieceSprite = savedSprite; // Redundant in theory, but keeps the reference alive
             CapturedPieceData data = new CapturedPieceData(target);
             data.originalPosition = target.startingCell; // add this to the constructor if you prefer
-            graveyard.AddPiece(data); // CORRECT
-            
+            AddCaptured(data); // CORRECT
+
             Debug.Log($"[CAPTURE] Captured {target.pieceType}, sprite: {target.pieceSprite?.name}");
             // Destroy the game object
             if (audioSource != null && captureClip != null)
                 audioSource.PlayOneShot(captureClip);
+            OnGraveyardChanged?.Invoke();
             GameObject.Destroy(target.gameObject); // capturedPieces.Add(target);
         }
     }
@@ -129,6 +132,7 @@ public class ChessBoard : MonoBehaviour
     public void RemoveCapturedPiece(TeamColor team, ChessPiece piece)
     {
         capturedPieces.Remove(piece);
+        OnGraveyardChanged?.Invoke();
     }
 
     public Vector2Int FindNearestAvailableSquare(Vector2Int origin)
@@ -245,6 +249,15 @@ public bool IsLegalMove(ChessPiece piece, Vector2Int to)
     public void MovePieceLocal(ChessPiece piece, Vector2Int to)
     {
         var from = piece.currentCell;
+        if (board[to.x, to.y] != null && board[to.x, to.y] != piece)        //safety for removing stray piece during multiplayer
+        {
+            var stray = board[to.x, to.y];
+            UnregisterPiece(stray);
+            idLookup.Remove(stray.Id);
+            Destroy(stray.gameObject);
+        }
+
+       
         board[to.x, to.y] = piece;
         board[from.x, from.y] = null;
         piece.currentCell = to;
@@ -276,5 +289,35 @@ public bool IsLegalMove(ChessPiece piece, Vector2Int to)
         idLookup.Clear();
         var all = FindObjectsByType<ChessPiece>(FindObjectsInactive.Exclude, FindObjectsSortMode.None);
         foreach (var p in all) idLookup[p.Id] = p;
+    }
+
+    public void RebuildBoardAndIndexFromScene()
+    {
+        // clear board + index
+        for (int x = 0; x < 8; x++) for (int y = 0; y < 8; y++) board[x, y] = null;
+        idLookup.Clear();
+
+        var all = FindObjectsByType<ChessPiece>(FindObjectsInactive.Exclude, FindObjectsSortMode.None);
+        foreach (var p in all)
+        {
+            if (IsInsideBoard(p.currentCell))
+            {
+                board[p.currentCell.x, p.currentCell.y] = p;
+                idLookup[p.Id] = p;
+            }
+        }
+        Debug.Log($"[BoardRebuild] Re-indexed {all.Length} pieces.");
+    }
+
+    public void AddCaptured(CapturedPieceData data)
+    {
+        graveyard.AddPiece(data);
+        OnGraveyardChanged?.Invoke();
+    }
+
+    public void RemoveCaptured(CapturedPieceData data)
+    {
+        graveyard.RemoveCapturedPiece(data);
+        OnGraveyardChanged?.Invoke();
     }
 }
