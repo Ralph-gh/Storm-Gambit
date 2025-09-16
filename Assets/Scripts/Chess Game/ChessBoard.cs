@@ -4,8 +4,9 @@ using UnityEngine;
 
 public class ChessBoard : MonoBehaviour
 {
-    
-    public event System.Action OnGraveyardChanged;
+    private int _nextId = 10000; // start above any initial IDs
+   
+
     public static ChessBoard Instance;
     public List<ChessPiece> capturedPieces = new List<ChessPiece>();// List to track captured pieces
     private ChessPiece[,] board = new ChessPiece[8, 8];
@@ -25,6 +26,8 @@ public class ChessBoard : MonoBehaviour
     private Dictionary<int, ChessPiece> idLookup = new Dictionary<int, ChessPiece>();//Dictionnary lookup for networking
     public void RegisterPiece(ChessPiece p) { if (p) idLookup[p.Id] = p; }
     public void UnregisterPiece(ChessPiece p) { if (p) idLookup.Remove(p.Id); }
+    public event System.Action OnGraveyardChanged;
+    public void RaiseGraveyardChanged() => OnGraveyardChanged?.Invoke(); //graveyard on network play
 
 
     public void TriggerPromotion(ChessPiece pawn)
@@ -107,16 +110,19 @@ public class ChessBoard : MonoBehaviour
             // Backup the sprite before destruction
             Sprite savedSprite = target.pieceSprite;
             target.pieceSprite = savedSprite; // Redundant in theory, but keeps the reference alive
+                                              // Create and add captured record
             CapturedPieceData data = new CapturedPieceData(target);
-            data.originalPosition = target.startingCell; // add this to the constructor if you prefer
-            AddCaptured(data); // CORRECT
+            data.originalPosition = target.startingCell;
+
+            // Use wrapper (it raises OnGraveyardChanged)
+            AddCapturedPiece(data);
 
             Debug.Log($"[CAPTURE] Captured {target.pieceType}, sprite: {target.pieceSprite?.name}");
-            // Destroy the game object
-            if (audioSource != null && captureClip != null)
-                audioSource.PlayOneShot(captureClip);
-            OnGraveyardChanged?.Invoke();
-            GameObject.Destroy(target.gameObject); // capturedPieces.Add(target);
+
+            if (audioSource != null && captureClip != null) audioSource.PlayOneShot(captureClip);
+
+            // No need to invoke OnGraveyardChanged() again here – AddCapturedPiece already did it.
+            GameObject.Destroy(target.gameObject);
         }
     }
 
@@ -179,21 +185,33 @@ public class ChessBoard : MonoBehaviour
     {
         public List<CapturedPieceData> whiteCaptured = new();
         public List<CapturedPieceData> blackCaptured = new();
-
-        public void AddPiece(CapturedPieceData data)
+        public void AddCapturedPiece(CapturedPieceData data)
         {
-            if (data.team == TeamColor.White)
-                whiteCaptured.Add(data);
-            else
-                blackCaptured.Add(data);
+            if (data.team == TeamColor.White) whiteCaptured.Add(data);
+            else blackCaptured.Add(data);
         }
 
-        public void RemoveCapturedPiece(CapturedPieceData data)
+        // Add by ChessPiece
+        public void AddCapturedPiece(ChessPiece piece)
         {
-            if (data.team == TeamColor.White)
-                whiteCaptured.Remove(data);
-            else
-                blackCaptured.Remove(data);
+            AddCapturedPiece(new CapturedPieceData(piece));
+        }
+
+        // Remove by exact data
+        public bool RemoveCapturedPiece(CapturedPieceData data)
+        {
+            return (data.team == TeamColor.White)
+                ? whiteCaptured.Remove(data)
+                : blackCaptured.Remove(data);
+        }
+
+        // Remove first match by (type, team)
+        public bool RemoveCapturedPieceByTypeAndTeam(PieceType type, TeamColor team)
+        {
+            var list = (team == TeamColor.White) ? whiteCaptured : blackCaptured;
+            int idx = list.FindIndex(d => d.pieceType == type && d.team == team);
+            if (idx >= 0) { list.RemoveAt(idx); return true; }
+            return false;
         }
 
         public List<CapturedPieceData> GetCapturedByTeam(TeamColor team)
@@ -317,49 +335,34 @@ public class ChessBoard : MonoBehaviour
         
     }
 
-    public void AddCaptured(CapturedPieceData data)
-    {
-        graveyard.AddPiece(data);
-        OnGraveyardChanged?.Invoke();
-    }
-
-    public void RemoveCaptured(CapturedPieceData data)
-    {
-        graveyard.RemoveCapturedPiece(data);
-        OnGraveyardChanged?.Invoke();
-    }
-    public void EnsureBoardEntry(ChessPiece piece)
-    {
-        var c = piece.currentCell;
-        if (IsInsideBoard(c) && board[c.x, c.y] != piece)
-        {
-            board[c.x, c.y] = piece;
-            RegisterPiece(piece);
-            Debug.Log($"[BoardRepair] restored {piece.pieceType}#{piece.Id} at {c}");
-        }
-    }
-    public void RaiseGraveyardChanged()
-    {
-        OnGraveyardChanged?.Invoke();
-    }
-
     public void AddCapturedPiece(ChessPiece victim)
     {
-        // ...build and store CapturedPieceData from victim...
-        // capturedPieces.Add(data);
-        ChessBoard.Instance.RaiseGraveyardChanged();
+        graveyard.AddCapturedPiece(victim);
+        RaiseGraveyardChanged();
     }
 
-    public void RemoveCapturedPiece(ChessBoard.CapturedPieceData data)
+    public void AddCapturedPiece(CapturedPieceData data)
     {
-        // capturedPieces.Remove(data);
-        ChessBoard.Instance.RaiseGraveyardChanged();
+        graveyard.AddCapturedPiece(data);
+        RaiseGraveyardChanged();
     }
 
-    public void RemoveCapturedPieceByTypeAndTeam(PieceType pieceType, TeamColor team)
+    public void RemoveCapturedPiece(CapturedPieceData data)
     {
-        // find first matching item and remove it
-        // ...
-        ChessBoard.Instance.RaiseGraveyardChanged();
+        if (graveyard.RemoveCapturedPiece(data))
+            RaiseGraveyardChanged();
     }
+
+    public void RemoveCapturedPieceByTypeAndTeam(PieceType type, TeamColor team)
+    {
+        if (graveyard.RemoveCapturedPieceByTypeAndTeam(type, team))
+            RaiseGraveyardChanged();
+    }
+    public int AllocatePieceId() //Id allocation for network play
+    {
+        // optional: ensure monotonic if you ever rebuild
+        while (idLookup.ContainsKey(_nextId)) _nextId++;
+        return _nextId++;
+    }
+
 }

@@ -33,7 +33,7 @@ public class GameState : NetworkBehaviour
         var piece = ChessBoard.Instance.GetPieceById(pieceId);
         if (piece == null) { Debug.Log($"[SRPC] no piece id={pieceId}"); return; }
 
-        ChessBoard.Instance.EnsureBoardEntry(piece);   // <- add this line
+        //ChessBoard.Instance.EnsureBoardEntry(piece);  
 
         Vector2Int to = new Vector2Int(targetX, targetY);
         if (!ChessBoard.Instance.IsInsideBoard(to)) { Debug.Log($"[SRPC] outside {to}"); return; }
@@ -72,13 +72,38 @@ public class GameState : NetworkBehaviour
         var from = piece.currentCell;
         Debug.Log($"[SRPC] MOVE {piece.pieceType}#{piece.Id} {from} {to}");
 
+        // after legality checks and optional victim capture...
+        int rookId = -1, rookToX = 0, rookToY = 0;
+
+        // Detect castling (king moved two squares horizontally)
+        if (piece.pieceType == PieceType.King && Mathf.Abs(to.x - from.x) == 2 && from.y == to.y)
+        {
+            bool isKingSide = (to.x > from.x);
+            var rookFrom = new Vector2Int(isKingSide ? 7 : 0, from.y);
+            var rook = ChessBoard.Instance.GetPieceAt(rookFrom);
+            if (rook != null && rook.pieceType == PieceType.Rook && rook.team == piece.team)
+            {
+                rookId = rook.Id;
+                var rookTo = new Vector2Int(isKingSide ? to.x - 1 : to.x + 1, from.y);
+
+                // Move rook on server
+                ChessBoard.Instance.ExecuteMoveServer(rook, rookTo);
+                rookToX = rookTo.x; rookToY = rookTo.y;
+            }
+        }
+
+        // Move king on server
         ChessBoard.Instance.ExecuteMoveServer(piece, to);
 
+        // Notify clients: king move + optional castle rook move
         ApplyMoveClientRpc(piece.Id, to.x, to.y, capturedId);
+        if (rookId >= 0)
+            MoveRookClientRpc(rookId, rookToX, rookToY);
 
+        // flip turn...
         var next = (CurrentTurn.Value == TeamColor.White) ? TeamColor.Black : TeamColor.White;
         CurrentTurn.Value = next;
-        Debug.Log($"[SRPC] Turn  {next}");
+
     }
 
     [ClientRpc]
@@ -217,7 +242,6 @@ public class GameState : NetworkBehaviour
             spawn = ChessBoard.Instance.FindNearestAvailableSquare(spawn);
         if (spawn.x == -1) return;
 
-        // Instantiate from your prefab table (implement this helper so server & clients match)
         var prefab = BoardInitializer.Instance.GetPrefab(team, pieceType);
         if (prefab == null) { Debug.LogWarning($"No prefab for {team} {pieceType}"); return; }
 
@@ -228,14 +252,21 @@ public class GameState : NetworkBehaviour
         newPiece.SetPosition(spawn, BoardInitializer.Instance.GetWorldPosition(spawn));
         newPiece.MarkAsResurrected();
 
+        // Allocate a shared Id and register BEFORE placing
+        newPiece.Id = ChessBoard.Instance.AllocatePieceId();
+        ChessBoard.Instance.RegisterPiece(newPiece);
         ChessBoard.Instance.PlacePiece(newPiece, spawn);
-        // server removes from graveyard too (see section C)
 
-        ResurrectClientRpc(team, pieceType, spawnX, spawnY);
+        // Remove from server graveyard + notify clients
+        ChessBoard.Instance.RemoveCapturedPieceByTypeAndTeam(pieceType, team);
+        RemoveFromGraveyardClientRpc(team, pieceType);
+
+        // Tell clients to spawn with the SAME Id
+        ResurrectClientRpc(team, pieceType, spawnX, spawnY, newPiece.Id);
     }
 
     [ClientRpc]
-    void ResurrectClientRpc(TeamColor team, PieceType pieceType, int spawnX, int spawnY)
+    void ResurrectClientRpc(TeamColor team, PieceType pieceType, int spawnX, int spawnY, int newId)
     {
         var spawn = new Vector2Int(spawnX, spawnY);
         var prefab = BoardInitializer.Instance.GetPrefab(team, pieceType);
@@ -248,13 +279,28 @@ public class GameState : NetworkBehaviour
         p.SetPosition(spawn, BoardInitializer.Instance.GetWorldPosition(spawn));
         p.MarkAsResurrected();
 
+        // Use the server-assigned Id and register locally
+        p.Id = newId;
+        ChessBoard.Instance.RegisterPiece(p);
         ChessBoard.Instance.PlacePiece(p, spawn);
-        // client removes from graveyard too (see section C)
     }
     [ClientRpc]
     void RemoveFromGraveyardClientRpc(TeamColor team, PieceType type)
     {
         ChessBoard.Instance.RemoveCapturedPieceByTypeAndTeam(type, team);
-        ChessBoard.Instance.RaiseGraveyardChanged();
+    }
+
+    [ClientRpc]
+    void MoveRookClientRpc(int rookId, int toX, int toY)
+    {
+        var rook = ChessBoard.Instance.GetPieceById(rookId);
+        if (rook == null)
+        {
+            ChessBoard.Instance.RebuildIndexFromScene();
+            rook = ChessBoard.Instance.GetPieceById(rookId);
+            if (rook == null) return;
+        }
+
+        ChessBoard.Instance.MovePieceLocal(rook, new Vector2Int(toX, toY));
     }
 }

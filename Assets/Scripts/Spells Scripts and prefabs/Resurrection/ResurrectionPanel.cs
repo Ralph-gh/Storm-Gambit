@@ -57,7 +57,7 @@ public class ResurrectionPanel : MonoBehaviour
         newPiece.MarkAsResurrected();//for visual only for now
 
         ChessBoard.Instance.PlacePiece(newPiece, spawn);
-        ChessBoard.Instance.RemoveCaptured(data);
+        ChessBoard.Instance.RemoveCapturedPiece(data);
 
         TurnManager.Instance.NextTurn();
         Destroy(gameObject); // Close panel
