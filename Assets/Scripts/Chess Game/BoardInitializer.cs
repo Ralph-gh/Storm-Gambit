@@ -69,6 +69,7 @@ public class BoardInitializer : MonoBehaviour
     void Start()
     {
         SetupPrefabLookup();
+        SetupTypeLookups();
         InitializeBoard();
     }
 
@@ -91,7 +92,28 @@ public class BoardInitializer : MonoBehaviour
             { "Black_King", Black_King }
         };
     }
+    void SetupTypeLookups()
+    {
+        whitePrefabs = new Dictionary<PieceType, GameObject>
+    {
+        { PieceType.Pawn,   White_Pawn  },
+        { PieceType.Rook,   White_Rook  },
+        { PieceType.Knight, White_Knight},
+        { PieceType.Bishop, White_Bishop},
+        { PieceType.Queen,  White_Queen },
+        { PieceType.King,   White_King  },
+    };
 
+        blackPrefabs = new Dictionary<PieceType, GameObject>
+    {
+        { PieceType.Pawn,   Black_Pawn  },
+        { PieceType.Rook,   Black_Rook  },
+        { PieceType.Knight, Black_Knight},
+        { PieceType.Bishop, Black_Bishop},
+        { PieceType.Queen,  Black_Queen },
+        { PieceType.King,   Black_King  },
+    };
+    }
     void InitializeBoard()
     {
         for (int y = 0; y < 8; y++)
@@ -114,7 +136,13 @@ public class BoardInitializer : MonoBehaviour
                             cp.pieceSprite = sr.sprite; //  Assign sprite to be used in resurrection UI
                            
                         }
-                        
+                        if (pieceName.Contains("Pawn")) cp.pieceType = PieceType.Pawn;
+                        else if (pieceName.Contains("Rook")) cp.pieceType = PieceType.Rook;
+                        else if (pieceName.Contains("Knight")) cp.pieceType = PieceType.Knight;
+                        else if (pieceName.Contains("Bishop")) cp.pieceType = PieceType.Bishop;
+                        else if (pieceName.Contains("Queen")) cp.pieceType = PieceType.Queen;
+                        else if (pieceName.Contains("King")) cp.pieceType = PieceType.King;
+
                         cp.SetPosition(new Vector2Int(x, y), worldPos);
                         cp.team = pieceName.StartsWith("White") ? TeamColor.White : TeamColor.Black;
                         cp.startingCell = new Vector2Int(x, y);
@@ -168,7 +196,11 @@ public class BoardInitializer : MonoBehaviour
             ? whitePrefabs[piece.pieceType]
             : blackPrefabs[piece.pieceType];
     }
-
+    public GameObject GetPrefab(TeamColor team, PieceType type)
+    {
+        var dict = (team == TeamColor.White) ? whitePrefabs : blackPrefabs;
+        return dict != null && dict.TryGetValue(type, out var prefab) ? prefab : null;
+    }
 
 
 }

@@ -140,5 +140,98 @@ public class GameState : NetworkBehaviour
             yield return wait;
         }
     }
+    // --- SPELL RPCs ---
 
+    [ServerRpc(RequireOwnership = false)]
+    public void TeleportPieceServerRpc(int pieceId, int x, int y, ServerRpcParams p = default)
+    {
+        var piece = ChessBoard.Instance.GetPieceById(pieceId);
+        if (piece == null) { Debug.Log($"[SRPC] Teleport: no piece {pieceId}"); return; }
+
+        var to = new Vector2Int(x, y);
+        if (!ChessBoard.Instance.IsInsideBoard(to)) return;
+        if (ChessBoard.Instance.GetPieceAt(to) != null) return; // must be empty per your UI flow
+
+        // Server: apply teleport (board + piece)
+        ChessBoard.Instance.MovePiece(piece.currentCell, to);
+        piece.SetPosition(to, BoardInitializer.Instance.GetWorldPosition(to));
+        piece.hasMoved = true;
+
+        TeleportPieceClientRpc(pieceId, x, y);
+    }
+
+    [ClientRpc]
+    void TeleportPieceClientRpc(int pieceId, int x, int y)
+    {
+        var piece = ChessBoard.Instance.GetPieceById(pieceId);
+        if (piece == null) { ChessBoard.Instance.RebuildIndexFromScene(); piece = ChessBoard.Instance.GetPieceById(pieceId); }
+        if (piece == null) return;
+
+        var to = new Vector2Int(x, y);
+        ChessBoard.Instance.MovePieceLocal(piece, to);
+        piece.SetPosition(to, BoardInitializer.Instance.GetWorldPosition(to));
+        piece.hasMoved = true;
+    }
+
+    // Apply Divine Protection on all clients for the selected piece
+    [ServerRpc(RequireOwnership = false)]
+    public void ApplyDivineProtectionServerRpc(int pieceId, ServerRpcParams p = default)
+    {
+        var piece = ChessBoard.Instance.GetPieceById(pieceId);
+        if (piece == null) return;
+
+        ApplyDivineProtectionClientRpc(pieceId);
+    }
+
+    [ClientRpc]
+    void ApplyDivineProtectionClientRpc(int pieceId)
+    {
+        var piece = ChessBoard.Instance.GetPieceById(pieceId);
+        if (piece != null) piece.ApplyDivineProtectionOneTurn(); // spawns sphere & hooks turn listener
+    }
+
+    // Resurrect by type/team at a server-chosen spawn square
+    [ServerRpc(RequireOwnership = false)]
+    public void ResurrectServerRpc(TeamColor team, PieceType pieceType, int spawnX, int spawnY, ServerRpcParams p = default)
+    {
+        var spawn = new Vector2Int(spawnX, spawnY);
+        if (!ChessBoard.Instance.IsInsideBoard(spawn)) return;
+        if (ChessBoard.Instance.GetPieceAt(spawn) != null)
+            spawn = ChessBoard.Instance.FindNearestAvailableSquare(spawn);
+        if (spawn.x == -1) return;
+
+        // Instantiate from your prefab table (implement this helper so server & clients match)
+        var prefab = BoardInitializer.Instance.GetPrefab(team, pieceType);
+        if (prefab == null) { Debug.LogWarning($"No prefab for {team} {pieceType}"); return; }
+
+        var go = Instantiate(prefab, BoardInitializer.Instance.GetWorldPosition(spawn), Quaternion.identity);
+        var newPiece = go.GetComponent<ChessPiece>();
+        newPiece.team = team;
+        newPiece.pieceType = pieceType;
+        newPiece.SetPosition(spawn, BoardInitializer.Instance.GetWorldPosition(spawn));
+        newPiece.MarkAsResurrected();
+
+        ChessBoard.Instance.PlacePiece(newPiece, spawn);
+        // server removes from graveyard too (see section C)
+
+        ResurrectClientRpc(team, pieceType, spawnX, spawnY);
+    }
+
+    [ClientRpc]
+    void ResurrectClientRpc(TeamColor team, PieceType pieceType, int spawnX, int spawnY)
+    {
+        var spawn = new Vector2Int(spawnX, spawnY);
+        var prefab = BoardInitializer.Instance.GetPrefab(team, pieceType);
+        if (prefab == null) return;
+
+        var go = Instantiate(prefab, BoardInitializer.Instance.GetWorldPosition(spawn), Quaternion.identity);
+        var p = go.GetComponent<ChessPiece>();
+        p.team = team;
+        p.pieceType = pieceType;
+        p.SetPosition(spawn, BoardInitializer.Instance.GetWorldPosition(spawn));
+        p.MarkAsResurrected();
+
+        ChessBoard.Instance.PlacePiece(p, spawn);
+        // client removes from graveyard too (see section C)
+    }
 }

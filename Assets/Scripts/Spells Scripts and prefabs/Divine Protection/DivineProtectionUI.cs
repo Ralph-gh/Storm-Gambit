@@ -22,7 +22,10 @@ public class DivineProtectionSpellUI : MonoBehaviour
             // Only allow selecting your own piece on your turn
             if (piece != null && piece.team == TurnManager.Instance.currentTurn)
             {
-                piece.ApplyDivineProtectionOneTurn();  // <-- core effect
+                if (Unity.Netcode.NetworkManager.Singleton && Unity.Netcode.NetworkManager.Singleton.IsListening)
+                    GameState.Instance.ApplyDivineProtectionServerRpc(piece.Id);
+                else
+                    piece.ApplyDivineProtectionOneTurn(); // offline
                 //TurnManager.Instance.NextTurn();       commented to no longer end turn
                 if (TurnManager.Instance.IsPlayersTurn(piece.team))
                     TurnManager.Instance.RegisterFreeSpellCast();

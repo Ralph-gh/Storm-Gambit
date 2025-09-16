@@ -50,6 +50,14 @@ public class TeleportationSpellUI : MonoBehaviour
 
     void Teleport(ChessPiece piece, Vector2Int targetCell)
     {
+        if (Unity.Netcode.NetworkManager.Singleton && Unity.Netcode.NetworkManager.Singleton.IsListening)
+        {
+            GameState.Instance.TeleportPieceServerRpc(piece.Id, targetCell.x, targetCell.y);
+            if (TurnManager.Instance.IsPlayersTurn(piece.team))
+                TurnManager.Instance.RegisterFreeSpellCast();
+            return; // no local change; RPC will sync
+        }
+
         Vector3 origin = piece.transform.position;
         Vector3 world = BoardInitializer.Instance.GetWorldPosition(targetCell);
         ChessBoard.Instance.MovePiece(piece.currentCell, targetCell);
