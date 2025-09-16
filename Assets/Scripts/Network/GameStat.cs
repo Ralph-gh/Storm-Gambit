@@ -303,4 +303,18 @@ public class GameState : NetworkBehaviour
 
         ChessBoard.Instance.MovePieceLocal(rook, new Vector2Int(toX, toY));
     }
+    
+    [ClientRpc]
+    public void ShowVictoryClientRpc(string winnerText)
+    {
+        var board = ChessBoard.Instance;
+        if (board == null) return;
+
+        board.gameOver = true; // optional local freeze
+        if (board.victoryScreen) board.victoryScreen.SetActive(true);
+        if (board.victoryText) board.victoryText.text = winnerText;
+        if (board.audioSource && board.victoryClip)
+            board.audioSource.PlayOneShot(board.victoryClip);
+    }
+
 }

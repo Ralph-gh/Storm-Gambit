@@ -98,14 +98,18 @@ public class ChessBoard : MonoBehaviour
                 gameOver = true;
                 string winner = target.team == TeamColor.White ? "Black Wins!" : "White Wins!";
                 Debug.Log($"Game Over — {winner}");
-                
-                if (victoryScreen != null)
+
+                if (GameState.Instance && GameState.Instance.IsServer)
+                    GameState.Instance.ShowVictoryClientRpc(winner);
+                 // the ClientRpc above runs on host and clients.
+
+                /*if (victoryScreen != null)                            //moved to network
                 {
                     victoryScreen.SetActive(true);
                     victoryText.text = winner;
                     if (victoryClip != null && audioSource != null)
                         audioSource.PlayOneShot(victoryClip);
-                }
+                }*/
             }
             // Backup the sprite before destruction
             Sprite savedSprite = target.pieceSprite;
@@ -364,5 +368,7 @@ public class ChessBoard : MonoBehaviour
         while (idLookup.ContainsKey(_nextId)) _nextId++;
         return _nextId++;
     }
+
+
 
 }
