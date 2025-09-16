@@ -123,6 +123,13 @@ public class GameState : NetworkBehaviour
     public override void OnNetworkSpawn()
     {
         base.OnNetworkSpawn();
+
+        //sync turn
+        if (TurnManager.Instance)TurnManager.Instance.SyncTurn(CurrentTurn.Value);
+        CurrentTurn.OnValueChanged += (oldV, NewV) =>
+        {
+            if (TurnManager.Instance) TurnManager.Instance.SyncTurn(NewV);
+        };
         if (IsServer) StartCoroutine(BoardHeartbeat());
     }
 
