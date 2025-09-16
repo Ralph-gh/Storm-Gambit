@@ -58,6 +58,11 @@ public class GameState : NetworkBehaviour
         int capturedId = -1;
         if (victim != null)
         {
+            if (victim.IsDivinelyProtected)
+            {
+                Debug.Log("[SRPC] capture blocked: target divinely protected");
+                return;
+            }
             capturedId = victim.Id;
             Debug.Log($"[SRPC] CAPTURE {victim.pieceType}#{victim.Id} at {to}");
             ChessBoard.Instance.CapturePiece(to);
@@ -97,6 +102,11 @@ public class GameState : NetworkBehaviour
             if (victim != null)
             {
                 Debug.Log($"[RPC/{role}] removing victim id={capturedId} at {victim.currentCell}");
+
+                // Add to local graveyard and notify listeners (enables Resurrection card)
+                ChessBoard.Instance.AddCapturedPiece(victim);
+                ChessBoard.Instance.RaiseGraveyardChanged();
+
                 ChessBoard.Instance.RemovePieceLocal(victim);
             }
             else
@@ -240,5 +250,11 @@ public class GameState : NetworkBehaviour
 
         ChessBoard.Instance.PlacePiece(p, spawn);
         // client removes from graveyard too (see section C)
+    }
+    [ClientRpc]
+    void RemoveFromGraveyardClientRpc(TeamColor team, PieceType type)
+    {
+        ChessBoard.Instance.RemoveCapturedPieceByTypeAndTeam(type, team);
+        ChessBoard.Instance.RaiseGraveyardChanged();
     }
 }

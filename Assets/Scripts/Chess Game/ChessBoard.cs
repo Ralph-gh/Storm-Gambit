@@ -4,6 +4,8 @@ using UnityEngine;
 
 public class ChessBoard : MonoBehaviour
 {
+    
+    public event System.Action OnGraveyardChanged;
     public static ChessBoard Instance;
     public List<ChessPiece> capturedPieces = new List<ChessPiece>();// List to track captured pieces
     private ChessPiece[,] board = new ChessPiece[8, 8];
@@ -20,7 +22,6 @@ public class ChessBoard : MonoBehaviour
     public BoardInitializer initializer;
     public PromotionSelector promotionSelector;
     public Graveyard graveyard = new();
-    public event System.Action OnGraveyardChanged;
     private Dictionary<int, ChessPiece> idLookup = new Dictionary<int, ChessPiece>();//Dictionnary lookup for networking
     public void RegisterPiece(ChessPiece p) { if (p) idLookup[p.Id] = p; }
     public void UnregisterPiece(ChessPiece p) { if (p) idLookup.Remove(p.Id); }
@@ -336,5 +337,29 @@ public class ChessBoard : MonoBehaviour
             RegisterPiece(piece);
             Debug.Log($"[BoardRepair] restored {piece.pieceType}#{piece.Id} at {c}");
         }
+    }
+    public void RaiseGraveyardChanged()
+    {
+        OnGraveyardChanged?.Invoke();
+    }
+
+    public void AddCapturedPiece(ChessPiece victim)
+    {
+        // ...build and store CapturedPieceData from victim...
+        // capturedPieces.Add(data);
+        ChessBoard.Instance.RaiseGraveyardChanged();
+    }
+
+    public void RemoveCapturedPiece(ChessBoard.CapturedPieceData data)
+    {
+        // capturedPieces.Remove(data);
+        ChessBoard.Instance.RaiseGraveyardChanged();
+    }
+
+    public void RemoveCapturedPieceByTypeAndTeam(PieceType pieceType, TeamColor team)
+    {
+        // find first matching item and remove it
+        // ...
+        ChessBoard.Instance.RaiseGraveyardChanged();
     }
 }

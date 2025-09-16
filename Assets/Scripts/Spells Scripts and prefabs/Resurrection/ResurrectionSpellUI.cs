@@ -16,6 +16,9 @@ public class ResurrectionSpellUI : MonoBehaviour
 
     void GenerateButtons()
     {
+        TeamColor mySide = (SpellRules.IsNet && NetPlayer.Local != null)
+         ? NetPlayer.Local.Side.Value
+         : TurnManager.Instance.currentTurn;
         TeamColor currentTeam = TurnManager.Instance.currentTurn;
         List<CapturedPieceData> captured = ChessBoard.Instance.graveyard.GetCapturedByTeam(currentTeam);
 
@@ -46,6 +49,7 @@ public class ResurrectionSpellUI : MonoBehaviour
         if (Unity.Netcode.NetworkManager.Singleton && Unity.Netcode.NetworkManager.Singleton.IsListening)
         {
             GameState.Instance.ResurrectServerRpc(data.team, data.pieceType, spawn.x, spawn.y);
+            Destroy(gameObject); // close UI
         }
         else
         {
