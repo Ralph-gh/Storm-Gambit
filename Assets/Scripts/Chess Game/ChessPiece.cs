@@ -1,11 +1,12 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.Netcode;
 using UnityEngine;
 using static UnityEngine.GraphicsBuffer;
 
 public enum TeamColor { White, Black }
 public enum PieceType { Pawn, Knight, Bishop, Rook, Queen, King}
-public class ChessPiece : MonoBehaviour
+public class ChessPiece : NetworkBehaviour
 {
     public int Id { get; set; }
     private bool _divineOppTurnSeen = false; 
@@ -46,7 +47,12 @@ public class ChessPiece : MonoBehaviour
     private bool isResurrected = false;
 
     //Network
-    
+    public NetworkVariable<int> PieceId = new(0);
+    public NetworkVariable<TeamColor> Team = new(TeamColor.White,
+        NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
+    public NetworkVariable<Vector2Int> BoardCell = new(default,
+        NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
+
 
     void Awake()
     {
@@ -65,7 +71,6 @@ public class ChessPiece : MonoBehaviour
             hasBeenInitialized = true;
         }
     }
-
     public void ApplyDivineProtectionOneTurn()
     {
         if (divinelyProtected) return;

@@ -236,11 +236,20 @@ public class GameState : NetworkBehaviour
     [ServerRpc(RequireOwnership = false)]
     public void ResurrectServerRpc(TeamColor team, PieceType pieceType, int spawnX, int spawnY, ServerRpcParams p = default)
     {
-        var spawn = new Vector2Int(spawnX, spawnY);
+        Vector2Int requested = new Vector2Int(spawnX, spawnY);
+
+        // Decide the final spawn on the SERVER
+        Vector2Int spawn = ChessBoard.Instance.GetPieceAt(requested) == null
+            ? requested
+            : ChessBoard.Instance.FindNearestAvailableSquare(requested);
+
         if (!ChessBoard.Instance.IsInsideBoard(spawn)) return;
+
+        // (Optional tidy) This second nearest-check is redundant because 'spawn'
+        // is either empty or returned by FindNearestAvailableSquare already.
         if (ChessBoard.Instance.GetPieceAt(spawn) != null)
             spawn = ChessBoard.Instance.FindNearestAvailableSquare(spawn);
-        if (spawn.x == -1) return;
+        if (spawn.x == -1) return; // no space; abort
 
         var prefab = BoardInitializer.Instance.GetPrefab(team, pieceType);
         if (prefab == null) { Debug.LogWarning($"No prefab for {team} {pieceType}"); return; }
@@ -257,17 +266,25 @@ public class GameState : NetworkBehaviour
         ChessBoard.Instance.RegisterPiece(newPiece);
         ChessBoard.Instance.PlacePiece(newPiece, spawn);
 
-        // Remove from server graveyard + notify clients
+        // Update server graveyard + notify clients to update UI
         ChessBoard.Instance.RemoveCapturedPieceByTypeAndTeam(pieceType, team);
         RemoveFromGraveyardClientRpc(team, pieceType);
 
-        // Tell clients to spawn with the SAME Id
-        ResurrectClientRpc(team, pieceType, spawnX, spawnY, newPiece.Id);
+        // Send the ACTUAL server-chosen cell to clients
+        ResurrectClientRpc(team, pieceType, spawn.x, spawn.y, newPiece.Id);
     }
 
     [ClientRpc]
     void ResurrectClientRpc(TeamColor team, PieceType pieceType, int spawnX, int spawnY, int newId)
     {
+    // Host already has the server-instantiated piece — do NOT also instantiate on the host.
+        if (Unity.Netcode.NetworkManager.Singleton != null &&
+        Unity.Netcode.NetworkManager.Singleton.IsHost)
+                   {
+                        // (Optional) ensure local caches/index/UI are up-to-date, but skip instantiation
+            ChessBoard.Instance.RebuildIndexFromScene();
+                        return;
+                    }
         var spawn = new Vector2Int(spawnX, spawnY);
         var prefab = BoardInitializer.Instance.GetPrefab(team, pieceType);
         if (prefab == null) return;

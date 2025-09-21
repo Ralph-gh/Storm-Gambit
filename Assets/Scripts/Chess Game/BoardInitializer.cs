@@ -1,8 +1,9 @@
+using System.Collections.Generic;
+using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.Tilemaps;
-using System.Collections.Generic;
 
-public class BoardInitializer : MonoBehaviour
+public class BoardInitializer : NetworkBehaviour
 {
     private int nextId = 0;//assign ID
 
@@ -27,10 +28,12 @@ public class BoardInitializer : MonoBehaviour
 
     private Dictionary<string, GameObject> prefabLookup;
     public static BoardInitializer Instance;
+
     void Awake()
     {
         Instance = this;
     }
+
     public Vector3 GetWorldPosition(Vector2Int cell)
     {
         return tilemap.GetCellCenterWorld(new Vector3Int(cell.x, cell.y, 0));

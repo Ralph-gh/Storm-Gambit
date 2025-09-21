@@ -1,13 +1,14 @@
 using System.Collections.Generic;
 using System.Reflection;
+using Unity.Netcode;
 using UnityEngine;
 
-public class ChessBoard : MonoBehaviour
+public class ChessBoard : NetworkBehaviour
 {
     private int _nextId = 10000; // start above any initial IDs
-   
 
-    public static ChessBoard Instance;
+
+    public static ChessBoard Instance { get; private set; }
     public List<ChessPiece> capturedPieces = new List<ChessPiece>();// List to track captured pieces
     private ChessPiece[,] board = new ChessPiece[8, 8];
     public bool resurrectionAllowed = false;
@@ -23,12 +24,13 @@ public class ChessBoard : MonoBehaviour
     public BoardInitializer initializer;
     public PromotionSelector promotionSelector;
     public Graveyard graveyard = new();
+    private readonly Dictionary<int, ChessPiece> _byId = new();
     private Dictionary<int, ChessPiece> idLookup = new Dictionary<int, ChessPiece>();//Dictionnary lookup for networking
     public void RegisterPiece(ChessPiece p) { if (p) idLookup[p.Id] = p; }
     public void UnregisterPiece(ChessPiece p) { if (p) idLookup.Remove(p.Id); }
     public event System.Action OnGraveyardChanged;
     public void RaiseGraveyardChanged() => OnGraveyardChanged?.Invoke(); //graveyard on network play
-
+      private int _idCounter = 1000;
 
     public void TriggerPromotion(ChessPiece pawn)
     {
