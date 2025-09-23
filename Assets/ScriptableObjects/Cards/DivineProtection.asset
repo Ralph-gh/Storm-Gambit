@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: DivineProtection
   m_EditorClassIdentifier: 
   cardName: Divine Protection
-  fullCardSprite: {fileID: 21300000, guid: 79aec91966b54624696e6e655431907a, type: 3}
+  fullCardSprite: {fileID: 21300000, guid: 5391902308b60b94ab1f80f476ac52cc, type: 3}
   cardtype: 1
   spellType: 0
   spellUI: {fileID: 6763589432106491609, guid: 2871635adab791e43ac5b28fc05b8e4d, type: 3}
