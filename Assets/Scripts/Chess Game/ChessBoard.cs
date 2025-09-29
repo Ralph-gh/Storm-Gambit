@@ -105,13 +105,13 @@ public class ChessBoard : NetworkBehaviour
                     GameState.Instance.ShowVictoryClientRpc(winner);
                  // the ClientRpc above runs on host and clients.
 
-                /*if (victoryScreen != null)                            //moved to network
+                if (victoryScreen != null)                            //moved to network
                 {
                     victoryScreen.SetActive(true);
                     victoryText.text = winner;
                     if (victoryClip != null && audioSource != null)
                         audioSource.PlayOneShot(victoryClip);
-                }*/
+                }
             }
             // Backup the sprite before destruction
             Sprite savedSprite = target.pieceSprite;
