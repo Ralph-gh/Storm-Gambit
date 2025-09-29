@@ -3,16 +3,16 @@
   "WorkspaceRootPath": "C:\\Users\\Ralph Ghnatios\\Storm Gambit\\",
   "Documents": [
     {
+      "AbsoluteMoniker": "D:0:0:{4F775C81-8B19-1FBE-4E5F-B4483DFBD379}|Assembly-CSharp.csproj|C:\\Users\\Ralph Ghnatios\\Storm Gambit\\assets\\scripts\\chess game\\chessboard.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{4F775C81-8B19-1FBE-4E5F-B4483DFBD379}|Assembly-CSharp.csproj|solutionrelative:assets\\scripts\\chess game\\chessboard.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
       "AbsoluteMoniker": "D:0:0:{4F775C81-8B19-1FBE-4E5F-B4483DFBD379}|Assembly-CSharp.csproj|c:\\users\\ralph ghnatios\\storm gambit\\assets\\scripts\\turn manager\\turnindicator.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{4F775C81-8B19-1FBE-4E5F-B4483DFBD379}|Assembly-CSharp.csproj|solutionrelative:assets\\scripts\\turn manager\\turnindicator.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{4F775C81-8B19-1FBE-4E5F-B4483DFBD379}|Assembly-CSharp.csproj|c:\\users\\ralph ghnatios\\storm gambit\\assets\\scripts\\network\\gamestat.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "AbsoluteMoniker": "D:0:0:{4F775C81-8B19-1FBE-4E5F-B4483DFBD379}|Assembly-CSharp.csproj|C:\\Users\\Ralph Ghnatios\\Storm Gambit\\assets\\scripts\\network\\gamestat.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{4F775C81-8B19-1FBE-4E5F-B4483DFBD379}|Assembly-CSharp.csproj|solutionrelative:assets\\scripts\\network\\gamestat.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{4F775C81-8B19-1FBE-4E5F-B4483DFBD379}|Assembly-CSharp.csproj|C:\\Users\\Ralph Ghnatios\\Storm Gambit\\assets\\scripts\\chess game\\chessboard.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{4F775C81-8B19-1FBE-4E5F-B4483DFBD379}|Assembly-CSharp.csproj|solutionrelative:assets\\scripts\\chess game\\chessboard.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{4F775C81-8B19-1FBE-4E5F-B4483DFBD379}|Assembly-CSharp.csproj|C:\\Users\\Ralph Ghnatios\\Storm Gambit\\assets\\scripts\\chess game\\boardinitializer.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
@@ -146,11 +146,11 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 0,
+          "SelectedChildIndex": 1,
           "Children": [
             {
               "$type": "Document",
-              "DocumentIndex": 0,
+              "DocumentIndex": 1,
               "Title": "TurnIndicator.cs",
               "DocumentMoniker": "C:\\Users\\Ralph Ghnatios\\Storm Gambit\\Assets\\Scripts\\Turn Manager\\TurnIndicator.cs",
               "RelativeDocumentMoniker": "Assets\\Scripts\\Turn Manager\\TurnIndicator.cs",
@@ -163,15 +163,16 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 2,
+              "DocumentIndex": 0,
               "Title": "ChessBoard.cs",
               "DocumentMoniker": "C:\\Users\\Ralph Ghnatios\\Storm Gambit\\Assets\\Scripts\\Chess Game\\ChessBoard.cs",
               "RelativeDocumentMoniker": "Assets\\Scripts\\Chess Game\\ChessBoard.cs",
               "ToolTip": "C:\\Users\\Ralph Ghnatios\\Storm Gambit\\Assets\\Scripts\\Chess Game\\ChessBoard.cs",
               "RelativeToolTip": "Assets\\Scripts\\Chess Game\\ChessBoard.cs",
-              "ViewState": "AgIAAAUAAAAAAAAAAAAxwBAAAAAnAAAAAAAAAA==",
+              "ViewState": "AgIAAFgAAAAAAAAAAADwv3EAAAARAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-06-15T03:12:15.3Z"
+              "WhenOpened": "2025-06-15T03:12:15.3Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
@@ -223,7 +224,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 1,
+              "DocumentIndex": 2,
               "Title": "GameStat.cs",
               "DocumentMoniker": "C:\\Users\\Ralph Ghnatios\\Storm Gambit\\Assets\\Scripts\\Network\\GameStat.cs",
               "RelativeDocumentMoniker": "Assets\\Scripts\\Network\\GameStat.cs",
@@ -231,8 +232,7 @@
               "RelativeToolTip": "Assets\\Scripts\\Network\\GameStat.cs",
               "ViewState": "AgIAAAkBAAAAAAAAAAAwwBwBAAAjAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-09-05T18:50:28.631Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-09-05T18:50:28.631Z"
             },
             {
               "$type": "Document",
