@@ -199,8 +199,6 @@ public class ChessPiece : NetworkBehaviour
     }
     void OnMouseUp()
     {
-
-
         if (!isDragging || ChessBoard.Instance.gameOver || !canDrag) return;
         isDragging = false;
         canDrag = false;
@@ -212,79 +210,107 @@ public class ChessPiece : NetworkBehaviour
         Vector3 snappedPosition = SnapToGrid(transform.position);
         Vector2Int newCell = WorldToCell(snappedPosition);
 
-        
+        // --- NETWORKED PATH: ask server & snap back (server will broadcast final move) ---
+        if (isNet)
+        {
+            if (NetPlayer.Local != null && NetPlayer.Local.CanAct() && NetPlayer.Local.Side.Value == team)
+                NetPlayer.Local.TryRequestMove(this.Id, newCell);
 
+            SnapBackToCurrentCell(); // wait for server to broadcast final
+            return;
+        }
         if (!IsValidMove(snappedPosition))
         {
             transform.position = originalPosition;
             return;
         }
 
-        // --- NETWORKED PATH: request server, but DO NOT stick locally ---
-        if (isNet)
+       
+
+        // ========= OFFLINE PATH =========
+        Vector2Int oldCell = currentCell;
+
+        // 1) En Passant capture (diagonal into EMPTY square)
+        if (pieceType == PieceType.Pawn)
         {
-            // Optional: block captures on divinely protected targets here and just snap back
-            // Ask server; immediately snap back so only server decides the final position
+            int f = (team == TeamColor.White) ? 1 : -1;
+            bool diagonal = Mathf.Abs(newCell.x - oldCell.x) == 1;
+            bool forwardStep = (newCell.y - oldCell.y) == f;
 
-            if (NetPlayer.Local != null && NetPlayer.Local.CanAct() && NetPlayer.Local.Side.Value == team)
-                NetPlayer.Local.TryRequestMove(this.Id, newCell);
+            if (diagonal && forwardStep)
+            {
+                ChessPiece targetOnNewCell = ChessBoard.Instance.GetPieceAt(newCell);
+                if (targetOnNewCell == null) // empty target => possible EP
+                {
+                    var board = ChessBoard.Instance;
+                    if (board.enPassantTarget.x >= 0 && board.enPassantTarget == newCell)
+                    {
+                        Vector2Int victimCell = new Vector2Int(newCell.x, oldCell.y);
+                        ChessPiece victim = ChessBoard.Instance.GetPieceAt(victimCell);
 
-            SnapBackToCurrentCell();   // <- prevents floating overlays
-            return; // wait for ApplyMoveClientRpc to move both boards
+                        // Validate victim pawn
+                        if (victim == null || victim.team == team || victim.pieceType != PieceType.Pawn)
+                        {
+                            transform.position = originalPosition;
+                            return;
+                        }
+                        // Block if divinely protected
+                        if (victim.IsDivinelyProtected)
+                        {
+                            transform.position = originalPosition;
+                            return;
+                        }
+
+                        // Remove the adjacent pawn (en passant capture)
+                        ChessBoard.Instance.CapturePiece(victimCell);
+                    }
+                }
+            }
         }
 
-        // Capture logic (before promotion)
-        ChessPiece target = ChessBoard.Instance.GetPieceAt(newCell);
-        if (target != null && target.team != team)
+        // 2) Normal capture (occupied target square)
+        ChessPiece directTarget = ChessBoard.Instance.GetPieceAt(newCell);
+        if (directTarget != null && directTarget.team != team)
         {
-            // NEW: block capture if target has Divine Protection
-            if (target.IsDivinelyProtected)
+            if (directTarget.IsDivinelyProtected)
             {
-                // invalid move: snap back and let the player try another move
                 transform.position = originalPosition;
                 return;
             }
-
             ChessBoard.Instance.CapturePiece(newCell);
         }
 
-        // Promotion logic (AFTER capture)
+        // 3) Promotion (after capture handling)
         if (pieceType == PieceType.Pawn && Pawn.ShouldPromote(newCell, team))
         {
             transform.position = snappedPosition;
             currentCell = newCell;
             ChessBoard.Instance.pawnToPromote = this;
             ChessBoard.Instance.TriggerPromotion(this);
-            
-            return; // stop here to avoid switching turns before promotion
+            return; // wait for promotion UI
         }
-        // If we’re in a networked session, send the request via RPC and STOP local apply.
+
+        // (Safety: if a NetworkManager exists but not listening, this won't early-return)
         var nm = Unity.Netcode.NetworkManager.Singleton;
         if (nm && nm.IsListening)
         {
             if (NetPlayer.Local != null && NetPlayer.Local.CanAct())
-            {
                 NetPlayer.Local.TryRequestMove(this.Id, newCell);
-            }
             else
-            {
-                // not your turn or not owned, snap back
                 transform.position = originalPosition;
-            }
-            return; // leave; server will validate and broadcast via ClientRpc
+            return;
         }
-        // Finalize move
-        Vector2Int oldCell = currentCell;  
-        ChessBoard.Instance.MovePiece(currentCell, newCell);
+
+        // 4) Finalize the move locally
+        ChessBoard.Instance.MovePiece(oldCell, newCell);
         currentCell = newCell;
         hasMoved = true;
         transform.position = snappedPosition;
 
-        // If this was a king castling move, also move the rook
+        // 5) Castling rook shift (unchanged)
         if (pieceType == PieceType.King && Mathf.Abs(newCell.x - oldCell.x) == 2)
         {
             bool kingSide = newCell.x > oldCell.x;
-
             int rookFromX = kingSide ? 7 : 0;
             int rookToX = kingSide ? (newCell.x - 1) : (newCell.x + 1);
 
@@ -294,23 +320,27 @@ public class ChessPiece : NetworkBehaviour
             ChessPiece rook = ChessBoard.Instance.GetPieceAt(rookFrom);
             if (rook != null && rook.pieceType == PieceType.Rook && rook.team == team)
             {
-                // Update board array
                 ChessBoard.Instance.MovePiece(rookFrom, rookTo);
-
-                // Update rook component and transform
                 rook.currentCell = rookTo;
                 rook.hasMoved = true;
                 rook.transform.position = BoardInitializer.Instance.GetWorldPosition(rookTo);
             }
         }
 
+        // 6) Maintain En Passant window OFFLINE (mirror server logic)
+        ChessBoard.Instance.ClearEnPassant();
+        if (pieceType == PieceType.Pawn && Mathf.Abs(newCell.y - oldCell.y) == 2 && newCell.x == oldCell.x)
+        {
+            var mid = new Vector2Int(oldCell.x, (oldCell.y + newCell.y) / 2); // passed square
+            ChessBoard.Instance.enPassantTarget = mid;
+            ChessBoard.Instance.enPassantPawnId = this.Id;
+        }
+
+        // 7) SFX + turn advance
         if (audioSource != null && moveClip != null)
             audioSource.PlayOneShot(moveClip);
 
         TurnManager.Instance.NextTurn();
-
-        // Now reset drag flag
-        
     }
 
     Vector3 SnapToGrid(Vector3 rawPosition)

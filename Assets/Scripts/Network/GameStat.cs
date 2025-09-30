@@ -54,9 +54,54 @@ public class GameState : NetworkBehaviour
                 Debug.Log($"[SRPC] illegal ({piece.pieceType}) to={to} currentCell={piece.currentCell}");
             return;
         }
+        bool enPassantCapture = false;
+        Vector2Int from = piece.currentCell;  // you'll log later; we need it now
 
+        // EP if: moving pawn diagonally into empty square that equals enPassantTarget
+        if (piece.pieceType == PieceType.Pawn &&
+            ChessBoard.Instance.enPassantTarget.x >= 0 &&
+            victim == null &&                               // target square is empty
+            Mathf.Abs(to.x - from.x) == 1 &&
+            (to.y - from.y) == ((piece.team == TeamColor.White) ? 1 : -1) &&
+            to == ChessBoard.Instance.enPassantTarget)
+        {
+            enPassantCapture = true;
+        }
+
+        // EP if: moving pawn diagonally into empty square that equals enPassantTarget
+        if (piece.pieceType == PieceType.Pawn &&
+            ChessBoard.Instance.enPassantTarget.x >= 0 &&
+            victim == null &&                               // target square is empty
+            Mathf.Abs(to.x - from.x) == 1 &&
+            (to.y - from.y) == ((piece.team == TeamColor.White) ? 1 : -1) &&
+            to == ChessBoard.Instance.enPassantTarget)
+        {
+            enPassantCapture = true;
+        }
         int capturedId = -1;
-        if (victim != null)
+
+        if (enPassantCapture)
+        {
+            // The victim pawn is on the from-rank, same file as 'to'
+            var victimCell = new Vector2Int(to.x, from.y);
+            var epVictim = ChessBoard.Instance.GetPieceAt(victimCell);
+
+            if (epVictim == null || epVictim.pieceType != PieceType.Pawn || epVictim.team == piece.team)
+            {
+                Debug.Log("[SRPC] EP victim missing or invalid");
+                return;
+            }
+            if (epVictim.IsDivinelyProtected)
+            {
+                Debug.Log("[SRPC] EP blocked: victim divinely protected");
+                return;
+            }
+
+            capturedId = epVictim.Id;
+            Debug.Log($"[SRPC] EN PASSANT CAPTURE Pawn#{capturedId} at {victimCell}");
+            ChessBoard.Instance.CapturePiece(victimCell); // note: capture the pawn at its square
+        }
+        else if (victim != null)
         {
             if (victim.IsDivinelyProtected)
             {
@@ -69,7 +114,7 @@ public class GameState : NetworkBehaviour
         }
 
         // For diagnostics: log board “from” and “to”
-        var from = piece.currentCell;
+        //var from = piece.currentCell;
         Debug.Log($"[SRPC] MOVE {piece.pieceType}#{piece.Id} {from} {to}");
 
         // after legality checks and optional victim capture...

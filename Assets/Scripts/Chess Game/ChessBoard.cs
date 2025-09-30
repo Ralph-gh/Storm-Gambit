@@ -31,6 +31,15 @@ public class ChessBoard : NetworkBehaviour
     public event System.Action OnGraveyardChanged;
     public void RaiseGraveyardChanged() => OnGraveyardChanged?.Invoke(); //graveyard on network play
       private int _idCounter = 1000;
+    // --- En Passant state (server-authoritative, clients follow via RPC) ---
+    public Vector2Int enPassantTarget = new Vector2Int(-1, -1); // empty square a pawn may move to for EP
+    public int enPassantPawnId = -1;                             // the pawn that can be captured en passant
+
+    public void ClearEnPassant()
+    {
+        enPassantTarget = new Vector2Int(-1, -1);
+        enPassantPawnId = -1;
+    }
 
     public void TriggerPromotion(ChessPiece pawn)
     {
