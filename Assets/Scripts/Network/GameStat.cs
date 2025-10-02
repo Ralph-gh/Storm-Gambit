@@ -67,17 +67,6 @@ public class GameState : NetworkBehaviour
         {
             enPassantCapture = true;
         }
-
-        // EP if: moving pawn diagonally into empty square that equals enPassantTarget
-        if (piece.pieceType == PieceType.Pawn &&
-            ChessBoard.Instance.enPassantTarget.x >= 0 &&
-            victim == null &&                               // target square is empty
-            Mathf.Abs(to.x - from.x) == 1 &&
-            (to.y - from.y) == ((piece.team == TeamColor.White) ? 1 : -1) &&
-            to == ChessBoard.Instance.enPassantTarget)
-        {
-            enPassantCapture = true;
-        }
         int capturedId = -1;
 
         if (enPassantCapture)
@@ -148,9 +137,32 @@ public class GameState : NetworkBehaviour
         // flip turn...
         var next = (CurrentTurn.Value == TeamColor.White) ? TeamColor.Black : TeamColor.White;
         CurrentTurn.Value = next;
+        // ===== En Passant window maintenance =====
+        int epX = -1, epY = -1, epPawnId = -1;
+        ChessBoard.Instance.ClearEnPassant();
+        if (piece.pieceType == PieceType.Pawn && Mathf.Abs(to.y - from.y) == 2 && to.x == from.x)
+        {
+            var mid = new Vector2Int(from.x, (from.y + to.y) / 2); // passed-over square
+            ChessBoard.Instance.enPassantTarget = mid;
+            ChessBoard.Instance.enPassantPawnId = piece.Id;
+            epX = mid.x; epY = mid.y; epPawnId = piece.Id;
+        }
+        // Send the move
+        ApplyMoveClientRpc(piece.Id, to.x, to.y, capturedId);
 
+        // Send the EP window for the NEXT move
+        SetEnPassantClientRpc(epX, epY, epPawnId);
     }
-
+    [ClientRpc]
+    void SetEnPassantClientRpc(int epX, int epY, int epPawnId)
+    {
+        ChessBoard.Instance.ClearEnPassant();
+        if (epX >= 0)
+        {
+            ChessBoard.Instance.enPassantTarget = new Vector2Int(epX, epY);
+            ChessBoard.Instance.enPassantPawnId = epPawnId;
+        }
+    }
     [ClientRpc]
     void ApplyMoveClientRpc(int moverId, int toX, int toY, int capturedId)
     {
@@ -199,6 +211,7 @@ public class GameState : NetworkBehaviour
         if (netPlayer == null) return;
         if (netPlayer.Side.Value != CurrentTurn.Value) return;
         CurrentTurn.Value = (CurrentTurn.Value == TeamColor.White) ? TeamColor.Black : TeamColor.White;
+        ChessBoard.Instance.ClearEnPassant();
     }
     public override void OnNetworkSpawn()
     {

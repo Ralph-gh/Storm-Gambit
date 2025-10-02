@@ -202,11 +202,9 @@ public class ChessPiece : NetworkBehaviour
         if (!isDragging || ChessBoard.Instance.gameOver || !canDrag) return;
         isDragging = false;
         canDrag = false;
-
         if (_sr != null) _sr.color = _baseColor;
 
         bool isNet = Unity.Netcode.NetworkManager.Singleton && Unity.Netcode.NetworkManager.Singleton.IsListening;
-
         Vector3 snappedPosition = SnapToGrid(transform.position);
         Vector2Int newCell = WorldToCell(snappedPosition);
 
