@@ -21,7 +21,8 @@ public class GameState : NetworkBehaviour
 
     public void RequestMoveServerRpc(int pieceId, int targetX, int targetY, ServerRpcParams p = default)
     {
-        
+        // Always ensure the server-side board/index are fresh before any legality checks
+        ChessBoard.Instance.RebuildBoardAndIndexFromScene();
         var sender = p.Receive.SenderClientId;
         var player = NetPlayer.FindByClient(sender);
         if (player == null || player.Side.Value != CurrentTurn.Value)
@@ -38,6 +39,39 @@ public class GameState : NetworkBehaviour
         Vector2Int to = new Vector2Int(targetX, targetY);
         if (!ChessBoard.Instance.IsInsideBoard(to)) { Debug.Log($"[SRPC] outside {to}"); return; }
 
+        bool IsCastleAttempt() =>
+        piece.pieceType == PieceType.King &&
+        piece.currentCell.y == to.y &&
+        Mathf.Abs(to.x - piece.currentCell.x) == 2;
+
+        if (IsCastleAttempt())
+        {
+            // Mirror your King.IsValidMove tests to see what’s failing
+            var king = ChessBoard.Instance.GetPieceAt(piece.currentCell);
+            bool kingOk = (king != null && !king.hasMoved);
+
+            bool kingSide = (to.x > piece.currentCell.x);
+            int rookX = kingSide ? 7 : 0;
+            var rookPos = new Vector2Int(rookX, piece.currentCell.y);
+            var rook = ChessBoard.Instance.GetPieceAt(rookPos);
+            bool rookOk = (rook != null && rook.pieceType == PieceType.Rook && rook.team == piece.team && !rook.hasMoved);
+
+            bool targetEmpty = ChessBoard.Instance.GetPieceAt(to) == null;
+
+            // Path empty (excludes rook square)
+            bool pathEmpty = true;
+            int step = kingSide ? 1 : -1;
+            for (int x = piece.currentCell.x + step; x != rookPos.x; x += step)
+            {
+                if (ChessBoard.Instance.GetPieceAt(new Vector2Int(x, piece.currentCell.y)) != null)
+                {
+                    pathEmpty = false; break;
+                }
+            }
+
+            Debug.Log($"[SRPC/CASTLE DIAG] from={piece.currentCell} to={to} side={piece.team} " +
+                      $"kingOk={kingOk} rookOk={rookOk} targetEmpty={targetEmpty} pathEmpty={pathEmpty}");
+        }
         //  log what server sees on target before legality
         var victim = ChessBoard.Instance.GetPieceAt(to);
         Debug.Log($"[SRPC] check {piece.pieceType}#{piece.Id} {piece.team}  {to} | victim={(victim ? victim.pieceType.ToString() : "null")}");
@@ -130,13 +164,10 @@ public class GameState : NetworkBehaviour
         ChessBoard.Instance.ExecuteMoveServer(piece, to);
 
         // Notify clients: king move + optional castle rook move
-        ApplyMoveClientRpc(piece.Id, to.x, to.y, capturedId);
-        if (rookId >= 0)
-            MoveRookClientRpc(rookId, rookToX, rookToY);
+      
+        
 
-        // flip turn...
-        var next = (CurrentTurn.Value == TeamColor.White) ? TeamColor.Black : TeamColor.White;
-        CurrentTurn.Value = next;
+        
         // ===== En Passant window maintenance =====
         int epX = -1, epY = -1, epPawnId = -1;
         ChessBoard.Instance.ClearEnPassant();
@@ -149,9 +180,13 @@ public class GameState : NetworkBehaviour
         }
         // Send the move
         ApplyMoveClientRpc(piece.Id, to.x, to.y, capturedId);
-
+        if (rookId >= 0)
+            MoveRookClientRpc(rookId, rookToX, rookToY);
         // Send the EP window for the NEXT move
         SetEnPassantClientRpc(epX, epY, epPawnId);
+        // flip turn...
+        var next = (CurrentTurn.Value == TeamColor.White) ? TeamColor.Black : TeamColor.White;
+        CurrentTurn.Value = next;
     }
     [ClientRpc]
     void SetEnPassantClientRpc(int epX, int epY, int epPawnId)
@@ -216,7 +251,14 @@ public class GameState : NetworkBehaviour
     public override void OnNetworkSpawn()
     {
         base.OnNetworkSpawn();
-
+        #if UNITY_SERVER || UNITY_EDITOR
+        foreach (var p in GameObject.FindObjectsOfType<ChessPiece>())
+        {
+            if (p.pieceType == PieceType.King || p.pieceType == PieceType.Rook)
+                p.hasMoved = false;
+        }
+        ChessBoard.Instance.RebuildBoardAndIndexFromScene();
+        #endif
         //sync turn
         if (TurnManager.Instance)TurnManager.Instance.SyncTurn(CurrentTurn.Value);
         CurrentTurn.OnValueChanged += (oldV, NewV) =>
