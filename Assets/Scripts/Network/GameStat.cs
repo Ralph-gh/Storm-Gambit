@@ -9,11 +9,12 @@ public class GameState : NetworkBehaviour
     // Which side can act
     public NetworkVariable<TeamColor> CurrentTurn = new NetworkVariable<TeamColor>(TeamColor.White);
 
-    // Quick piece addressing: your ChessPiece must have a stable unique Id.
+    // Quick piece addressing: ChessPiece must have a stable unique Id.
     // If you don't have it yet, add `public int Id;` to ChessPiece and assign in BoardInitializer.
     // We'll use RPCs to move pieces by Id to avoid full-state replication for now.
-
+    public NetworkVariable<int> MoveNumber = new NetworkVariable<int>(0);//used for turn counter in network play
     void Awake() => Instance = this;
+    
 
     public bool IsMyTurn(TeamColor mySide) => CurrentTurn.Value == mySide;
 
@@ -34,7 +35,22 @@ public class GameState : NetworkBehaviour
         var piece = ChessBoard.Instance.GetPieceById(pieceId);
         if (piece == null) { Debug.Log($"[SRPC] no piece id={pieceId}"); return; }
 
+        TeamColor next = (CurrentTurn.Value == TeamColor.White) ? TeamColor.Black : TeamColor.White;
         //ChessBoard.Instance.EnsureBoardEntry(piece);  
+        if (next == TeamColor.Black)
+        {
+            // White just moved. If this is the very first move, set to 1.
+            if (MoveNumber.Value == 0) MoveNumber.Value = 1;
+        }
+        else // next == TeamColor.White
+        {
+            // Black just moved. A full move has completed; increment (PGN-style).
+            if (MoveNumber.Value > 0) MoveNumber.Value += 1;
+
+            // Every 10 full moves, on White’s turn, both players draw 1 spell
+            if (MoveNumber.Value > 0 && MoveNumber.Value % 10 == 0)
+                DrawSpellForBothPlayersClientRpc();
+        }
 
         Vector2Int to = new Vector2Int(targetX, targetY);
         if (!ChessBoard.Instance.IsInsideBoard(to)) { Debug.Log($"[SRPC] outside {to}"); return; }
@@ -185,7 +201,7 @@ public class GameState : NetworkBehaviour
         // Send the EP window for the NEXT move
         SetEnPassantClientRpc(epX, epY, epPawnId);
         // flip turn...
-        var next = (CurrentTurn.Value == TeamColor.White) ? TeamColor.Black : TeamColor.White;
+        //var next = (CurrentTurn.Value == TeamColor.White) ? TeamColor.Black : TeamColor.White;
         CurrentTurn.Value = next;
     }
     [ClientRpc]
@@ -197,6 +213,15 @@ public class GameState : NetworkBehaviour
             ChessBoard.Instance.enPassantTarget = new Vector2Int(epX, epY);
             ChessBoard.Instance.enPassantPawnId = epPawnId;
         }
+    }
+    [ClientRpc]
+    void DrawSpellForBothPlayersClientRpc()
+    {
+        // Each client draws into their own hand (1 spell card)
+        var drawers = FindObjectsByType<CardDrawer>(FindObjectsInactive.Exclude, FindObjectsSortMode.None);
+        foreach (var d in drawers) d.DrawOneSpellCard();  // see CardDrawer update below
+
+        // Optional: UI toast, VFX, SFX — leave to your UX layer.
     }
     [ClientRpc]
     void ApplyMoveClientRpc(int moverId, int toX, int toY, int capturedId)
@@ -265,6 +290,23 @@ public class GameState : NetworkBehaviour
         {
             if (TurnManager.Instance) TurnManager.Instance.SyncTurn(NewV);
         };
+        {
+            base.OnNetworkSpawn();
+
+            if (TurnManager.Instance) TurnManager.Instance.SyncTurn(CurrentTurn.Value);
+            CurrentTurn.OnValueChanged += (oldV, NewV) =>
+            {
+                if (TurnManager.Instance) TurnManager.Instance.SyncTurn(NewV);
+            };
+
+            // Hook move number changes for local UI listeners (purely cosmetic on clients)
+            MoveNumber.OnValueChanged += (oldV, newV) =>
+            {
+                TurnCounterUI.BroadcastMoveNumber(newV);
+            };
+
+            if (IsServer) StartCoroutine(BoardHeartbeat());
+        }
         if (IsServer) StartCoroutine(BoardHeartbeat());
     }
 
