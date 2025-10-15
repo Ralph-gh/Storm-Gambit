@@ -41,7 +41,12 @@ public class TurnManager : MonoBehaviour
         HasCastFreeSpellThisTurn = true; // Do NOT end the turn here
         OnTurnChanged?.Invoke(currentTurn);
     }
-
+    public void SetTurn(TeamColor t)
+    {
+        if (currentTurn == t) return;
+        currentTurn = t;
+        OnTurnChanged?.Invoke(currentTurn);   // REQUIRED for offline counter
+    }
     public void EndTurn()
     {
         // Flip side and advance the turn counter

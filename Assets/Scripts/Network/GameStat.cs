@@ -49,7 +49,13 @@ public class GameState : NetworkBehaviour
 
             // Every 10 full moves, on White’s turn, both players draw 1 spell
             if (MoveNumber.Value > 0 && MoveNumber.Value % 10 == 0)
+            {
+                // Server (host) draws for itself locally
+                DrawSpellForBothPlayersLocal();
+
+                // Then notify remote clients to draw
                 DrawSpellForBothPlayersClientRpc();
+            }
         }
 
         Vector2Int to = new Vector2Int(targetX, targetY);
@@ -217,11 +223,16 @@ public class GameState : NetworkBehaviour
     [ClientRpc]
     void DrawSpellForBothPlayersClientRpc()
     {
-        // Each client draws into their own hand (1 spell card)
-        var drawers = FindObjectsByType<CardDrawer>(FindObjectsInactive.Exclude, FindObjectsSortMode.None);
-        foreach (var d in drawers) d.DrawOneSpellCard();  // see CardDrawer update below
+        // Only remote clients run this (server/host already did it locally)
+        if (IsServer) return;
+        DrawSpellForBothPlayersLocal();
+    }
 
-        // Optional: UI toast, VFX, SFX — leave to your UX layer.
+    private void DrawSpellForBothPlayersLocal()
+    {
+        var drawers = FindObjectsByType<CardDrawer>(FindObjectsInactive.Exclude, FindObjectsSortMode.None);
+        foreach (var d in drawers)
+            d.DrawOneSpellCard();
     }
     [ClientRpc]
     void ApplyMoveClientRpc(int moverId, int toX, int toY, int capturedId)

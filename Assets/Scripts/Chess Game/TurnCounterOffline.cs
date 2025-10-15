@@ -33,13 +33,6 @@ public class TurnCounterOffline : MonoBehaviour
         {
             if (moveNumber > 0) moveNumber += 1;
             TurnCounterUI.BroadcastMoveNumber(moveNumber);
-
-            if (moveNumber > 0 && moveNumber % 10 == 0)
-            {
-                // Both players draw 1 spell (client-local)
-                var drawers = FindObjectsByType<CardDrawer>(FindObjectsInactive.Exclude, FindObjectsSortMode.None);
-                foreach (var d in drawers) d.DrawOneSpellCard();
-            }
         }
 
         _lastTurn = newTurn;
