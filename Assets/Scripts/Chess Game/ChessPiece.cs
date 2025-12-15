@@ -207,6 +207,7 @@ public class ChessPiece : NetworkBehaviour
         bool isNet = Unity.Netcode.NetworkManager.Singleton && Unity.Netcode.NetworkManager.Singleton.IsListening;
         Vector3 snappedPosition = SnapToGrid(transform.position);
         Vector2Int newCell = WorldToCell(snappedPosition);
+        Vector2Int fromCell = currentCell;
 
         // --- NETWORKED PATH: ask server & snap back (server will broadcast final move) ---
         if (isNet)
@@ -276,6 +277,7 @@ public class ChessPiece : NetworkBehaviour
                 return;
             }
             ChessBoard.Instance.CapturePiece(newCell);
+            LastMoveIndicator.Instance?.ShowMove(fromCell, newCell);
         }
 
         // 3) Promotion (after capture handling)
@@ -283,8 +285,11 @@ public class ChessPiece : NetworkBehaviour
         {
             transform.position = snappedPosition;
             currentCell = newCell;
+   
             ChessBoard.Instance.pawnToPromote = this;
             ChessBoard.Instance.TriggerPromotion(this);
+            LastMoveIndicator.Instance?.ShowMove(fromCell, newCell);
+
             return; // wait for promotion UI
         }
 
@@ -302,6 +307,7 @@ public class ChessPiece : NetworkBehaviour
         // 4) Finalize the move locally
         ChessBoard.Instance.MovePiece(oldCell, newCell);
         currentCell = newCell;
+        LastMoveIndicator.Instance?.ShowMove(fromCell, newCell);
         hasMoved = true;
         transform.position = snappedPosition;
 

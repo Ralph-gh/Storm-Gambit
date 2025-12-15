@@ -1,6 +1,7 @@
-using Unity.Netcode;
 using Unity.Collections;
+using Unity.Netcode;
 using UnityEngine;
+using UnityEngine.UIElements;
 
 public class GameState : NetworkBehaviour
 {
@@ -248,7 +249,8 @@ public class GameState : NetworkBehaviour
             mover = ChessBoard.Instance.GetPieceById(moverId);
             if (mover == null) { Debug.LogWarning($"[RPC/{role}] mover {moverId} STILL missing"); return; }
         }
-
+        var from = mover.currentCell;
+        var to = new Vector2Int(toX, toY);
         if (capturedId >= 0)
         {
             var victim = ChessBoard.Instance.GetPieceById(capturedId);
@@ -269,6 +271,7 @@ public class GameState : NetworkBehaviour
         }
 
         ChessBoard.Instance.MovePieceLocal(mover, new Vector2Int(toX, toY));
+        LastMoveIndicator.Instance?.ShowMove(from, to);
         TurnManager.Instance?.SyncTurn(CurrentTurn.Value);
     }
 

@@ -3,6 +3,11 @@ using UnityEngine.EventSystems;
 
 public class DivineProtectionSpellUI : MonoBehaviour
 {
+    private CardUI sourceCard;
+    private bool hasClosed;
+
+    // CardUI calls this via BroadcastMessage("BindSourceCard", this)
+    public void BindSourceCard(CardUI card) => sourceCard = card;
     void Start()
     {
         Debug.Log("Divine Protection UI active.");
@@ -10,6 +15,12 @@ public class DivineProtectionSpellUI : MonoBehaviour
 
     void Update()
     {
+
+        if (Input.GetKeyDown(KeyCode.Escape))
+        {
+            CancelSpell();
+            return;
+        }
         if (Input.GetMouseButtonDown(0) && !EventSystem.current.IsPointerOverGameObject())
         {
             Vector3 mouseWorld = Camera.main.ScreenToWorldPoint(Input.mousePosition);
@@ -29,9 +40,33 @@ public class DivineProtectionSpellUI : MonoBehaviour
                 //TurnManager.Instance.NextTurn();       commented to no longer end turn
                 if (TurnManager.Instance.IsPlayersTurn(piece.team))
                     TurnManager.Instance.RegisterFreeSpellCast();
-                Destroy(gameObject);                   // close spell UI
+                CloseSuccess(); // consumes the card + closes UI
             }
         }
+    }
+    public void CancelSpell()
+    {
+        if (hasClosed) return;
+        hasClosed = true;
+
+        sourceCard?.CancelPendingSpellCast();
+        Destroy(gameObject);
+    }
+
+    private void CloseSuccess()
+    {
+        if (hasClosed) return;
+        hasClosed = true;
+
+        sourceCard?.ConsumeCardAfterSuccessfulCast();
+        Destroy(gameObject);
+    }
+
+    private void OnDestroy()
+    {
+        // If something kills the UI unexpectedly, treat as cancel.
+        if (!hasClosed)
+            sourceCard?.CancelPendingSpellCast();
     }
 
     Vector2Int WorldToCell(Vector3 world)

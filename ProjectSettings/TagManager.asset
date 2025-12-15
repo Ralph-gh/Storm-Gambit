@@ -13,7 +13,7 @@ TagManager:
   - UI
   - WhiteHand
   - BlackHand
-  - 
+  - ArrowHead
   - 
   - 
   - 
@@ -46,4 +46,7 @@ TagManager:
     locked: 0
   - name: UI
     uniqueID: 1990250075
+    locked: 0
+  - name: ArrowHead
+    uniqueID: 445545239
     locked: 0
