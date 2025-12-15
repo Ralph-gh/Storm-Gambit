@@ -9,7 +9,10 @@ public class ResurrectionSpellUI : MonoBehaviour
     public GameObject buttonPrefab;
     public Transform whiteContainer;
     public Transform blackContainer;
+    public void BindSourceCard(CardUI card) => sourceCard = card;
 
+    private CardUI sourceCard;
+    private bool hasClosed;
     void OnEnable() => GenerateButtons();
 
     void GenerateButtons()
@@ -45,7 +48,7 @@ public class ResurrectionSpellUI : MonoBehaviour
                 data.originalPosition.x,
                 data.originalPosition.y
             );
-            Destroy(gameObject); // close UI
+            CloseSuccess(); // close UI and destroy card upon success
             return;
         }
         Vector2Int spawn = data.originalPosition;
@@ -78,5 +81,27 @@ public class ResurrectionSpellUI : MonoBehaviour
 
             Destroy(gameObject); // close UI
         
+    }
+
+    public void CancelSpell()
+    {
+        if (hasClosed) return;
+        hasClosed = true;
+        sourceCard?.CancelPendingSpellCast();
+        Destroy(gameObject);
+    }
+
+    private void CloseSuccess()
+    {
+        if (hasClosed) return;
+        hasClosed = true;
+        sourceCard?.ConsumeCardAfterSuccessfulCast();
+        Destroy(gameObject);
+    }
+
+    private void OnDestroy()
+    {
+        if (!hasClosed)
+            sourceCard?.CancelPendingSpellCast();
     }
 }

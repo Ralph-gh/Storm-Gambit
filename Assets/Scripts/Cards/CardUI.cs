@@ -10,12 +10,35 @@ public class CardUI : MonoBehaviour
 
     private System.Action<CardData> onSelectedCallback;
     private bool isSelectionMode;
+    
+    //Keeping the spell until completed
+    private bool isCastingSpell;
+    private GameObject activeSpellUI;
 
     // --- Small helpers so we don’t repeat logic everywhere ---
 
     private static bool IsNetActive =>
         Unity.Netcode.NetworkManager.Singleton && Unity.Netcode.NetworkManager.Singleton.IsListening;
+    public void CancelPendingSpellCast()
+    {
+        isCastingSpell = false;
+        activeSpellUI = null;
+        RefreshInteractable();
+    }
 
+    public void ConsumeCardAfterSuccessfulCast()
+    {
+        isCastingSpell = false;
+        activeSpellUI = null;
+        Destroy(gameObject);
+    }
+
+    private void Update()
+    {
+        // Safety: if UI is destroyed without calling back, restore the card.
+        if (isCastingSpell && activeSpellUI == null)
+            CancelPendingSpellCast();
+    }
     private static TeamColor ResolveMySide()
     {
         if (IsNetActive && NetPlayer.Local)
@@ -122,6 +145,12 @@ public class CardUI : MonoBehaviour
 
     private void RefreshInteractable()
     {
+        if (isCastingSpell)
+        {
+            SetInteractable(false);
+            return;
+        }
+
         if (cardButton == null || cardData == null || TurnManager.Instance == null) return;
 
         // Characters are selection-only
@@ -187,7 +216,9 @@ public class CardUI : MonoBehaviour
             }
         }
 
-        // Spawn the spell UI or resolve immediately
+        // Safety: don't open two spell UIs for the same card.
+        if (isCastingSpell) return;
+
         var canvas = GameObject.Find("MainCanvas");
         if (cardData.spellUI != null)
         {
@@ -196,18 +227,20 @@ public class CardUI : MonoBehaviour
                 Debug.LogError("MainCanvas not found. Cannot spawn spell UI.");
                 return;
             }
-            Instantiate(cardData.spellUI, canvas.transform);
+
+            isCastingSpell = true;
+            SetInteractable(false);
+
+            activeSpellUI = Instantiate(cardData.spellUI, canvas.transform);
+
+            // Allows spell UI script to live on root OR children
+            activeSpellUI.BroadcastMessage("BindSourceCard", this, SendMessageOptions.DontRequireReceiver);
         }
         else
         {
-            // If you have instant spells without UI, resolve here,
-            // BUT do not consume free spell unless the effect succeeds.
-            // SpellManager.Instance.ResolveSpell(cardData);
+            // Instant spells (if any): consume immediately only after success
+            ConsumeCardAfterSuccessfulCast();
         }
-
-        // Do NOT consume the free spell here.
-        // Consume it ONLY after the effect succeeds inside the specific Spell UI.
-        Destroy(gameObject); // remove the card from the hand after play
     }
 
     public void SetInteractable(bool value)
