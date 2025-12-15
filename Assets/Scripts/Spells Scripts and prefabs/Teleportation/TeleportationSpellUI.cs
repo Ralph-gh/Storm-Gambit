@@ -4,7 +4,10 @@ using UnityEngine.EventSystems;
 public class TeleportationSpellUI : MonoBehaviour
 {
     private ChessPiece selectedPiece = null;
+    private CardUI sourceCard;
+    private bool hasClosed;
 
+    public void BindSourceCard(CardUI card) => sourceCard = card;
     // Resolve my side for net/offline once per frame
     private TeamColor MySide =>
         (SpellRules.IsNet && NetPlayer.Local) ? NetPlayer.Local.Side.Value
@@ -56,7 +59,7 @@ public class TeleportationSpellUI : MonoBehaviour
             if (piece == null)
             {
                 Teleport(selectedPiece, cell);
-                Destroy(gameObject); // close spell UI
+                CloseSuccess(); // close spell UI
             }
             else
             {
@@ -93,8 +96,29 @@ public class TeleportationSpellUI : MonoBehaviour
             TurnManager.Instance.RegisterFreeSpellCast();
 
         Debug.Log("Teleported to " + targetCell);
+        CloseSuccess(); // close spell UI
+    }
+    public void CancelSpell()
+    {
+        if (hasClosed) return;
+        hasClosed = true;
+        sourceCard?.CancelPendingSpellCast();
+        Destroy(gameObject);
     }
 
+    private void CloseSuccess()
+    {
+        if (hasClosed) return;
+        hasClosed = true;
+        sourceCard?.ConsumeCardAfterSuccessfulCast();
+        Destroy(gameObject);
+    }
+
+    private void OnDestroy()
+    {
+        if (!hasClosed)
+            sourceCard?.CancelPendingSpellCast();
+    }
     Vector2Int WorldToCell(Vector3 world)
     {
         const float size = 0.5f;

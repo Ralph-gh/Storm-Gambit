@@ -16,4 +16,4 @@ MonoBehaviour:
   fullCardSprite: {fileID: 21300000, guid: 63a29c98290a3814fb059a0fd81df0e3, type: 3}
   cardtype: 1
   spellType: 1
-  spellUI: {fileID: 6763589432106491609, guid: fd9ef4d7275af2d4e8772c71991fd515, type: 3}
+  spellUI: {fileID: 3653490537592177246, guid: 70ada3fa91cfb8d46a8b57e1ec7a50b8, type: 3}
