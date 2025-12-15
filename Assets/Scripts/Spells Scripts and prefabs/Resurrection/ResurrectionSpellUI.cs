@@ -79,8 +79,8 @@ public class ResurrectionSpellUI : MonoBehaviour
             if (TurnManager.Instance.IsPlayersTurn(data.team))
                 TurnManager.Instance.RegisterFreeSpellCast();
 
-            Destroy(gameObject); // close UI
-        
+        CloseSuccess(); // close UI and destroy card upon success
+
     }
 
     public void CancelSpell()
