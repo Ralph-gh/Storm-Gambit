@@ -14,7 +14,7 @@ TagManager:
   - WhiteHand
   - BlackHand
   - ArrowHead
-  - 
+  - Grid
   - 
   - 
   - 
@@ -40,6 +40,9 @@ TagManager:
   m_SortingLayers:
   - name: Default
     uniqueID: 0
+    locked: 0
+  - name: Grid
+    uniqueID: 1559303193
     locked: 0
   - name: Chess Pieces
     uniqueID: 1026364199

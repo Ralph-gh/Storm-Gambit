@@ -29,6 +29,11 @@ public class LastMoveIndicator : MonoBehaviour
         if (arrowHead) arrowHead.gameObject.SetActive(false);
     }
 
+    /*private void Start()
+    {
+        ShowMove(new Vector2Int(0, 0), new Vector2Int(7, 7));
+    }*/
+
     public void Hide()
     {
         lr.enabled = false;
