@@ -7,6 +7,8 @@ public class CardUI : MonoBehaviour
     public Image fullImage;
     public Button cardButton; // assign on prefab
     public CardData cardData;
+    private System.Action<MageData> onMageSelected;
+    private bool isMageSelection;
 
     private System.Action<CardData> onSelectedCallback;
     private bool isSelectionMode;
@@ -246,5 +248,30 @@ public class CardUI : MonoBehaviour
     public void SetInteractable(bool value)
     {
         if (cardButton) cardButton.interactable = value;
+    }
+    public void LoadMage(MageData mage, bool selectionMode, System.Action<MageData> onSelected)
+    {
+        isMageSelection = selectionMode;
+        onMageSelected = onSelected;
+
+        if (fullImage) fullImage.sprite = mage.cardArt;
+
+        if (!cardButton) cardButton = GetComponent<Button>();
+        if (!cardButton)
+        {
+            Debug.LogError("[CardUI] Missing Button component.");
+            return;
+        }
+
+        cardButton.onClick.RemoveAllListeners();
+
+        if (selectionMode)
+        {
+            cardButton.onClick.AddListener(() => onMageSelected?.Invoke(mage));
+        }
+        else
+        {
+            cardButton.interactable = false; // display-only
+        }
     }
 }

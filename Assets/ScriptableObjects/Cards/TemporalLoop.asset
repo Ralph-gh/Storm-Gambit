@@ -17,3 +17,4 @@ MonoBehaviour:
   cardtype: 1
   spellType: 0
   spellUI: {fileID: 0}
+  abilities: 01000000
