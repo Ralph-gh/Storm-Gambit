@@ -2,43 +2,53 @@ using UnityEngine;
 
 public class MageAbilityController : MonoBehaviour
 {
-    [Header("Mage Identity")]
+    [Header("Teleport (Portal Mage)")]
     public string portalMageCardName = "Portal Mage";
-    // Later we’ll replace this with MageData / MageId (solid multiplayer-friendly)
+    public GameObject teleportationSpellUIPrefab;
 
-    [Header("Teleport Ability")]
-    public GameObject teleportationSpellUIPrefab; // your TeleportationSpellUI prefab
+    private bool abilityUsed = false;
 
-    public void TryActivateMageAbility(CardData mageCard)
+    public bool TryActivateMageAbility(CardData mageCard)
     {
+        if (abilityUsed)
+        {
+            Debug.Log("[MageAbility] Ability already used.");
+            return false;
+        }
+
         if (!mageCard)
         {
             Debug.LogWarning("[MageAbility] mageCard is null.");
-            return;
+            return false;
         }
 
-        // Only Portal Mage for now
+        // Only Portal Mage has an ability for now
         if (mageCard.cardName != portalMageCardName)
         {
-            Debug.Log("[MageAbility] No active ability for this mage: " + mageCard.cardName);
-            return;
+            Debug.Log("[MageAbility] This mage has no ability: " + mageCard.cardName);
+            return false;
         }
 
         if (!teleportationSpellUIPrefab)
         {
             Debug.LogError("[MageAbility] teleportationSpellUIPrefab not assigned.");
-            return;
+            return false;
         }
 
-        // Same flow as teleport spell: open the TeleportationSpellUI
         var canvas = GameObject.Find("MainCanvas");
         if (!canvas)
         {
             Debug.LogError("[MageAbility] MainCanvas not found.");
-            return;
+            return false;
         }
 
         Instantiate(teleportationSpellUIPrefab, canvas.transform);
-        Debug.Log("[MageAbility] Portal Mage activated Teleport.");
+
+        // Mark ability as consumed
+        abilityUsed = true;
+        Debug.Log("[MageAbility] Portal Mage ability used (Teleport).");
+        return true;
     }
+
+    public bool IsUsed => abilityUsed;
 }

@@ -3088,6 +3088,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 204145833}
     m_Modifications:
+    - target: {fileID: 878513676407938849, guid: 287f00a7bd457c64b84af5bb9049797e, type: 3}
+      propertyPath: abilityController
+      value: 
+      objectReference: {fileID: 1792876991}
     - target: {fileID: 1502039164711864112, guid: 287f00a7bd457c64b84af5bb9049797e, type: 3}
       propertyPath: m_ChildAlignment
       value: 1
@@ -3211,7 +3215,10 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 7152015666971701554, guid: 287f00a7bd457c64b84af5bb9049797e, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1792876991}
   m_SourcePrefab: {fileID: 100100000, guid: 287f00a7bd457c64b84af5bb9049797e, type: 3}
 --- !u!1 &1081324871
 GameObject:
@@ -3576,6 +3583,11 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 139}
   m_SizeDelta: {x: 200, y: 50}
   m_Pivot: {x: 0.5, y: 0.5}
+--- !u!1 &1174505595 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 7152015666971701554, guid: 287f00a7bd457c64b84af5bb9049797e, type: 3}
+  m_PrefabInstance: {fileID: 1062562972}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1181383178
 GameObject:
   m_ObjectHideFlags: 0
@@ -4896,7 +4908,7 @@ MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 878513676407938849, guid: 287f00a7bd457c64b84af5bb9049797e, type: 3}
   m_PrefabInstance: {fileID: 1062562972}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
+  m_GameObject: {fileID: 1174505595}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: c634c8a926ec0ec47a787e199a3ee447, type: 3}
@@ -4907,6 +4919,20 @@ RectTransform:
   m_CorrespondingSourceObject: {fileID: 6139114350557335109, guid: 287f00a7bd457c64b84af5bb9049797e, type: 3}
   m_PrefabInstance: {fileID: 1062562972}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &1792876991
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1174505595}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b2b60aeabd695e146bf05cc8d02000d5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  portalMageCardName: Portal Mage
+  teleportationSpellUIPrefab: {fileID: 6763589432106491609, guid: fd9ef4d7275af2d4e8772c71991fd515, type: 3}
 --- !u!1 &1848988208
 GameObject:
   m_ObjectHideFlags: 0
@@ -6937,6 +6963,22 @@ PrefabInstance:
       propertyPath: characterPanelHUD
       value: 
       objectReference: {fileID: 1792876988}
+    - target: {fileID: 4315868160651269515, guid: 77d8ad1046ab60a40bc252d8328abc55, type: 3}
+      propertyPath: characterCards.Array.size
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 4315868160651269515, guid: 77d8ad1046ab60a40bc252d8328abc55, type: 3}
+      propertyPath: characterCards.Array.data[1]
+      value: 
+      objectReference: {fileID: 11400000, guid: 43d4564fc58f6294889bb3b90acf396a, type: 2}
+    - target: {fileID: 4315868160651269515, guid: 77d8ad1046ab60a40bc252d8328abc55, type: 3}
+      propertyPath: characterCards.Array.data[2]
+      value: 
+      objectReference: {fileID: 11400000, guid: 43d4564fc58f6294889bb3b90acf396a, type: 2}
+    - target: {fileID: 4315868160651269515, guid: 77d8ad1046ab60a40bc252d8328abc55, type: 3}
+      propertyPath: characterCards.Array.data[3]
+      value: 
+      objectReference: {fileID: 11400000, guid: 43d4564fc58f6294889bb3b90acf396a, type: 2}
     - target: {fileID: 7617606598494399363, guid: 77d8ad1046ab60a40bc252d8328abc55, type: 3}
       propertyPath: m_fontStyle
       value: 0

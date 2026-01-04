@@ -34,7 +34,11 @@ public class CardUI : MonoBehaviour
         activeSpellUI = null;
         Destroy(gameObject);
     }
-
+    public void SetSpentVisual(bool spent)
+    {
+        if (fullImage)
+            fullImage.color = spent ? new Color(1f, 1f, 1f, 0.35f) : Color.white;
+    }
     private void Update()
     {
         // Safety: if UI is destroyed without calling back, restore the card.
