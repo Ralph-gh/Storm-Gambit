@@ -27,7 +27,7 @@ public class ResurrectionPanel : MonoBehaviour
         foreach (var pieceData in dead)
         {
             GameObject btnObj = Instantiate(buttonPrefab, container);
-            Button btn = btnObj.GetComponent<Button>();
+            UnityEngine.UI.Button btn = btnObj.GetComponent<UnityEngine.UI.Button>();
             Image img = btnObj.GetComponent<Image>();
 
             if (pieceData.pieceSprite != null)

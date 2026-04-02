@@ -7,8 +7,8 @@ public class ResurrectionButton : MonoBehaviour
     private CapturedPieceData data;
     private ResurrectionSpellUI spellUI;
 
-    public Button button;
-    public Image icon;
+    public UnityEngine.UI.Button button;
+    public UnityEngine.UI.Image icon;
 
     public void Initialize(CapturedPieceData data, ResurrectionSpellUI ui)
     {
@@ -16,7 +16,7 @@ public class ResurrectionButton : MonoBehaviour
         spellUI = ui;
 
         if (button == null)
-            button = GetComponent<Button>();
+            button = GetComponent<UnityEngine.UI.Button>();
 
         if (icon == null)
             icon = GetComponent<Image>(); // <- not GetComponentInChildren, unless you're nesting!

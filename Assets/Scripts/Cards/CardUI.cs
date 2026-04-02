@@ -5,7 +5,7 @@ using UnityEngine.UI;
 public class CardUI : MonoBehaviour
 {
     public Image fullImage;
-    public Button cardButton; // assign on prefab
+    public UnityEngine.UI.Button cardButton; // assign on prefab
     public CardData cardData;
     private System.Action<MageData> onMageSelected;
     private bool isMageSelection;
@@ -260,7 +260,7 @@ public class CardUI : MonoBehaviour
 
         if (fullImage) fullImage.sprite = mage.cardArt;
 
-        if (!cardButton) cardButton = GetComponent<Button>();
+        if (!cardButton) cardButton = GetComponent<UnityEngine.UI.Button>();
         if (!cardButton)
         {
             Debug.LogError("[CardUI] Missing Button component.");
