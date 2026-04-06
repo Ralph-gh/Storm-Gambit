@@ -155,18 +155,22 @@ public class ChessPiece : NetworkBehaviour
 
         if (_sr != null)
             _sr.color = frozenColor;
-
+        TeamColor previousTurn = TurnManager.Instance.currentTurn;
         _freezeTurnListener = (TeamColor activeTeam) =>
         {
-            // Count only the frozen piece owner's turns
-            if (activeTeam != team) return;
-
-            frozenOwnerTurnsRemaining--;
-
-            if (frozenOwnerTurnsRemaining <= 0)
+            // Count down when the frozen piece owner's turn ENDS
+            if (previousTurn == team && activeTeam != team)
             {
-                RemoveFreeze();
+                frozenOwnerTurnsRemaining--;
+
+                if (frozenOwnerTurnsRemaining <= 0)
+                {
+                    RemoveFreeze();
+                    return;
+                }
             }
+
+            previousTurn = activeTeam;
         };
 
         if (TurnManager.Instance != null)
@@ -190,8 +194,10 @@ public class ChessPiece : NetworkBehaviour
         }
     }
 
-    private void OnDestroy()
+    public override void OnDestroy()
     {
+        base.OnDestroy();
+
         if (_turnListener != null && TurnManager.Instance != null)
             TurnManager.Instance.OnTurnChanged -= _turnListener;
 
