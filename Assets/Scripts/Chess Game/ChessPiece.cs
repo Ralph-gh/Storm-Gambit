@@ -31,6 +31,16 @@ public class ChessPiece : NetworkBehaviour
     private TeamColor protectionOwnerTeam; //Divine protection Owner
     private System.Action<TeamColor> _turnListener;//Used for turn logic
     //Apply protection for exactly one opponent turn
+    //for freezing spell and freeze mage ability
+    private bool isFrozen = false;
+    public bool IsFrozen => isFrozen;
+
+    private int frozenOwnerTurnsRemaining = 0;
+    private System.Action<TeamColor> _freezeTurnListener;
+
+    [SerializeField] private Color frozenColor = new Color(0.65f, 0.85f, 1f, 1f);
+    private Color _normalBaseColor;
+    //freezing end
 
     private bool isDragging = false;
     private Vector3 originalPosition;
@@ -57,7 +67,11 @@ public class ChessPiece : NetworkBehaviour
     void Awake()
     {
         _sr = GetComponent<SpriteRenderer>();
-        if (_sr != null) _baseColor = _sr.color;
+        if (_sr != null)
+        {
+            _baseColor = _sr.color;
+            _normalBaseColor = _sr.color;
+        }
     }
     public void SetPosition(Vector2Int cellPosition, Vector3 worldPosition)
     {
@@ -132,10 +146,57 @@ public class ChessPiece : NetworkBehaviour
         // e.g. GetComponent<SpriteRenderer>().color = Color.white;
     }
 
+    public void ApplyFreeze(int ownerTurnsToSkip = 2)
+    {
+        if (isFrozen) return;
+
+        isFrozen = true;
+        frozenOwnerTurnsRemaining = ownerTurnsToSkip;
+
+        if (_sr != null)
+            _sr.color = frozenColor;
+
+        _freezeTurnListener = (TeamColor activeTeam) =>
+        {
+            // Count only the frozen piece owner's turns
+            if (activeTeam != team) return;
+
+            frozenOwnerTurnsRemaining--;
+
+            if (frozenOwnerTurnsRemaining <= 0)
+            {
+                RemoveFreeze();
+            }
+        };
+
+        if (TurnManager.Instance != null)
+            TurnManager.Instance.OnTurnChanged += _freezeTurnListener;
+    }
+
+    public void RemoveFreeze()
+    {
+        if (!isFrozen) return;
+
+        isFrozen = false;
+        frozenOwnerTurnsRemaining = 0;
+
+        if (_sr != null)
+            _sr.color = _normalBaseColor;
+
+        if (_freezeTurnListener != null && TurnManager.Instance != null)
+        {
+            TurnManager.Instance.OnTurnChanged -= _freezeTurnListener;
+            _freezeTurnListener = null;
+        }
+    }
+
     private void OnDestroy()
     {
         if (_turnListener != null && TurnManager.Instance != null)
             TurnManager.Instance.OnTurnChanged -= _turnListener;
+
+        if (_freezeTurnListener != null && TurnManager.Instance != null)
+            TurnManager.Instance.OnTurnChanged -= _freezeTurnListener;
     }
 
     void OnMouseEnter()
@@ -149,6 +210,14 @@ public class ChessPiece : NetworkBehaviour
     }
     void OnMouseDown()
     {
+        if (ChessBoard.Instance.gameOver) return;
+
+        if (isFrozen)
+        {
+            Debug.Log($"{name} is frozen and cannot move.");
+            return;
+        }
+
         if (ChessBoard.Instance.gameOver) return;
 
         bool isNet = Unity.Netcode.NetworkManager.Singleton && Unity.Netcode.NetworkManager.Singleton.IsListening;
@@ -254,7 +323,7 @@ public class ChessPiece : NetworkBehaviour
                             return;
                         }
                         // Block if divinely protected
-                        if (victim.IsDivinelyProtected)
+                        if (victim.IsDivinelyProtected || victim.IsFrozen)
                         {
                             transform.position = originalPosition;
                             return;
@@ -271,7 +340,7 @@ public class ChessPiece : NetworkBehaviour
         ChessPiece directTarget = ChessBoard.Instance.GetPieceAt(newCell);
         if (directTarget != null && directTarget.team != team)
         {
-            if (directTarget.IsDivinelyProtected)
+            if (directTarget.IsDivinelyProtected || directTarget.IsFrozen)
             {
                 transform.position = originalPosition;
                 return;

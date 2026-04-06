@@ -8,10 +8,14 @@ public class CharacterPanelUI : MonoBehaviour
     public MageAbilityController abilityController;
     private CardUI active;
 
+    public GameObject freezeSpellUIPrefab;
+    private CardData currentCharacter;
+
     public void Show(CardData character)
     {
         Clear();
 
+        currentCharacter = character;
         var go = Instantiate(cardPrefab, slot);
         active = go.GetComponent<CardUI>();
 

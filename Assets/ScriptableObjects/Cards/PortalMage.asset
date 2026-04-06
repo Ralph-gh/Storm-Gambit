@@ -13,7 +13,8 @@ MonoBehaviour:
   m_Name: PortalMage
   m_EditorClassIdentifier: 
   cardName: Portal Mage
-  fullCardSprite: {fileID: 21300000, guid: 14e4876620cf83e40b2915590c743e85, type: 3}
+  fullCardSprite: {fileID: 21300000, guid: 1c890fa73dfd80b4888375b23f2a33a2, type: 3}
   cardtype: 0
   spellType: 0
   spellUI: {fileID: 0}
+  abilities: 

@@ -13,7 +13,8 @@ MonoBehaviour:
   m_Name: FrostMage
   m_EditorClassIdentifier: 
   cardName: Frost Mage
-  fullCardSprite: {fileID: 21300000, guid: 25eb2c93730a34d48bc8e550d097bc70, type: 3}
+  fullCardSprite: {fileID: 21300000, guid: b67d183d041721d42aac57ab0e94b734, type: 3}
   cardtype: 0
   spellType: 0
-  spellUI: {fileID: 0}
+  spellUI: {fileID: 6763589432106491609, guid: 273736545eb344a4f887f438f6c91300, type: 3}
+  abilities: 
