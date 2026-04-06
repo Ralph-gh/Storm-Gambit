@@ -1572,10 +1572,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f8013cbfa0df44f48adb666075a05d82, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  queenButton: {fileID: 1484663889}
-  rookButton: {fileID: 750624114}
-  bishopButton: {fileID: 108360965}
-  knightButton: {fileID: 1694157808}
+  queenButton: {fileID: 0}
+  rookButton: {fileID: 0}
+  bishopButton: {fileID: 0}
+  knightButton: {fileID: 0}
   queenImage: {fileID: 1484663890}
   rookImage: {fileID: 750624115}
   bishopImage: {fileID: 108360966}
@@ -3092,6 +3092,10 @@ PrefabInstance:
       propertyPath: abilityController
       value: 
       objectReference: {fileID: 1792876991}
+    - target: {fileID: 878513676407938849, guid: 287f00a7bd457c64b84af5bb9049797e, type: 3}
+      propertyPath: freezeSpellUIPrefab
+      value: 
+      objectReference: {fileID: 6763589432106491609, guid: 273736545eb344a4f887f438f6c91300, type: 3}
     - target: {fileID: 1502039164711864112, guid: 287f00a7bd457c64b84af5bb9049797e, type: 3}
       propertyPath: m_ChildAlignment
       value: 1
@@ -3238,7 +3242,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &1081324872
 RectTransform:
   m_ObjectHideFlags: 0
@@ -4932,7 +4936,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   portalMageCardName: Portal Mage
+  frostMageCardName: Frost Mage
   teleportationSpellUIPrefab: {fileID: 6763589432106491609, guid: fd9ef4d7275af2d4e8772c71991fd515, type: 3}
+  freezeSpellUIPrefab: {fileID: 6763589432106491609, guid: 273736545eb344a4f887f438f6c91300, type: 3}
 --- !u!1 &1848988208
 GameObject:
   m_ObjectHideFlags: 0

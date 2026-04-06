@@ -137,7 +137,7 @@ public class GameState : NetworkBehaviour
                 Debug.Log("[SRPC] EP victim missing or invalid");
                 return;
             }
-            if (epVictim.IsDivinelyProtected)
+            if (epVictim.IsDivinelyProtected || victim.IsFrozen)
             {
                 Debug.Log("[SRPC] EP blocked: victim divinely protected");
                 return;
@@ -149,7 +149,7 @@ public class GameState : NetworkBehaviour
         }
         else if (victim != null)
         {
-            if (victim.IsDivinelyProtected)
+            if (victim.IsDivinelyProtected || victim.IsFrozen)
             {
                 Debug.Log("[SRPC] capture blocked: target divinely protected");
                 return;
@@ -234,6 +234,30 @@ public class GameState : NetworkBehaviour
         var drawers = FindObjectsByType<CardDrawer>(FindObjectsInactive.Exclude, FindObjectsSortMode.None);
         foreach (var d in drawers)
             d.DrawOneSpellCard();
+    }
+    
+
+    [ServerRpc(RequireOwnership = false)]
+    public void ApplyFreezeServerRpc(int pieceId, ServerRpcParams p = default)
+    {
+        var piece = ChessBoard.Instance.GetPieceById(pieceId);
+        if (piece == null) return;
+
+        ApplyFreezeClientRpc(pieceId);
+    }
+
+    [ClientRpc]
+    void ApplyFreezeClientRpc(int pieceId)
+    {
+        var piece = ChessBoard.Instance.GetPieceById(pieceId);
+        if (piece == null)
+        {
+            ChessBoard.Instance.RebuildIndexFromScene();
+            piece = ChessBoard.Instance.GetPieceById(pieceId);
+        }
+
+        if (piece != null)
+            piece.ApplyFreeze(2);
     }
     [ClientRpc]
     void ApplyMoveClientRpc(int moverId, int toX, int toY, int capturedId)
