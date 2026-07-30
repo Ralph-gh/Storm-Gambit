@@ -183,6 +183,32 @@ public class GameState : NetworkBehaviour
             }
         }
 
+        bool explosiveTrapTriggered = ChessBoard.Instance.TryConsumeEnemyExplosiveTrap(
+            to,
+            piece.team,
+            out TeamColor trapOwner
+        );
+
+        if (explosiveTrapTriggered)
+        {
+            // Clear the mover from the server board and record it in the graveyard,
+            // but keep its GameObject alive until the RPC removes it everywhere.
+            ChessBoard.Instance.PrepareExplosiveTrapCaptureServer(piece);
+
+            ApplyExplosiveTrapMoveClientRpc(
+                piece.Id,
+                to.x,
+                to.y,
+                capturedId,
+                trapOwner
+            );
+
+            StartCoroutine(CleanupExplodedMoverServerNextFrame(piece));
+        }
+        else
+        {
+            ApplyMoveClientRpc(piece.Id, to.x, to.y, capturedId);
+        }
         // Move king on server
         ChessBoard.Instance.ExecuteMoveServer(piece, to);
 
@@ -211,6 +237,76 @@ public class GameState : NetworkBehaviour
         //var next = (CurrentTurn.Value == TeamColor.White) ? TeamColor.Black : TeamColor.White;
         CurrentTurn.Value = next;
     }
+
+    [ClientRpc]
+    void ApplyExplosiveTrapMoveClientRpc(
+        int moverId,
+        int toX,
+        int toY,
+        int capturedId,
+        TeamColor trapOwner)
+    {
+        Vector2Int to = new Vector2Int(toX, toY);
+        string role = Unity.Netcode.NetworkManager.Singleton.IsHost ? "HOST" : "CLIENT";
+        Debug.Log($"[TRAP/{role}] mover={moverId} exploded at {to}, owner={trapOwner}");
+
+        // If the move captured a piece sitting above the trap, remove that victim first.
+        if (capturedId >= 0)
+        {
+            var victim = ChessBoard.Instance.GetPieceById(capturedId);
+            if (victim != null)
+            {
+                ChessBoard.Instance.AddCapturedPiece(victim);
+                ChessBoard.Instance.RemovePieceLocal(victim);
+            }
+        }
+
+        var mover = ChessBoard.Instance.GetPieceById(moverId);
+        if (mover == null)
+        {
+            ChessBoard.Instance.RebuildIndexFromScene();
+            mover = ChessBoard.Instance.GetPieceById(moverId);
+        }
+
+        if (mover != null)
+        {
+            // Remote clients still have the mover on its origin square. The host already
+            // applied the server move, so only its transform needs to be centered.
+            if (mover.currentCell != to)
+                ChessBoard.Instance.MovePieceLocal(mover, to);
+            else if (BoardInitializer.Instance != null)
+                mover.transform.position = BoardInitializer.Instance.GetWorldPosition(to);
+
+            // The server/host graveyard was updated before this RPC. Remote clients
+            // need their own local graveyard record for Resurrection UI consistency.
+            if (!IsServer)
+                ChessBoard.Instance.AddCapturedPiece(mover);
+
+            ChessBoard.Instance.HideExplosiveTrapMarker(to);
+            ChessBoard.Instance.PlayExplosiveTrapEffect(to);
+            ChessBoard.Instance.RemovePieceLocal(mover);
+        }
+        else
+        {
+            Debug.LogWarning($"[TRAP/{role}] exploded mover {moverId} was not found.");
+            ChessBoard.Instance.HideExplosiveTrapMarker(to);
+            ChessBoard.Instance.PlayExplosiveTrapEffect(to);
+        }
+
+        TurnManager.Instance?.SyncTurn(CurrentTurn.Value);
+    }
+
+    private System.Collections.IEnumerator CleanupExplodedMoverServerNextFrame(ChessPiece piece)
+    {
+        yield return null;
+
+        if (piece != null)
+        {
+            ChessBoard.Instance.UnregisterPiece(piece);
+            Destroy(piece.gameObject);
+        }
+    }
+
     [ClientRpc]
     void SetEnPassantClientRpc(int epX, int epY, int epPawnId)
     {
@@ -363,6 +459,38 @@ public class GameState : NetworkBehaviour
         }
     }
     // --- SPELL RPCs ---
+    [ServerRpc(RequireOwnership = false)]
+    public void PlaceExplosiveTrapServerRpc(
+         int x,
+         int y,
+         ServerRpcParams p = default)
+    {
+        var player = NetPlayer.FindByClient(p.Receive.SenderClientId);
+        if (player == null) return;
+        if (player.Side.Value != CurrentTurn.Value) return;
+
+        Vector2Int cell = new Vector2Int(x, y);
+        TeamColor owner = player.Side.Value;
+
+        if (!ChessBoard.Instance.TryPlaceExplosiveTrap(cell, owner))
+        {
+            Debug.Log($"[TRAP/SRPC] Rejected placement for {owner} at {cell}");
+            return;
+        }
+
+        PlaceExplosiveTrapClientRpc(owner, x, y);
+    }
+
+    [ClientRpc]
+    void PlaceExplosiveTrapClientRpc(TeamColor owner, int x, int y)
+    {
+        Vector2Int cell = new Vector2Int(x, y);
+
+        // The trap is hidden from the opponent. Only its owner receives a marker.
+        if (NetPlayer.Local != null && NetPlayer.Local.Side.Value == owner)
+            ChessBoard.Instance.ShowExplosiveTrapMarker(cell);
+    }
+    
 
     [ServerRpc(RequireOwnership = false)]
     public void TeleportPieceServerRpc(int pieceId, int x, int y, ServerRpcParams p = default)

@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 
-public enum SpellType { None, Teleport, Resurrect, Damage }
+public enum SpellType { None, Teleport, Resurrect, ExplosiveTrap }
 [CreateAssetMenu(fileName = "NewCard", menuName = "Chess Mages/SimpleCard")]
 
 public class CardData : ScriptableObject

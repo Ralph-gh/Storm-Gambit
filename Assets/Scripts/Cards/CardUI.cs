@@ -16,6 +16,7 @@ public class CardUI : MonoBehaviour
     //Keeping the spell until completed
     private bool isCastingSpell;
     private GameObject activeSpellUI;
+    private bool isSpellPending;
 
     // --- Small helpers so we don’t repeat logic everywhere ---
 
@@ -191,62 +192,86 @@ public class CardUI : MonoBehaviour
 
     private void ActivateSpell()
     {
-        if (cardData == null) return;
+        if (cardData == null || isSpellPending)
+            return;
 
         TeamColor mySide = ResolveMySide();
         bool isMyTurn = ResolveIsMyTurn(mySide);
         bool freeSpellAvailable = FreeSpellAvailable(isMyTurn);
 
-        // Gate by my turn + free-spell
         if (!freeSpellAvailable)
         {
-            Debug.Log("Not your turn or free spell already used.");
+            Debug.Log("Not your turn or the free spell was already used this turn.");
+            RefreshInteractable();
             return;
         }
 
         if (cardData.cardtype == CardType.Character)
         {
-            Debug.Log($"Character card clicked (ignored for spell): {cardData.name}");
+            Debug.Log($"Character card clicked as a spell: {cardData.name}");
             return;
         }
 
-        // Extra guard for Resurrection: block if no targets (using mySide)
-        if (cardData.spellType == SpellType.Resurrect && ChessBoard.Instance != null)
+        if (cardData.spellType == SpellType.Resurrect &&
+            ChessBoard.Instance != null)
         {
-            var captured = ChessBoard.Instance.graveyard.GetCapturedByTeam(mySide);
+            var captured =
+                ChessBoard.Instance.graveyard.GetCapturedByTeam(mySide);
+
             if (captured == null || captured.Count == 0)
             {
-                Debug.Log("No captured pieces - resurrection not available.");
+                Debug.Log("No captured pieces. Resurrection is unavailable.");
                 RefreshInteractable();
                 return;
             }
         }
 
-        // Safety: don't open two spell UIs for the same card.
-        if (isCastingSpell) return;
-
-        var canvas = GameObject.Find("MainCanvas");
-        if (cardData.spellUI != null)
+        if (cardData.spellUI == null)
         {
-            if (canvas == null)
-            {
-                Debug.LogError("MainCanvas not found. Cannot spawn spell UI.");
-                return;
-            }
-
-            isCastingSpell = true;
-            SetInteractable(false);
-
-            activeSpellUI = Instantiate(cardData.spellUI, canvas.transform);
-
-            // Allows spell UI script to live on root OR children
-            activeSpellUI.BroadcastMessage("BindSourceCard", this, SendMessageOptions.DontRequireReceiver);
+            Debug.LogError($"No spell UI assigned to card: {cardData.name}");
+            return;
         }
-        else
+
+        GameObject canvas = GameObject.Find("MainCanvas");
+        if (canvas == null)
         {
-            // Instant spells (if any): consume immediately only after success
-            ConsumeCardAfterSuccessfulCast();
+            Debug.LogError("MainCanvas was not found. Cannot open the spell UI.");
+            return;
         }
+
+        GameObject spellObject = Instantiate(cardData.spellUI, canvas.transform);
+
+        // Teleportation keeps the card until targeting succeeds or is cancelled.
+        TeleportationSpellUI teleportUI =
+            spellObject.GetComponent<TeleportationSpellUI>();
+
+        if (teleportUI != null)
+        {
+            teleportUI.BindSourceCard(this);
+            BeginPendingSpell();
+            return;
+        }
+
+        // Explosive Trap follows the same success/cancel pattern.
+        ExplosiveTrapSpellUI trapUI =
+            spellObject.GetComponent<ExplosiveTrapSpellUI>();
+
+        if (trapUI != null)
+        {
+            trapUI.BindSourceCard(this);
+            BeginPendingSpell();
+            return;
+        }
+
+        // Legacy UIs such as the current Resurrection UI do not yet send a
+        // success/cancel callback, so preserve their old immediate-consume behavior.
+        Destroy(gameObject);
+    }
+
+    private void BeginPendingSpell()
+    {
+        isSpellPending = true;
+        SetInteractable(false);
     }
 
     public void SetInteractable(bool value)

@@ -90,12 +90,30 @@ public class TeleportationSpellUI : MonoBehaviour
         piece.SetPosition(targetCell, world);
         piece.hasMoved = true;
 
-        TeleportVFX.Instance?.PlayJump(origin, piece.transform.position);
+        bool explosiveTrapTriggered = ChessBoard.Instance.TryConsumeEnemyExplosiveTrap(
+            targetCell,
+            piece.team,
+            out _
+        );
+
+        if (explosiveTrapTriggered)
+        {
+            ChessBoard.Instance.HideExplosiveTrapMarker(targetCell);
+            ChessBoard.Instance.PlayExplosiveTrapEffect(targetCell);
+            ChessBoard.Instance.CapturePiece(targetCell);
+        }
+        else
+        {
+            TeleportVFX.Instance?.PlayJump(origin, piece.transform.position);
+        }
+
 
         if (TurnManager.Instance.IsPlayersTurn(piece.team))
             TurnManager.Instance.RegisterFreeSpellCast();
 
-        Debug.Log("Teleported to " + targetCell);
+        Debug.Log(explosiveTrapTriggered
+           ? "Teleport landed on an explosive trap at " + targetCell
+           : "Teleported to " + targetCell);
         CloseSuccess(); // close spell UI
     }
     public void CancelSpell()
