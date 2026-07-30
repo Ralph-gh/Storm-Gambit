@@ -26,6 +26,16 @@ public class ChessBoard : NetworkBehaviour
     public Graveyard graveyard = new();
     private readonly Dictionary<int, ChessPiece> _byId = new();
     private Dictionary<int, ChessPiece> idLookup = new Dictionary<int, ChessPiece>();//Dictionnary lookup for networking
+
+    [Header("Explosive Trap")]
+    [Tooltip("Visible only to the player who owns the trap.")]
+    public GameObject explosiveTrapMarkerPrefab;
+    public GameObject explosiveTrapExplosionPrefab;
+    public AudioClip explosiveTrapClip;
+
+    // The authoritative trap state lives on the offline board or on the server.
+    private readonly Dictionary<Vector2Int, TeamColor> explosiveTraps = new();
+    private readonly Dictionary<Vector2Int, GameObject> explosiveTrapMarkers = new();
     public void RegisterPiece(ChessPiece p) { if (p) idLookup[p.Id] = p; }
     public void UnregisterPiece(ChessPiece p) { if (p) idLookup.Remove(p.Id); }
     public event System.Action OnGraveyardChanged;
@@ -34,6 +44,7 @@ public class ChessBoard : NetworkBehaviour
     // --- En Passant state (server-authoritative, clients follow via RPC) ---
     public Vector2Int enPassantTarget = new Vector2Int(-1, -1); // empty square a pawn may move to for EP
     public int enPassantPawnId = -1;                             // the pawn that can be captured en passant
+
 
     public void ClearEnPassant()
     {
@@ -51,6 +62,129 @@ public class ChessBoard : NetworkBehaviour
         else
         {
             Debug.LogWarning("Promotion UI is not assigned. Auto-promoting to Queen.");
+        }
+    }
+    public bool IsValidExplosiveTrapCell(Vector2Int cell, TeamColor owner)
+    {
+        if (!IsInsideBoard(cell)) return false;
+        if (GetPieceAt(cell) != null) return false;
+        if (explosiveTraps.ContainsKey(cell)) return false;
+        if (explosiveTrapMarkers.ContainsKey(cell)) return false;
+
+        // Unity rows are zero-based: White rows 1-4 => y 0-3,
+        // Black rows 5-8 => y 4-7.
+        return owner == TeamColor.White ? cell.y <= 3 : cell.y >= 4;
+    }
+
+    public bool TryPlaceExplosiveTrap(Vector2Int cell, TeamColor owner)
+    {
+        if (!IsValidExplosiveTrapCell(cell, owner)) return false;
+
+        explosiveTraps[cell] = owner;
+        return true;
+    }
+
+    public bool TryConsumeEnemyExplosiveTrap(
+        Vector2Int cell,
+        TeamColor movingTeam,
+        out TeamColor trapOwner)
+    {
+        trapOwner = default;
+
+        if (!explosiveTraps.TryGetValue(cell, out TeamColor owner))
+            return false;
+
+        // The owner can stand on their own trap safely. Only an enemy triggers it.
+        if (owner == movingTeam)
+            return false;
+
+        trapOwner = owner;
+        explosiveTraps.Remove(cell);
+        return true;
+    }
+
+    public void ShowExplosiveTrapMarker(Vector2Int cell)
+    {
+        if (explosiveTrapMarkerPrefab == null)
+        {
+            Debug.LogError(
+                "[TRAP] Explosive Trap Marker Prefab is not assigned on ChessBoard."
+            );
+            return;
+        }
+
+        if (explosiveTrapMarkers.ContainsKey(cell))
+        {
+            Debug.LogWarning($"[TRAP] A marker already exists at {cell}.");
+            return;
+        }
+
+        Vector3 world = BoardInitializer.Instance
+            ? BoardInitializer.Instance.GetWorldPosition(cell)
+            : new Vector3(
+                (cell.x + 0.5f) * 0.5f,
+                (cell.y + 0.5f) * 0.5f,
+                0f
+            );
+
+        GameObject marker = Instantiate(
+            explosiveTrapMarkerPrefab,
+            world,
+            Quaternion.identity
+        );
+
+        explosiveTrapMarkers[cell] = marker;
+
+        Debug.Log($"[TRAP] Marker spawned at {cell}, world position {world}.");
+    }
+
+    public void HideExplosiveTrapMarker(Vector2Int cell)
+    {
+        if (!explosiveTrapMarkers.TryGetValue(cell, out GameObject marker)) return;
+
+        if (marker != null) Destroy(marker);
+        explosiveTrapMarkers.Remove(cell);
+    }
+
+    public void PlayExplosiveTrapEffect(Vector2Int cell)
+    {
+        Vector3 world = BoardInitializer.Instance
+            ? BoardInitializer.Instance.GetWorldPosition(cell)
+            : new Vector3((cell.x + 0.5f) * 0.5f, (cell.y + 0.5f) * 0.5f, 0f);
+
+        if (explosiveTrapExplosionPrefab != null)
+            Instantiate(explosiveTrapExplosionPrefab, world, Quaternion.identity);
+
+        if (audioSource != null && explosiveTrapClip != null)
+            audioSource.PlayOneShot(explosiveTrapClip);
+    }
+
+    // Server bookkeeping for a mover destroyed by a trap. The GameObject stays alive
+    // briefly so the ClientRpc can animate/remove it on host and remote clients.
+    public void PrepareExplosiveTrapCaptureServer(ChessPiece target)
+    {
+        if (target == null) return;
+
+        Vector2Int cell = target.currentCell;
+        if (IsInsideBoard(cell) && board[cell.x, cell.y] == target)
+            board[cell.x, cell.y] = null;
+
+        SpriteRenderer sr = target.GetComponent<SpriteRenderer>();
+        if (sr != null) target.pieceSprite = sr.sprite;
+
+        CapturedPieceData data = new CapturedPieceData(target)
+        {
+            originalPosition = target.startingCell
+        };
+        AddCapturedPiece(data);
+
+        if (target.pieceType == PieceType.King && !resurrectionAllowed)
+        {
+            gameOver = true;
+            string winner = target.team == TeamColor.White ? "Black Wins!" : "White Wins!";
+
+            if (GameState.Instance && GameState.Instance.IsServer)
+                GameState.Instance.ShowVictoryClientRpc(winner);
         }
     }
 

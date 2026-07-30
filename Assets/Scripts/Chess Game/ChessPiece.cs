@@ -351,21 +351,38 @@ public class ChessPiece : NetworkBehaviour
                 transform.position = originalPosition;
                 return;
             }
+
             ChessBoard.Instance.CapturePiece(newCell);
-            LastMoveIndicator.Instance?.ShowMove(fromCell, newCell);
         }
 
-        // 3) Promotion (after capture handling)
-        if (pieceType == PieceType.Pawn && Pawn.ShouldPromote(newCell, team))
+        // A trap must be checked for EVERY legal arrival, not only captures.
+        bool explosiveTrapTriggered = ChessBoard.Instance.TryConsumeEnemyExplosiveTrap(
+            newCell,
+            team,
+            out _
+        );
+
+        if (explosiveTrapTriggered)
         {
-            transform.position = snappedPosition;
+            // First land the mover on the destination so CapturePiece(newCell)
+            // can find and destroy the moving piece.
+            ChessBoard.Instance.MovePiece(oldCell, newCell);
             currentCell = newCell;
-   
-            ChessBoard.Instance.pawnToPromote = this;
-            ChessBoard.Instance.TriggerPromotion(this);
+            hasMoved = true;
+            transform.position = snappedPosition;
             LastMoveIndicator.Instance?.ShowMove(fromCell, newCell);
 
-            return; // wait for promotion UI
+            ChessBoard.Instance.HideExplosiveTrapMarker(newCell);
+            ChessBoard.Instance.PlayExplosiveTrapEffect(newCell);
+            ChessBoard.Instance.CapturePiece(newCell);
+
+            // An exploded pawn cannot create a new en-passant window.
+            ChessBoard.Instance.ClearEnPassant();
+
+            if (!ChessBoard.Instance.gameOver)
+                TurnManager.Instance.NextTurn();
+
+            return;
         }
 
         // (Safety: if a NetworkManager exists but not listening, this won't early-return)

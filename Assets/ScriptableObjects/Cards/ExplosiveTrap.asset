@@ -10,11 +10,11 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: d60c194c2f4418b4fa2430d64dd67010, type: 3}
-  m_Name: PortalMage
+  m_Name: ExplosiveTrap
   m_EditorClassIdentifier: 
-  cardName: Portal Mage
-  fullCardSprite: {fileID: 21300000, guid: a1b51b6c70617754fb8a883b2428690c, type: 3}
-  cardtype: 0
-  spellType: 0
-  spellUI: {fileID: 0}
+  cardName: ExplosiveTrap
+  fullCardSprite: {fileID: 21300000, guid: 9d60be955d61d6a4aa1484918d2a3040, type: 3}
+  cardtype: 1
+  spellType: 3
+  spellUI: {fileID: 3418554601242863709, guid: e8f96e5c6d19ed844bb174773b826b6c, type: 3}
   abilities: 
