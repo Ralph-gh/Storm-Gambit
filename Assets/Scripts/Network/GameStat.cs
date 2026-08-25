@@ -203,7 +203,7 @@ public class GameState : NetworkBehaviour
                 trapOwner
             );
 
-            StartCoroutine(CleanupExplodedMoverServerNextFrame(piece));
+            StartCoroutine(CleanupExplodedMoverServerAfterVFX(piece));
         }
         else
         {
@@ -217,7 +217,7 @@ public class GameState : NetworkBehaviour
         
 
         
-        // ===== En Passant window maintenance =====
+        // ===== En Passant window maintenance ===== 
         int epX = -1, epY = -1, epPawnId = -1;
         ChessBoard.Instance.ClearEnPassant();
         if (piece.pieceType == PieceType.Pawn && Mathf.Abs(to.y - from.y) == 2 && to.x == from.x)
@@ -228,7 +228,7 @@ public class GameState : NetworkBehaviour
             epX = mid.x; epY = mid.y; epPawnId = piece.Id;
         }
         // Send the move
-        ApplyMoveClientRpc(piece.Id, to.x, to.y, capturedId);
+        //ApplyMoveClientRpc(piece.Id, to.x, to.y, capturedId); Normal move applied above no need to repeat, line code left, to be deleted if game functions
         if (rookId >= 0)
             MoveRookClientRpc(rookId, rookToX, rookToY);
         // Send the EP window for the NEXT move
@@ -282,9 +282,7 @@ public class GameState : NetworkBehaviour
             if (!IsServer)
                 ChessBoard.Instance.AddCapturedPiece(mover);
 
-            ChessBoard.Instance.HideExplosiveTrapMarker(to);
-            ChessBoard.Instance.PlayExplosiveTrapEffect(to);
-            ChessBoard.Instance.RemovePieceLocal(mover);
+            StartCoroutine(PlayExplosiveTrapSequenceClient(mover, to));
         }
         else
         {
@@ -296,9 +294,12 @@ public class GameState : NetworkBehaviour
         TurnManager.Instance?.SyncTurn(CurrentTurn.Value);
     }
 
-    private System.Collections.IEnumerator CleanupExplodedMoverServerNextFrame(ChessPiece piece)
+    private System.Collections.IEnumerator CleanupExplodedMoverServerAfterVFX(
+    ChessPiece piece)
     {
-        yield return null;
+        // Keep the real chess piece alive while clients display
+        // explosion + shatter.
+        yield return new WaitForSeconds(0.55f);
 
         if (piece != null)
         {
@@ -331,7 +332,76 @@ public class GameState : NetworkBehaviour
         foreach (var d in drawers)
             d.DrawOneSpellCard();
     }
-    
+    private System.Collections.IEnumerator PlayExplosiveTrapSequenceClient(
+    ChessPiece mover,
+    Vector2Int trapCell)
+    {
+        if (mover == null)
+            yield break;
+
+        // --------------------------------
+        // 1. Piece is already on trap cell
+        // --------------------------------
+
+        if (BoardInitializer.Instance != null)
+        {
+            mover.transform.position =
+                BoardInitializer.Instance.GetWorldPosition(trapCell);
+        }
+
+        // --------------------------------
+        // 2. Remove marker
+        // --------------------------------
+
+        ChessBoard.Instance.HideExplosiveTrapMarker(trapCell);
+
+        // --------------------------------
+        // 3. Explosion
+        // --------------------------------
+
+        ChessBoard.Instance.PlayExplosiveTrapEffect(trapCell);
+
+        // Give explosion flash a moment to register.
+        yield return new WaitForSeconds(0.05f);
+
+        // --------------------------------
+        // 4. Shatter
+        // --------------------------------
+
+        if (PieceShatterVFX.Instance != null)
+        {
+            PieceShatterVFX.Instance.Play(mover);
+        }
+        else
+        {
+            Debug.LogWarning(
+                "[TRAP/NET] PieceShatterVFX missing on this client."
+            );
+
+            SpriteRenderer sr =
+                mover.GetComponent<SpriteRenderer>();
+
+            if (sr != null)
+                sr.enabled = false;
+        }
+
+        // --------------------------------
+        // 5. Let fragments fly
+        // --------------------------------
+
+        yield return new WaitForSeconds(0.45f);
+
+        // --------------------------------
+        // 6. Remote visual cleanup
+        // --------------------------------
+
+        // Server/host object is cleaned by
+        // CleanupExplodedMoverServerAfterVFX().
+        if (!IsServer && mover != null)
+        {
+            ChessBoard.Instance.RemovePieceLocal(mover);
+        }
+    }
 
     [ServerRpc(RequireOwnership = false)]
     public void ApplyFreezeServerRpc(int pieceId, ServerRpcParams p = default)
