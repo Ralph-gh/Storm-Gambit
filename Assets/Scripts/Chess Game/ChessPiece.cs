@@ -55,6 +55,10 @@ public class ChessPiece : NetworkBehaviour
     private SpriteRenderer _sr;
     private Color _baseColor;
     private bool isResurrected = false;
+    //freeze visual
+    [Header("Freeze Visual")]
+    public GameObject frozenSquareMarkerPrefab;
+    private GameObject _frozenSquareMarker;
 
     //Network
     public NetworkVariable<int> PieceId = new(0);
@@ -85,6 +89,8 @@ public class ChessPiece : NetworkBehaviour
             hasBeenInitialized = true;
         }
     }
+
+
     public void ApplyDivineProtectionOneTurn()
     {
         if (divinelyProtected) return;
@@ -155,6 +161,7 @@ public class ChessPiece : NetworkBehaviour
 
         if (_sr != null)
             _sr.color = frozenColor;
+        ShowFrozenMarker();
         TeamColor previousTurn = TurnManager.Instance.currentTurn;
         _freezeTurnListener = (TeamColor activeTeam) =>
         {
@@ -186,6 +193,7 @@ public class ChessPiece : NetworkBehaviour
 
         if (_sr != null)
             _sr.color = _normalBaseColor;
+        HideFrozenMarker();
 
         if (_freezeTurnListener != null && TurnManager.Instance != null)
         {
@@ -193,10 +201,49 @@ public class ChessPiece : NetworkBehaviour
             _freezeTurnListener = null;
         }
     }
+    private void ShowFrozenMarker()
+    {
+        if (frozenSquareMarkerPrefab == null || _frozenSquareMarker != null)
+            return;
 
+        Vector3 worldPos = BoardInitializer.Instance != null
+            ? BoardInitializer.Instance.GetWorldPosition(currentCell)
+            : transform.position;
+
+        _frozenSquareMarker = Instantiate(
+            frozenSquareMarkerPrefab,
+            worldPos,
+            Quaternion.identity
+        );
+
+        // Keep it attached so if something repositions the piece, it stays aligned.
+        _frozenSquareMarker.transform.SetParent(transform, worldPositionStays: true);
+
+        // Keep it centered on the square, visually beneath the piece.
+        _frozenSquareMarker.transform.position = worldPos;
+
+        var markerSR = _frozenSquareMarker.GetComponent<SpriteRenderer>();
+        var pieceSR = GetComponent<SpriteRenderer>();
+
+        if (markerSR != null && pieceSR != null)
+        {
+            markerSR.sortingLayerID = pieceSR.sortingLayerID;
+            markerSR.sortingOrder = pieceSR.sortingOrder - 1;
+        }
+    }
+    private void HideFrozenMarker()
+    {
+        if (_frozenSquareMarker != null)
+        {
+            Destroy(_frozenSquareMarker);
+            _frozenSquareMarker = null;
+        }
+    }
     public override void OnDestroy()
     {
         base.OnDestroy();
+
+        HideFrozenMarker();
 
         if (_turnListener != null && TurnManager.Instance != null)
             TurnManager.Instance.OnTurnChanged -= _turnListener;
