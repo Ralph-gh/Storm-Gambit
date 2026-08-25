@@ -364,23 +364,20 @@ public class ChessPiece : NetworkBehaviour
 
         if (explosiveTrapTriggered)
         {
-            // First land the mover on the destination so CapturePiece(newCell)
-            // can find and destroy the moving piece.
+            // First land the piece on the trap square.
             ChessBoard.Instance.MovePiece(oldCell, newCell);
+
             currentCell = newCell;
             hasMoved = true;
             transform.position = snappedPosition;
-            LastMoveIndicator.Instance?.ShowMove(fromCell, newCell);
 
-            ChessBoard.Instance.HideExplosiveTrapMarker(newCell);
-            ChessBoard.Instance.PlayExplosiveTrapEffect(newCell);
-            ChessBoard.Instance.CapturePiece(newCell);
+            LastMoveIndicator.Instance?.ShowMove(fromCell, newCell);
 
             // An exploded pawn cannot create a new en-passant window.
             ChessBoard.Instance.ClearEnPassant();
 
-            if (!ChessBoard.Instance.gameOver)
-                TurnManager.Instance.NextTurn();
+            // Explosion -> shatter -> normal CapturePiece bookkeeping.
+            StartCoroutine(ResolveExplosiveTrapOffline(newCell));
 
             return;
         }
@@ -445,6 +442,65 @@ public class ChessPiece : NetworkBehaviour
         float x = Mathf.Floor(rawPosition.x / cellSize) * cellSize + cellSize / 2f;
         float y = Mathf.Floor(rawPosition.y / cellSize) * cellSize + cellSize / 2f;
         return new Vector3(x, y, 0f);
+    }
+
+    private IEnumerator ResolveExplosiveTrapOffline(Vector2Int trapCell)
+    {
+        // Prevent any additional dragging while the animation resolves.
+        canDrag = false;
+        isDragging = false;
+
+        // Remove the visible bomb marker.
+        ChessBoard.Instance.HideExplosiveTrapMarker(trapCell);
+
+        // -----------------------------
+        // 1. EXPLOSION
+        // -----------------------------
+        ChessBoard.Instance.PlayExplosiveTrapEffect(trapCell);
+
+        // Give the explosion a tiny visual head start.
+        yield return new WaitForSeconds(0.05f);
+
+        // -----------------------------
+        // 2. SHATTER THE CHESS PIECE
+        // -----------------------------
+        if (PieceShatterVFX.Instance != null)
+        {
+            PieceShatterVFX.Instance.Play(this);
+        }
+        else
+        {
+            Debug.LogWarning(
+                "[TRAP] PieceShatterVFX is missing from the scene."
+            );
+
+            // Fallback: at least hide the original sprite.
+            SpriteRenderer sr = GetComponent<SpriteRenderer>();
+
+            if (sr != null)
+                sr.enabled = false;
+        }
+
+        // Allow the shards to fly before destroying the actual ChessPiece.
+        yield return new WaitForSeconds(0.45f);
+
+        // -----------------------------
+        // 3. EXISTING CAPTURE LOGIC
+        // -----------------------------
+        ChessBoard.Instance.CapturePiece(trapCell);
+
+        // CapturePiece handles:
+        // - graveyard
+        // - resurrection information
+        // - king/game over
+        // - unregistering
+        // - destroying the actual piece
+
+        // -----------------------------
+        // 4. CONTINUE THE TURN
+        // -----------------------------
+        if (!ChessBoard.Instance.gameOver)
+            TurnManager.Instance.NextTurn();
     }
 
     bool IsValidMove(Vector3 targetPosition)

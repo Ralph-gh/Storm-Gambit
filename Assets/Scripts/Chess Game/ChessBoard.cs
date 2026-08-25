@@ -151,6 +151,7 @@ public class ChessBoard : NetworkBehaviour
         Vector3 world = BoardInitializer.Instance
             ? BoardInitializer.Instance.GetWorldPosition(cell)
             : new Vector3((cell.x + 0.5f) * 0.5f, (cell.y + 0.5f) * 0.5f, 0f);
+             world.z = -1;
 
         if (explosiveTrapExplosionPrefab != null)
             Instantiate(explosiveTrapExplosionPrefab, world, Quaternion.identity);
