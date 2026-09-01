@@ -25,14 +25,22 @@ public class CardUI : MonoBehaviour
     public void CancelPendingSpellCast()
     {
         isCastingSpell = false;
+        isSpellPending = false;
         activeSpellUI = null;
+
+        Debug.Log("[CARD] Spell cancelled - card restored.");
+
         RefreshInteractable();
     }
 
     public void ConsumeCardAfterSuccessfulCast()
     {
         isCastingSpell = false;
+        isSpellPending = false;
         activeSpellUI = null;
+
+        Debug.Log("[CARD] Spell succeeded - consuming card.");
+
         Destroy(gameObject);
     }
     public void SetSpentVisual(bool spent)
@@ -240,6 +248,7 @@ public class CardUI : MonoBehaviour
         }
 
         GameObject spellObject = Instantiate(cardData.spellUI, canvas.transform);
+        activeSpellUI = spellObject;
 
         // Teleportation keeps the card until targeting succeeds or is cancelled.
         TeleportationSpellUI teleportUI =
@@ -270,6 +279,7 @@ public class CardUI : MonoBehaviour
 
     private void BeginPendingSpell()
     {
+        isCastingSpell = true;
         isSpellPending = true;
         SetInteractable(false);
     }
