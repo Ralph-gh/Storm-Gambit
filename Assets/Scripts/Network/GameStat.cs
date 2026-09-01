@@ -634,11 +634,12 @@ public class GameState : NetworkBehaviour
 
         var go = Instantiate(prefab, BoardInitializer.Instance.GetWorldPosition(spawn), Quaternion.identity);
         var newPiece = go.GetComponent<ChessPiece>();
+        
         newPiece.team = team;
         newPiece.pieceType = pieceType;
         newPiece.SetPosition(spawn, BoardInitializer.Instance.GetWorldPosition(spawn));
         newPiece.MarkAsResurrected();
-
+        BoardFlipController.Instance?.ApplyOrientation(newPiece);
         // Allocate a shared Id and register BEFORE placing
         newPiece.Id = ChessBoard.Instance.AllocatePieceId();
         ChessBoard.Instance.RegisterPiece(newPiece);
