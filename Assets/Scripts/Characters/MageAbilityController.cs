@@ -11,6 +11,7 @@ public class MageAbilityController : MonoBehaviour
     public GameObject freezeSpellUIPrefab;
 
     private bool abilityUsed = false;
+    private bool abilityInProgress = false;
 
     public bool TryActivateMageAbility(CardData mageCard)
     {
@@ -20,54 +21,131 @@ public class MageAbilityController : MonoBehaviour
             return false;
         }
 
+        if (abilityInProgress)
+        {
+            Debug.Log("[MageAbility] An ability is already being resolved.");
+            return false;
+        }
+
         if (mageCard == null)
         {
             Debug.LogWarning("[MageAbility] mageCard is null.");
             return false;
         }
 
-        var canvas = GameObject.Find("MainCanvas");
+        GameObject canvas = GameObject.Find("MainCanvas");
+
         if (canvas == null)
         {
             Debug.LogError("[MageAbility] MainCanvas not found.");
             return false;
         }
 
-        // Portal Mage
+        // =====================================================
+        // PORTAL MAGE
+        // =====================================================
+
         if (mageCard.cardName == portalMageCardName)
         {
             if (teleportationSpellUIPrefab == null)
             {
-                Debug.LogError("[MageAbility] teleportationSpellUIPrefab not assigned.");
+                Debug.LogError(
+                    "[MageAbility] teleportationSpellUIPrefab not assigned."
+                );
+
                 return false;
             }
 
-            Instantiate(teleportationSpellUIPrefab, canvas.transform);
-            abilityUsed = true;
+            GameObject spellObject =
+                Instantiate(
+                    teleportationSpellUIPrefab,
+                    canvas.transform
+                );
 
-            Debug.Log("[MageAbility] Portal Mage ability used (Teleport).");
+            TeleportationSpellUI teleportUI =
+                spellObject.GetComponent<TeleportationSpellUI>();
+
+            if (teleportUI == null)
+            {
+                Debug.LogError(
+                    "[MageAbility] Assigned Teleport prefab does not contain TeleportationSpellUI."
+                );
+
+                Destroy(spellObject);
+                return false;
+            }
+
+            abilityInProgress = true;
+
+            teleportUI.ConfigureAsMageAbility(
+                OnMageAbilitySucceeded,
+                OnMageAbilityCancelled
+            );
+
+            Debug.Log(
+                "[MageAbility] Portal Mage Teleport started."
+            );
+
             return true;
         }
 
-        // Frost Mage
+        // =====================================================
+        // FROST MAGE
+        // =====================================================
+
         if (mageCard.cardName == frostMageCardName)
         {
             if (freezeSpellUIPrefab == null)
             {
-                Debug.LogError("[MageAbility] freezeSpellUIPrefab not assigned.");
+                Debug.LogError(
+                    "[MageAbility] freezeSpellUIPrefab not assigned."
+                );
+
                 return false;
             }
 
-            Instantiate(freezeSpellUIPrefab, canvas.transform);
+            Instantiate(
+                freezeSpellUIPrefab,
+                canvas.transform
+            );
+
+            // Freeze still uses old behavior for now.
             abilityUsed = true;
 
-            Debug.Log("[MageAbility] Frost Mage ability used (Freeze).");
+            Debug.Log(
+                "[MageAbility] Frost Mage ability used (Freeze)."
+            );
+
             return true;
         }
 
-        Debug.Log("[MageAbility] This mage has no implemented ability: " + mageCard.cardName);
+        Debug.Log(
+            "[MageAbility] This mage has no implemented ability: "
+            + mageCard.cardName
+        );
+
         return false;
     }
 
+    private void OnMageAbilitySucceeded()
+    {
+        abilityInProgress = false;
+        abilityUsed = true;
+
+        Debug.Log(
+            "[MageAbility] Mage ability completed successfully."
+        );
+    }
+
+    private void OnMageAbilityCancelled()
+    {
+        abilityInProgress = false;
+
+        Debug.Log(
+            "[MageAbility] Mage ability cancelled. Ability remains available."
+        );
+    }
+
     public bool IsUsed => abilityUsed;
+    public bool IsInProgress => abilityInProgress;
 }

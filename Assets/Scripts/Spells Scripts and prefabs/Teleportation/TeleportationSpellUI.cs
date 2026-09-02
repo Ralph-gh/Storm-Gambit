@@ -6,7 +6,17 @@ public class TeleportationSpellUI : MonoBehaviour
     private ChessPiece selectedPiece = null;
     private CardUI sourceCard;
     private bool hasClosed;
+    private SpellPromptPanelUI activePrompt;
+    private bool isMageAbility = false;
 
+    private System.Action mageAbilitySuccess;
+    private System.Action mageAbilityCancel;
+
+    // ==========================
+    // PATCH - OLD TELEPORT UI
+    // ==========================
+    [Header("UI")]
+    [SerializeField] private GameObject legacyTeleportPanel;
     public void BindSourceCard(CardUI card) => sourceCard = card;
     // Resolve my side for net/offline once per frame
     private TeamColor MySide =>
@@ -16,6 +26,27 @@ public class TeleportationSpellUI : MonoBehaviour
     void Start()
     {
         Debug.Log("Teleportation Spell UI instantiated and active.");
+
+        // ==========================================
+        // PATCH: NEVER SHOW THE OLD TELEPORT PANEL
+        // ==========================================
+        if (legacyTeleportPanel != null)
+            legacyTeleportPanel.SetActive(false);
+
+        // ==========================================
+        // NEW REUSABLE SPELL UI
+        // ==========================================
+        if (SpellOverlayManager.Instance != null)
+        {
+            activePrompt = SpellOverlayManager.Instance.ShowActionPrompt(
+                "Select a piece to teleport.",
+                CancelSpell
+            );
+        }
+        else
+        {
+            Debug.LogWarning("[TELEPORT] SpellOverlayManager not found.");
+        }
     }
 
     void Update()
@@ -23,7 +54,7 @@ public class TeleportationSpellUI : MonoBehaviour
         // Cancel with right-click or Esc
         if (Input.GetMouseButtonDown(1) || Input.GetKeyDown(KeyCode.Escape))
         {
-            Destroy(gameObject);
+            CancelSpell();
             return;
         }
 
@@ -44,22 +75,34 @@ public class TeleportationSpellUI : MonoBehaviour
             ChessPiece piece = ChessBoard.Instance.GetPieceAt(cell);
 
             // Step 1: select your own piece only
-            if (selectedPiece == null)
+            if (piece != null && piece.team == MySide)
             {
-                if (piece != null && piece.team == MySide)
+                selectedPiece = piece;
+
+                Debug.Log("Selected " + piece.name);
+
+                TeleportVFX.Instance?.PlayAt(
+                    piece.transform.position
+                );
+
+                if (activePrompt != null)
                 {
-                    selectedPiece = piece;
-                    Debug.Log("Selected " + piece.name);
-                    TeleportVFX.Instance?.PlayAt(piece.transform.position); // selection ping
+                    activePrompt.SetMessage(
+                        "Select an empty square."
+                    );
                 }
-                return;
             }
 
             // Step 2: choose empty destination
             if (piece == null)
             {
+                if (selectedPiece == null)
+                {
+                    Debug.Log("Select a piece first.");
+                    return;
+                }
+
                 Teleport(selectedPiece, cell);
-                CloseSuccess(); // close spell UI
             }
             else
             {
@@ -77,7 +120,14 @@ public class TeleportationSpellUI : MonoBehaviour
 
             // Consume the free spell ONLY if it’s my turn (it is, but keep invariant)
             if (TurnManager.Instance.IsPlayersTurn(piece.team))
-                TurnManager.Instance.RegisterFreeSpellCast();
+                if (!isMageAbility)
+                {
+                    if (TurnManager.Instance != null &&
+                        TurnManager.Instance.IsPlayersTurn(MySide))
+                    {
+                        TurnManager.Instance.RegisterFreeSpellCast();
+                    }
+                }
             return;
         }
 
@@ -108,8 +158,12 @@ public class TeleportationSpellUI : MonoBehaviour
         }
 
 
-        if (TurnManager.Instance.IsPlayersTurn(piece.team))
+        if (!isMageAbility &&
+            TurnManager.Instance != null &&
+            TurnManager.Instance.IsPlayersTurn(piece.team))
+        {
             TurnManager.Instance.RegisterFreeSpellCast();
+        }
 
         Debug.Log(explosiveTrapTriggered
            ? "Teleport landed on an explosive trap at " + targetCell
@@ -118,28 +172,91 @@ public class TeleportationSpellUI : MonoBehaviour
     }
     public void CancelSpell()
     {
-        if (hasClosed) return;
+        if (hasClosed)
+            return;
+
         hasClosed = true;
-        sourceCard?.CancelPendingSpellCast();
+
+        if (activePrompt != null)
+        {
+            activePrompt.Close();
+            activePrompt = null;
+        }
+
+        if (isMageAbility)
+        {
+            mageAbilityCancel?.Invoke();
+        }
+        else
+        {
+            sourceCard?.CancelPendingSpellCast();
+        }
+
         Destroy(gameObject);
     }
 
     private void CloseSuccess()
     {
-        if (hasClosed) return;
+        if (hasClosed)
+            return;
+
         hasClosed = true;
-        sourceCard?.ConsumeCardAfterSuccessfulCast();
+
+        if (activePrompt != null)
+        {
+            activePrompt.Close();
+            activePrompt = null;
+        }
+
+        if (isMageAbility)
+        {
+            mageAbilitySuccess?.Invoke();
+        }
+        else
+        {
+            sourceCard?.ConsumeCardAfterSuccessfulCast();
+        }
+
         Destroy(gameObject);
     }
+    public void ConfigureAsMageAbility(
+    System.Action onSuccess,
+    System.Action onCancel)
+    {
+        isMageAbility = true;
 
+        mageAbilitySuccess = onSuccess;
+        mageAbilityCancel = onCancel;
+
+        Debug.Log(
+            "[TELEPORT] Configured as Portal Mage ability."
+        );
+    }
     private void OnDestroy()
     {
-        if (!hasClosed)
+        if (hasClosed)
+            return;
+
+        if (activePrompt != null)
+        {
+            activePrompt.Close();
+            activePrompt = null;
+        }
+
+        if (isMageAbility)
+        {
+            mageAbilityCancel?.Invoke();
+        }
+        else
+        {
             sourceCard?.CancelPendingSpellCast();
+        }
     }
+
     Vector2Int WorldToCell(Vector3 world)
     {
         const float size = 0.5f;
         return new Vector2Int(Mathf.FloorToInt(world.x / size), Mathf.FloorToInt(world.y / size));
     }
+
 }

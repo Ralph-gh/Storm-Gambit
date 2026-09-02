@@ -43,7 +43,11 @@ public class SpellPromptPanelUI : MonoBehaviour
             cancelButton.onClick.AddListener(HandleCancel);
         }
     }
-
+    public void SetMessage(string message)
+    {
+        if (messageText != null)
+            messageText.text = message;
+    }
     private void HandleOk()
     {
         onOk?.Invoke();

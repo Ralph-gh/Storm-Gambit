@@ -255,3 +255,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 017cb86a94187a44ba2625e26aa89403, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  legacyTeleportPanel: {fileID: 6298603590470193933}
