@@ -449,6 +449,17 @@ public class GameState : NetworkBehaviour
 
         if (piece != null)
             piece.ApplyFreeze(2);
+
+        TeamColor activeSide = CurrentTurn.Value;
+
+        if (!TurnManager.Instance.HasAnyMovablePiece(activeSide))
+        {
+            Debug.Log(
+                $"[SERVER] {activeSide} has no movable pieces after Freeze."
+            );
+
+            // advance using your normal authoritative server turn method
+        }
     }
     [ClientRpc]
     void ApplyMoveClientRpc(int moverId, int toX, int toY, int capturedId)

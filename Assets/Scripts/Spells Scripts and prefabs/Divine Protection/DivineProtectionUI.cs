@@ -63,6 +63,22 @@ public class DivineProtectionSpellUI : MonoBehaviour
                 //TurnManager.Instance.NextTurn();       commented to no longer end turn
                 if (TurnManager.Instance.IsPlayersTurn(piece.team))
                     TurnManager.Instance.RegisterFreeSpellCast();
+                // If Divine Protection immobilized the last available piece,
+                // automatically finish the turn.
+                if (!(Unity.Netcode.NetworkManager.Singleton &&
+                      Unity.Netcode.NetworkManager.Singleton.IsListening))
+                {
+                    if (!TurnManager.Instance.HasAnyMovablePiece(
+                            TurnManager.Instance.currentTurn))
+                    {
+                        Debug.Log(
+                            $"[TURN] {TurnManager.Instance.currentTurn} has no movable pieces after Divine Protection. Ending turn."
+                        );
+
+                        TurnManager.Instance.NextTurn();
+                    }
+                }
+
                 CloseSuccess(); // consumes the card + closes UI
             }
         }

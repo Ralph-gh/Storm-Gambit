@@ -161,6 +161,15 @@ public class TeleportationSpellUI : MonoBehaviour
 
             // Teleported piece cannot move again this turn.
             piece.ApplyStunOneTurn();
+
+            if (!TurnManager.Instance.HasAnyMovablePiece(piece.team))
+            {
+                Debug.Log(
+                    $"[TURN] {piece.team} has no movable pieces after Teleport. Ending turn."
+                );
+
+                TurnManager.Instance.NextTurn();
+            }
         }
 
 

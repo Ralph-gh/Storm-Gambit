@@ -35,7 +35,23 @@ public class TurnManager : MonoBehaviour
     {
         return caster == currentTurn && !HasCastFreeSpellThisTurn;
     }
+    public bool HasAnyMovablePiece(TeamColor side)
+    {
+        foreach (ChessPiece piece in FindObjectsOfType<ChessPiece>())
+        {
+            if (piece.team != side)
+                continue;
 
+            if (piece.IsFrozen || piece.IsStunned || piece.IsDivinelyProtected)
+                continue;
+
+            // At minimum there is an active piece.
+            // Later we can improve this to test actual legal destinations.
+            return true;
+        }
+
+        return false;
+    }
     public void RegisterFreeSpellCast()
     {
         HasCastFreeSpellThisTurn = true; // Do NOT end the turn here

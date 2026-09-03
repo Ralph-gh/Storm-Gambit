@@ -49,6 +49,17 @@ public class FreezeSpellUI : MonoBehaviour
 
             if (TurnManager.Instance.IsPlayersTurn(MySide))
                 TurnManager.Instance.RegisterFreeSpellCast();
+
+            TeamColor activeSide = TurnManager.Instance.currentTurn;
+
+            if (!TurnManager.Instance.HasAnyMovablePiece(activeSide))
+            {
+                Debug.Log(
+                    $"[TURN] {activeSide} has no movable pieces after Freeze. Ending turn."
+                );
+
+                TurnManager.Instance.NextTurn();
+            }
         }
 
         Destroy(gameObject);
