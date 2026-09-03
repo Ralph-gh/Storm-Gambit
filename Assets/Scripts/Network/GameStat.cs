@@ -34,7 +34,32 @@ public class GameState : NetworkBehaviour
         }
 
         var piece = ChessBoard.Instance.GetPieceById(pieceId);
-        if (piece == null) { Debug.Log($"[SRPC] no piece id={pieceId}"); return; }
+
+        if (piece == null)
+        {
+            Debug.Log($"[SRPC] no piece id={pieceId}");
+            return;
+        }
+
+        // ==========================================
+        // STUN and freeze SERVER AUTHORITY
+        // ==========================================
+        if (piece.IsStunned)
+        {
+            Debug.Log(
+                $"[SRPC] move rejected: {piece.pieceType}#{piece.Id} is stunned."
+            );
+
+            return;
+        }
+        if (piece.IsFrozen)
+        {
+            Debug.Log(
+                $"[SRPC] move rejected: {piece.pieceType}#{piece.Id} is frozen."
+            );
+
+            return;
+        }
 
         TeamColor next = (CurrentTurn.Value == TeamColor.White) ? TeamColor.Black : TeamColor.White;
         //ChessBoard.Instance.EnsureBoardEntry(piece);  
@@ -591,6 +616,7 @@ public class GameState : NetworkBehaviour
         ChessBoard.Instance.MovePieceLocal(piece, to);
         piece.SetPosition(to, BoardInitializer.Instance.GetWorldPosition(to));
         piece.hasMoved = true;
+        piece.ApplyStunOneTurn();//stun piece for one turn to avoid being overpowered
     }
 
     // Apply Divine Protection on all clients for the selected piece

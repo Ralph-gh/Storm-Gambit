@@ -41,7 +41,13 @@ public class ChessPiece : NetworkBehaviour
     [SerializeField] private Color frozenColor = new Color(0.65f, 0.85f, 1f, 1f);
     private Color _normalBaseColor;
     //freezing end
-
+    [Header("Stun Status")]
+    [SerializeField] private bool isStunned;
+    public bool IsStunned => isStunned;
+    [SerializeField] private GameObject stunnedMarkerPrefab;
+    //-- stun status end --
+    private GameObject _stunnedMarker;
+    private System.Action<TeamColor> _stunTurnListener;
     private bool isDragging = false;
     private Vector3 originalPosition;
     private Vector3 offset;
@@ -89,7 +95,101 @@ public class ChessPiece : NetworkBehaviour
             hasBeenInitialized = true;
         }
     }
+    public void ApplyStunOneTurn()
+    {
+        // Refresh existing stun if somehow applied again.
+        RemoveStun();
 
+        isStunned = true;
+
+        ShowStunnedMarker();
+
+        Debug.Log($"{name} is stunned.");
+
+        if (TurnManager.Instance == null)
+            return;
+
+        bool opponentTurnSeen = false;
+
+        _stunTurnListener = (TeamColor activeTeam) =>
+        {
+            // Teleport is cast during this piece's own turn.
+            // Wait until the opponent gets their turn.
+            if (!opponentTurnSeen && activeTeam != team)
+            {
+                opponentTurnSeen = true;
+                return;
+            }
+
+            // Once play returns to this piece's owner,
+            // the stun expires.
+            if (opponentTurnSeen && activeTeam == team)
+            {
+                RemoveStun();
+            }
+        };
+
+        TurnManager.Instance.OnTurnChanged += _stunTurnListener;
+    }
+
+    public void RemoveStun()
+    {
+        if (!isStunned)
+            return;
+
+        isStunned = false;
+
+        if (_stunnedMarker != null)
+        {
+            Destroy(_stunnedMarker);
+            _stunnedMarker = null;
+        }
+
+        if (_stunTurnListener != null &&
+            TurnManager.Instance != null)
+        {
+            TurnManager.Instance.OnTurnChanged -= _stunTurnListener;
+            _stunTurnListener = null;
+        }
+
+        Debug.Log($"{name} is no longer stunned.");
+    }
+
+    private void ShowStunnedMarker()
+    {
+        if (stunnedMarkerPrefab == null ||
+            _stunnedMarker != null)
+            return;
+
+        _stunnedMarker = Instantiate(
+            stunnedMarkerPrefab,
+            transform.position,
+            Quaternion.identity
+        );
+
+        _stunnedMarker.transform.SetParent(
+            transform,
+            worldPositionStays: false
+        );
+
+        _stunnedMarker.transform.localPosition = Vector3.zero;
+
+        SpriteRenderer pieceSR =
+            GetComponent<SpriteRenderer>();
+
+        SpriteRenderer markerSR =
+            _stunnedMarker.GetComponent<SpriteRenderer>();
+
+        if (pieceSR != null && markerSR != null)
+        {
+            markerSR.sortingLayerID =
+                pieceSR.sortingLayerID;
+
+            markerSR.sortingOrder =
+                markerSR.sortingOrder =
+                pieceSR.sortingOrder - 1;
+        }
+    }
 
     public void ApplyDivineProtectionOneTurn()
     {
@@ -158,6 +258,12 @@ public class ChessPiece : NetworkBehaviour
 
         isFrozen = true;
         frozenOwnerTurnsRemaining = ownerTurnsToSkip;
+
+        if (isStunned)
+        {
+            Debug.Log($"{name} is stunned and cannot move.");
+            return;
+        }
 
         if (_sr != null)
             _sr.color = frozenColor;
@@ -250,6 +356,21 @@ public class ChessPiece : NetworkBehaviour
 
         if (_freezeTurnListener != null && TurnManager.Instance != null)
             TurnManager.Instance.OnTurnChanged -= _freezeTurnListener;
+
+        if (_stunTurnListener != null &&
+            TurnManager.Instance != null)
+        {
+            TurnManager.Instance.OnTurnChanged -=
+                _stunTurnListener;
+
+            _stunTurnListener = null;
+        }
+
+        if (_stunnedMarker != null)
+        {
+            Destroy(_stunnedMarker);
+            _stunnedMarker = null;
+        }
     }
 
     void OnMouseEnter()
@@ -264,7 +385,16 @@ public class ChessPiece : NetworkBehaviour
     void OnMouseDown()
     {
         if (ChessBoard.Instance.gameOver) return;
+        if (isStunned)
+        {
+            Debug.Log($"{name} is stunned and cannot move.");
 
+            canDrag = false;
+            isDragging = false;
+            SnapBackToCurrentCell();
+
+            return;
+        }
         if (isFrozen)
         {
             Debug.Log($"{name} is frozen and cannot move.");
@@ -305,6 +435,13 @@ public class ChessPiece : NetworkBehaviour
     {
         if (!isDragging || !canDrag || ChessBoard.Instance.gameOver) return;
 
+        if (isFrozen || isStunned)
+        {
+            isDragging = false;
+            canDrag = false;
+            SnapBackToCurrentCell();
+            return;
+        }
         bool isNet = Unity.Netcode.NetworkManager.Singleton && Unity.Netcode.NetworkManager.Singleton.IsListening;
         if (isNet)
         {
@@ -321,6 +458,13 @@ public class ChessPiece : NetworkBehaviour
     }
     void OnMouseUp()
     {
+        if (isFrozen || isStunned)
+        {
+            isDragging = false;
+            canDrag = false;
+            SnapBackToCurrentCell();
+            return;
+        }
         if (!isDragging || ChessBoard.Instance.gameOver || !canDrag) return;
         isDragging = false;
         canDrag = false;

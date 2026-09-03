@@ -131,6 +131,8 @@ MonoBehaviour:
   originalPrefab: {fileID: 0}
   pieceSprite: {fileID: 0}
   frozenColor: {r: 0.65, g: 0.85, b: 1, a: 1}
+  isStunned: 0
+  stunnedMarkerPrefab: {fileID: 8559977737329067474, guid: a70a504ab704002458ceafc79a5b8e95, type: 3}
   divineSpherePrefab: {fileID: 111949520822619133, guid: cc0c7e9db27178a41851d50010eff978, type: 3}
   hoverColor: {r: 0.4, g: 0.6, b: 1, a: 0.85}
   frozenSquareMarkerPrefab: {fileID: 8559977737329067474, guid: d3ccb219edf98de4591b9490afea0298, type: 3}

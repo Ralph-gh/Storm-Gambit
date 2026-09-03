@@ -154,7 +154,13 @@ public class TeleportationSpellUI : MonoBehaviour
         }
         else
         {
-            TeleportVFX.Instance?.PlayJump(origin, piece.transform.position);
+            TeleportVFX.Instance?.PlayJump(
+                origin,
+                piece.transform.position
+            );
+
+            // Teleported piece cannot move again this turn.
+            piece.ApplyStunOneTurn();
         }
 
 
