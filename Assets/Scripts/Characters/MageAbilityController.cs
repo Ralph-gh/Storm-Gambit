@@ -9,10 +9,10 @@ public class MageAbilityController : MonoBehaviour
     [Header("Ability Prefabs")]
     public GameObject teleportationSpellUIPrefab;
     public GameObject freezeSpellUIPrefab;
+    private SpellPromptPanelUI activePrompt;
 
     private bool abilityUsed = false;
     private bool abilityInProgress = false;
-
     public bool TryActivateMageAbility(CardData mageCard)
     {
         if (abilityUsed)
@@ -104,16 +104,34 @@ public class MageAbilityController : MonoBehaviour
                 return false;
             }
 
-            Instantiate(
-                freezeSpellUIPrefab,
-                canvas.transform
+            GameObject spellObject =
+      Instantiate(
+          freezeSpellUIPrefab,
+          canvas.transform
+      );
+
+            FreezeSpellUI freezeUI =
+                spellObject.GetComponent<FreezeSpellUI>();
+
+            if (freezeUI == null)
+            {
+                Debug.LogError(
+                    "[MageAbility] Assigned Freeze prefab does not contain FreezeSpellUI."
+                );
+
+                Destroy(spellObject);
+                return false;
+            }
+
+            abilityInProgress = true;
+
+            freezeUI.ConfigureAsMageAbility(
+                OnMageAbilitySucceeded,
+                OnMageAbilityCancelled
             );
 
-            // Freeze still uses old behavior for now.
-            abilityUsed = true;
-
             Debug.Log(
-                "[MageAbility] Frost Mage ability used (Freeze)."
+                "[MageAbility] Frost Mage Freeze started."
             );
 
             return true;
@@ -126,7 +144,7 @@ public class MageAbilityController : MonoBehaviour
 
         return false;
     }
-
+    
     private void OnMageAbilitySucceeded()
     {
         abilityInProgress = false;
