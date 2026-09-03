@@ -401,23 +401,7 @@ public class ChessPiece : NetworkBehaviour
             return;
         }
 
-        if (ChessBoard.Instance.gameOver) return;
-
-        bool isNet = Unity.Netcode.NetworkManager.Singleton && Unity.Netcode.NetworkManager.Singleton.IsListening;
-
-        // Multiplayer: only the local owner of this side AND only on their turn may drag
-        if (isNet)
-        {
-            if (NetPlayer.Local == null || NetPlayer.Local.Side.Value != team || !NetPlayer.Local.CanAct())
-            {
-                canDrag = false;
-                isDragging = false;
-                SnapBackToCurrentCell(); // snap back to center during multiplayer
-                return;
-            }
-        }
-        // Offline: same as before
-        else if (!TurnManager.Instance.IsPlayersTurn(team))
+        if (!TurnManager.Instance.IsPlayersTurn(team))
         {
             canDrag = false;
             isDragging = false;
@@ -442,22 +426,16 @@ public class ChessPiece : NetworkBehaviour
             SnapBackToCurrentCell();
             return;
         }
-        bool isNet = Unity.Netcode.NetworkManager.Singleton && Unity.Netcode.NetworkManager.Singleton.IsListening;
-        if (isNet)
-        {
-            if (NetPlayer.Local == null || NetPlayer.Local.Side.Value != team || !NetPlayer.Local.CanAct()) return;
-        }
-        else
-        {
-            if (!TurnManager.Instance.IsPlayersTurn(team)) return;
-        }
-
         Vector3 mousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
         mousePos.z = 0f;
         transform.position = mousePos + offset;
     }
     void OnMouseUp()
     {
+        // =========================================================
+        // STATUS CHECKS
+        // =========================================================
+
         if (isFrozen || isStunned)
         {
             isDragging = false;
@@ -470,63 +448,79 @@ public class ChessPiece : NetworkBehaviour
         canDrag = false;
         if (_sr != null) _sr.color = _baseColor;
 
-        bool isNet = Unity.Netcode.NetworkManager.Singleton && Unity.Netcode.NetworkManager.Singleton.IsListening;
+
+        // =========================================================
+        // TARGET SQUARE
+        // =========================================================
+
         Vector3 snappedPosition = SnapToGrid(transform.position);
         Vector2Int newCell = WorldToCell(snappedPosition);
         Vector2Int fromCell = currentCell;
 
-        // --- NETWORKED PATH: ask server & snap back (server will broadcast final move) ---
-        if (isNet)
-        {
-            if (NetPlayer.Local != null && NetPlayer.Local.CanAct() && NetPlayer.Local.Side.Value == team)
-                NetPlayer.Local.TryRequestMove(this.Id, newCell);
-
-            SnapBackToCurrentCell(); // wait for server to broadcast final
-            return;
-        }
+        // =========================================================
+        // VALIDATE MOVE
+        // =========================================================
         if (!IsValidMove(snappedPosition))
         {
             transform.position = originalPosition;
             return;
         }
 
-       
-
-        // ========= OFFLINE PATH =========
         Vector2Int oldCell = currentCell;
 
-        // 1) En Passant capture (diagonal into EMPTY square)
+        // =========================================================
+        // 1. EN PASSANT CAPTURE
+        // =========================================================
+
         if (pieceType == PieceType.Pawn)
         {
-            int f = (team == TeamColor.White) ? 1 : -1;
-            bool diagonal = Mathf.Abs(newCell.x - oldCell.x) == 1;
-            bool forwardStep = (newCell.y - oldCell.y) == f;
+            int forward =
+                team == TeamColor.White ? 1 : -1;
+
+            bool diagonal =
+                Mathf.Abs(newCell.x - oldCell.x) == 1;
+
+            bool forwardStep =
+                newCell.y - oldCell.y == forward;
 
             if (diagonal && forwardStep)
             {
-                ChessPiece targetOnNewCell = ChessBoard.Instance.GetPieceAt(newCell);
-                if (targetOnNewCell == null) // empty target => possible EP
+                ChessPiece targetOnNewCell =
+                    ChessBoard.Instance.GetPieceAt(newCell);
+
+                // Empty diagonal destination could be en passant.
+                if (targetOnNewCell == null)
                 {
                     var board = ChessBoard.Instance;
-                    if (board.enPassantTarget.x >= 0 && board.enPassantTarget == newCell)
+
+                    if (board.enPassantTarget.x >= 0 &&
+                        board.enPassantTarget == newCell)
                     {
-                        Vector2Int victimCell = new Vector2Int(newCell.x, oldCell.y);
-                        ChessPiece victim = ChessBoard.Instance.GetPieceAt(victimCell);
+                        Vector2Int victimCell =
+                            new Vector2Int(
+                                newCell.x,
+                                oldCell.y
+                            );
 
-                        // Validate victim pawn
-                        if (victim == null || victim.team == team || victim.pieceType != PieceType.Pawn)
+                        ChessPiece victim =
+                            ChessBoard.Instance.GetPieceAt(victimCell);
+
+                        if (victim == null ||
+                            victim.team == team ||
+                            victim.pieceType != PieceType.Pawn)
                         {
                             transform.position = originalPosition;
                             return;
                         }
-                        // Block if divinely protected
-                        if (victim.IsDivinelyProtected || victim.IsFrozen)
+
+                        // Divine Protection / Freeze protection
+                        if (victim.IsDivinelyProtected ||
+                            victim.IsFrozen)
                         {
                             transform.position = originalPosition;
                             return;
                         }
 
-                        // Remove the adjacent pawn (en passant capture)
                         ChessBoard.Instance.CapturePiece(victimCell);
                     }
                 }
@@ -553,6 +547,7 @@ public class ChessPiece : NetworkBehaviour
             out _
         );
 
+
         if (explosiveTrapTriggered)
         {
             // First land the piece on the trap square.
@@ -569,6 +564,18 @@ public class ChessPiece : NetworkBehaviour
 
             // Explosion -> shatter -> normal CapturePiece bookkeeping.
             StartCoroutine(ResolveExplosiveTrapOffline(newCell));
+
+            return;
+        }
+        // PROMOTION
+        if (pieceType == PieceType.Pawn &&
+            Pawn.ShouldPromote(newCell, team))
+        {
+            transform.position = snappedPosition;
+            currentCell = newCell;
+
+            ChessBoard.Instance.pawnToPromote = this;
+            ChessBoard.Instance.TriggerPromotion(this);
 
             return;
         }
@@ -766,6 +773,39 @@ public class ChessPiece : NetworkBehaviour
             // Soft yellow tint (permanent)
             _sr.color = new Color(1f, 0.95f, 0.5f, 1f);
         }
+    }
+
+    public void TryMoveFromTap(Vector2Int targetCell)
+    {
+        if (ChessBoard.Instance.gameOver)
+            return;
+
+        // Keep existing status restrictions
+        if (isFrozen || isStunned)
+        {
+            SnapBackToCurrentCell();
+            return;
+        }
+
+        // Must be this team's turn
+        if (!TurnManager.Instance.IsPlayersTurn(team))
+            return;
+
+        // Remember where we were, exactly like drag movement
+        originalPosition = transform.position;
+
+        // Pretend the piece was dragged onto the tapped square.
+        Vector3 targetWorld =
+            BoardInitializer.Instance.GetWorldPosition(targetCell);
+
+        transform.position = targetWorld;
+
+        canDrag = true;
+        isDragging = true;
+
+        // IMPORTANT:
+        // Use the EXISTING movement pipeline.
+        OnMouseUp();
     }
     void SnapBackToCurrentCell()
     {
