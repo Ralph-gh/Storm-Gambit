@@ -22,8 +22,6 @@ public class FreezeSpellUI : MonoBehaviour
             CancelSpell();
             return;
         }
-
-        if (EventSystem.current.IsPointerOverGameObject()) return;
         if (!SpellRules.CanCastNow(MySide)) return;
 
         if (Input.GetMouseButtonDown(0))

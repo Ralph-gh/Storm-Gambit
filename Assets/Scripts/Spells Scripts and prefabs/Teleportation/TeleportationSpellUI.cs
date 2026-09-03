@@ -58,9 +58,6 @@ public class TeleportationSpellUI : MonoBehaviour
             return;
         }
 
-        // Block interaction if pointer over UI
-        if (EventSystem.current.IsPointerOverGameObject()) return;
-
         // Block if it’s not my turn or free spell already used
         if (!SpellRules.CanCastNow(MySide)) return;
 

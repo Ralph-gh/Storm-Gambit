@@ -44,7 +44,7 @@ public class DivineProtectionSpellUI : MonoBehaviour
             CancelSpell();
             return;
         }
-        if (Input.GetMouseButtonDown(0) && !EventSystem.current.IsPointerOverGameObject())
+        if (Input.GetMouseButtonDown(0))
         {
             Vector3 mouseWorld = Camera.main.ScreenToWorldPoint(Input.mousePosition);
             Vector2Int cell = WorldToCell(mouseWorld);
