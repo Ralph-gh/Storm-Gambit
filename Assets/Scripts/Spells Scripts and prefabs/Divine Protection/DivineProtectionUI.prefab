@@ -389,6 +389,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6cbbe51f53c413c4c848e2b53f2d2776, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  legacyDivineProtectionPanel: {fileID: 6298603590470193933}
 --- !u!1 &7754450145944127552
 GameObject:
   m_ObjectHideFlags: 0

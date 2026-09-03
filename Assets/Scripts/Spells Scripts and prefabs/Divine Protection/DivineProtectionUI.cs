@@ -6,13 +6,36 @@ public class DivineProtectionSpellUI : MonoBehaviour
     private CardUI sourceCard;
     private bool hasClosed;
 
+    [Header("UI")]
+    [SerializeField] private GameObject legacyDivineProtectionPanel;
+
+    private SpellPromptPanelUI activePrompt;
     // CardUI calls this via BroadcastMessage("BindSourceCard", this)
     public void BindSourceCard(CardUI card) => sourceCard = card;
     void Start()
     {
         Debug.Log("Divine Protection UI active.");
-    }
 
+        // PATCH: hide old UI
+        if (legacyDivineProtectionPanel != null)
+            legacyDivineProtectionPanel.SetActive(false);
+
+        // PATCH: show new reusable prompt
+        if (SpellOverlayManager.Instance != null)
+        {
+            activePrompt = SpellOverlayManager.Instance.ShowActionPrompt(
+                "Select a piece to protect for one turn. " +
+                "That piece cannot move until next turn",
+                CancelSpell
+            );
+        }
+        else
+        {
+            Debug.LogWarning(
+                "[DIVINE PROTECTION] SpellOverlayManager not found."
+            );
+        }
+    }
     void Update()
     {
 
@@ -49,6 +72,11 @@ public class DivineProtectionSpellUI : MonoBehaviour
         if (hasClosed) return;
         hasClosed = true;
 
+        if (activePrompt != null)
+        {
+            activePrompt.Close();
+            activePrompt = null;
+        }
         sourceCard?.CancelPendingSpellCast();
         Destroy(gameObject);
     }
@@ -58,6 +86,11 @@ public class DivineProtectionSpellUI : MonoBehaviour
         if (hasClosed) return;
         hasClosed = true;
 
+        if (activePrompt != null)
+        {
+            activePrompt.Close();
+            activePrompt = null;
+        }
         sourceCard?.ConsumeCardAfterSuccessfulCast();
         Destroy(gameObject);
     }
@@ -66,7 +99,15 @@ public class DivineProtectionSpellUI : MonoBehaviour
     {
         // If something kills the UI unexpectedly, treat as cancel.
         if (!hasClosed)
+        {
+            if (activePrompt != null)
+            {
+                activePrompt.Close();
+                activePrompt = null;
+            }
+
             sourceCard?.CancelPendingSpellCast();
+        }
     }
 
     Vector2Int WorldToCell(Vector3 world)

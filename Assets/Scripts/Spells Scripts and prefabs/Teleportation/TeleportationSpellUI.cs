@@ -39,7 +39,7 @@ public class TeleportationSpellUI : MonoBehaviour
         if (SpellOverlayManager.Instance != null)
         {
             activePrompt = SpellOverlayManager.Instance.ShowActionPrompt(
-                "Select a piece to teleport.",
+                "Select a piece to teleport.Once teleported that piece has to wait until next turn to move",
                 CancelSpell
             );
         }
