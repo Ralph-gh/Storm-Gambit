@@ -15,7 +15,7 @@ public class TeleportVFX : MonoBehaviour
     {
         if (Instance != null && Instance != this) { Destroy(gameObject); return; }
         Instance = this;
-        DontDestroyOnLoad(gameObject);
+   
     }
 
     public void PlayAt(Vector3 worldPos)
@@ -31,5 +31,11 @@ public class TeleportVFX : MonoBehaviour
     {
         PlayAt(origin);
         PlayAt(destination);
+    }
+
+    private void OnDestroy()
+    {
+        if (Instance == this)
+            Instance = null;
     }
 }

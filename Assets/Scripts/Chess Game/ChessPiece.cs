@@ -157,38 +157,31 @@ public class ChessPiece : NetworkBehaviour
 
     private void ShowStunnedMarker()
     {
-        if (stunnedMarkerPrefab == null ||
-            _stunnedMarker != null)
+        if (stunnedMarkerPrefab == null || _stunnedMarker != null)
             return;
+
+        Vector3 worldPos = BoardInitializer.Instance != null
+            ? BoardInitializer.Instance.GetWorldPosition(currentCell)
+            : transform.position;
 
         _stunnedMarker = Instantiate(
             stunnedMarkerPrefab,
-            transform.position,
+            worldPos,
             Quaternion.identity
         );
 
+        // Keep it attached to the piece.
         _stunnedMarker.transform.SetParent(
             transform,
-            worldPositionStays: false
+            worldPositionStays: true
         );
 
-        _stunnedMarker.transform.localPosition = Vector3.zero;
+        // Keep it centered on the square.
+        _stunnedMarker.transform.position = worldPos;
 
-        SpriteRenderer pieceSR =
-            GetComponent<SpriteRenderer>();
-
-        SpriteRenderer markerSR =
-            _stunnedMarker.GetComponent<SpriteRenderer>();
-
-        if (pieceSR != null && markerSR != null)
-        {
-            markerSR.sortingLayerID =
-                pieceSR.sortingLayerID;
-
-            markerSR.sortingOrder =
-                markerSR.sortingOrder =
-                pieceSR.sortingOrder - 1;
-        }
+        // IMPORTANT:
+        // Do not override sorting layer/order here.
+        // Use the prefab's SpriteRenderer settings.
     }
 
     public void ApplyDivineProtectionOneTurn()
@@ -322,20 +315,19 @@ public class ChessPiece : NetworkBehaviour
             Quaternion.identity
         );
 
-        // Keep it attached so if something repositions the piece, it stays aligned.
-        _frozenSquareMarker.transform.SetParent(transform, worldPositionStays: true);
+        // Keep marker attached to this piece.
+        _frozenSquareMarker.transform.SetParent(
+            transform,
+            worldPositionStays: true
+        );
 
-        // Keep it centered on the square, visually beneath the piece.
+        // Keep it centered on the board square.
         _frozenSquareMarker.transform.position = worldPos;
 
-        var markerSR = _frozenSquareMarker.GetComponent<SpriteRenderer>();
-        var pieceSR = GetComponent<SpriteRenderer>();
-
-        if (markerSR != null && pieceSR != null)
-        {
-            markerSR.sortingLayerID = pieceSR.sortingLayerID;
-            markerSR.sortingOrder = pieceSR.sortingOrder - 1;
-        }
+        // IMPORTANT:
+        // Do NOT override sortingLayer / sortingOrder here.
+        // The prefab's SpriteRenderer settings control rendering,
+        // just like the Explosive Trap marker.
     }
     private void HideFrozenMarker()
     {
