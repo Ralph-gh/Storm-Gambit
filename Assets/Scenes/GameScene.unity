@@ -6815,6 +6815,7 @@ GameObject:
   - component: {fileID: 2129786017}
   - component: {fileID: 2129786018}
   - component: {fileID: 2129786019}
+  - component: {fileID: 2129786020}
   m_Layer: 0
   m_Name: BoardManager
   m_TagString: Untagged
@@ -7107,6 +7108,19 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   maxTapMovement: 20
+--- !u!114 &2129786020
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2129786007}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a0018907afe37ec42b9996bbc32a4d46, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  indicatorPrefab: {fileID: 8254998374597380365, guid: c258a7f0f2c822842b63c69dec4815f0, type: 3}
 --- !u!1 &2139242494
 GameObject:
   m_ObjectHideFlags: 0

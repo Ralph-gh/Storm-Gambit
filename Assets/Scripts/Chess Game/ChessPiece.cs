@@ -552,6 +552,9 @@ public class ChessPiece : NetworkBehaviour
             // An exploded pawn cannot create a new en-passant window.
             ChessBoard.Instance.ClearEnPassant();
 
+            // MOVE INDICATOR
+            MoveIndicator.Instance?.ShowMove(oldCell, newCell);
+
             // Explosion -> shatter -> normal CapturePiece bookkeeping.
             StartCoroutine(ResolveExplosiveTrapOffline(newCell));
 
@@ -563,6 +566,9 @@ public class ChessPiece : NetworkBehaviour
         {
             transform.position = snappedPosition;
             currentCell = newCell;
+
+            // MOVE INDICATOR
+            MoveIndicator.Instance?.ShowMove(oldCell, newCell);
 
             ChessBoard.Instance.pawnToPromote = this;
             ChessBoard.Instance.TriggerPromotion(this);
@@ -615,7 +621,8 @@ public class ChessPiece : NetworkBehaviour
             ChessBoard.Instance.enPassantTarget = mid;
             ChessBoard.Instance.enPassantPawnId = this.Id;
         }
-
+        // MOVE INDICATOR
+        MoveIndicator.Instance?.ShowMove(oldCell, newCell);
         // 7) SFX + turn advance
         if (audioSource != null && moveClip != null)
             audioSource.PlayOneShot(moveClip);
