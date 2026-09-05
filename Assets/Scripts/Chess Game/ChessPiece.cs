@@ -549,8 +549,6 @@ public class ChessPiece : NetworkBehaviour
             hasMoved = true;
             transform.position = snappedPosition;
 
-            LastMoveIndicator.Instance?.ShowMove(fromCell, newCell);
-
             // An exploded pawn cannot create a new en-passant window.
             ChessBoard.Instance.ClearEnPassant();
 
@@ -586,7 +584,6 @@ public class ChessPiece : NetworkBehaviour
         // 4) Finalize the move locally
         ChessBoard.Instance.MovePiece(oldCell, newCell);
         currentCell = newCell;
-        LastMoveIndicator.Instance?.ShowMove(fromCell, newCell);
         hasMoved = true;
         transform.position = snappedPosition;
 

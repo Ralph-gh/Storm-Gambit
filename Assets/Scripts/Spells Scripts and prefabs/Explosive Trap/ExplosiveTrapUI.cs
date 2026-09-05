@@ -53,11 +53,7 @@ public class ExplosiveTrapSpellUI : MonoBehaviour
         // Clicking UI should not count as choosing a board square.
         // Your HandBlocker therefore blocks the hand while leaving
         // the actual chessboard clickable.
-        if (EventSystem.current != null &&
-            EventSystem.current.IsPointerOverGameObject())
-        {
-            return;
-        }
+      
 
         if (!SpellRules.CanCastNow(MySide))
             return;

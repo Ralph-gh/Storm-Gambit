@@ -497,7 +497,7 @@ public class GameState : NetworkBehaviour
         }
 
         ChessBoard.Instance.MovePieceLocal(mover, new Vector2Int(toX, toY));
-        LastMoveIndicator.Instance?.ShowMove(from, to);
+        
         TurnManager.Instance?.SyncTurn(CurrentTurn.Value);
     }
 
