@@ -162,9 +162,12 @@ public class GameState : NetworkBehaviour
                 Debug.Log("[SRPC] EP victim missing or invalid");
                 return;
             }
-            if (epVictim.IsDivinelyProtected || victim.IsFrozen)
+            if (epVictim.IsDivinelyProtected ||epVictim.IsFrozen)
             {
-                Debug.Log("[SRPC] EP blocked: victim divinely protected");
+                Debug.Log(
+                    "[SRPC] EP blocked: victim protected/frozen"
+                );
+
                 return;
             }
 
@@ -220,19 +223,13 @@ public class GameState : NetworkBehaviour
             // but keep its GameObject alive until the RPC removes it everywhere.
             ChessBoard.Instance.PrepareExplosiveTrapCaptureServer(piece);
 
-            ApplyExplosiveTrapMoveClientRpc(
-                piece.Id,
-                to.x,
-                to.y,
-                capturedId,
-                trapOwner
-            );
+            ApplyExplosiveTrapMoveClientRpc(piece.Id,from.x,from.y,to.x,to.y,capturedId,trapOwner);
 
             StartCoroutine(CleanupExplodedMoverServerAfterVFX(piece));
         }
         else
         {
-            ApplyMoveClientRpc(piece.Id, to.x, to.y, capturedId);
+            ApplyMoveClientRpc(piece.Id, from.x, from.y,to.x,to.y, capturedId);
         }
         // Move king on server
         ChessBoard.Instance.ExecuteMoveServer(piece, to);
@@ -265,13 +262,16 @@ public class GameState : NetworkBehaviour
 
     [ClientRpc]
     void ApplyExplosiveTrapMoveClientRpc(
-        int moverId,
-        int toX,
-        int toY,
-        int capturedId,
-        TeamColor trapOwner)
+    int moverId,
+    int fromX,
+    int fromY,
+    int toX,
+    int toY,
+    int capturedId,
+    TeamColor trapOwner)
     {
         Vector2Int to = new Vector2Int(toX, toY);
+        Vector2Int from = new Vector2Int(fromX, fromY);
         string role = Unity.Netcode.NetworkManager.Singleton.IsHost ? "HOST" : "CLIENT";
         Debug.Log($"[TRAP/{role}] mover={moverId} exploded at {to}, owner={trapOwner}");
 
@@ -315,7 +315,8 @@ public class GameState : NetworkBehaviour
             ChessBoard.Instance.HideExplosiveTrapMarker(to);
             ChessBoard.Instance.PlayExplosiveTrapEffect(to);
         }
-
+        // Show the accepted move even though the piece exploded.
+        MoveIndicator.Instance?.ShowMove(from, to);
         TurnManager.Instance?.SyncTurn(CurrentTurn.Value);
     }
 
@@ -462,94 +463,200 @@ public class GameState : NetworkBehaviour
         }
     }
     [ClientRpc]
-    void ApplyMoveClientRpc(int moverId, int toX, int toY, int capturedId)
+    void ApplyMoveClientRpc( int moverId, int fromX,int fromY,int toX,int toY,int capturedId)
     {
-        string role = Unity.Netcode.NetworkManager.Singleton.IsHost ? "HOST" : "CLIENT";
-        Debug.Log($"[RPC/{role}] mover={moverId} to=({toX},{toY}) captured={capturedId}");
+        string role =
+            NetworkManager.Singleton.IsHost ? "HOST" : "CLIENT";
+
+        Vector2Int from = new Vector2Int(fromX, fromY);
+        Vector2Int to = new Vector2Int(toX, toY);
+
+        Debug.Log(
+            $"[RPC/{role}] mover={moverId} from={from} to={to} captured={capturedId}"
+        );
 
         var mover = ChessBoard.Instance.GetPieceById(moverId);
+
         if (mover == null)
         {
-            Debug.LogWarning($"[RPC/{role}] mover {moverId} missing  rebuilding index");
+            Debug.LogWarning(
+                $"[RPC/{role}] mover {moverId} missing - rebuilding index"
+            );
+
             ChessBoard.Instance.RebuildIndexFromScene();
+
             mover = ChessBoard.Instance.GetPieceById(moverId);
-            if (mover == null) { Debug.LogWarning($"[RPC/{role}] mover {moverId} STILL missing"); return; }
+
+            if (mover == null)
+            {
+                Debug.LogWarning(
+                    $"[RPC/{role}] mover {moverId} STILL missing"
+                );
+
+                return;
+            }
         }
-        var from = mover.currentCell;
-        var to = new Vector2Int(toX, toY);
+
+        // =========================================================
+        // CAPTURE
+        // =========================================================
+
         if (capturedId >= 0)
         {
-            var victim = ChessBoard.Instance.GetPieceById(capturedId);
+            var victim =
+                ChessBoard.Instance.GetPieceById(capturedId);
+
             if (victim != null)
             {
-                Debug.Log($"[RPC/{role}] removing victim id={capturedId} at {victim.currentCell}");
+                Debug.Log(
+                    $"[RPC/{role}] removing victim id={capturedId} at {victim.currentCell}"
+                );
 
-                // Add to local graveyard and notify listeners (enables Resurrection card)
                 ChessBoard.Instance.AddCapturedPiece(victim);
-                ChessBoard.Instance.RaiseGraveyardChanged();
-
                 ChessBoard.Instance.RemovePieceLocal(victim);
             }
             else
             {
-                Debug.LogWarning($"[RPC/{role}] victim {capturedId} not found (already removed?)");
+                Debug.LogWarning(
+                    $"[RPC/{role}] victim {capturedId} not found (already removed?)"
+                );
             }
         }
+        if (capturedId >= 0)
+        {
+            if (ChessBoard.Instance.audioSource != null &&
+                ChessBoard.Instance.captureClip != null)
+            {
+                ChessBoard.Instance.audioSource.PlayOneShot(
+                    ChessBoard.Instance.captureClip
+                );
+            }
+        }
+        else
+        {
+            if (mover.audioSource != null &&
+                mover.moveClip != null)
+            {
+                mover.audioSource.PlayOneShot(
+                    mover.moveClip
+                );
+            }
+        }
+        // =========================================================
+        // APPLY VISUAL / LOCAL BOARD MOVE
+        // =========================================================
 
-        ChessBoard.Instance.MovePieceLocal(mover, new Vector2Int(toX, toY));
-        
-        TurnManager.Instance?.SyncTurn(CurrentTurn.Value);
+        // Prevent accidental same-square MovePieceLocal(to -> to)
+        if (mover.currentCell != to)
+        {
+            ChessBoard.Instance.MovePieceLocal(
+                mover,
+                to
+            );
+        }
+        else if (BoardInitializer.Instance != null)
+        {
+            mover.transform.position =
+                BoardInitializer.Instance.GetWorldPosition(to);
+        }
+
+        // =========================================================
+        // MOVE INDICATOR
+        // =========================================================
+
+        MoveIndicator.Instance?.ShowMove(
+            from,
+            to
+        );
+
+        TurnManager.Instance?.SyncTurn(
+            CurrentTurn.Value
+        );
     }
-
-
-    // Optional: end turn without moving (e.g., skip/cast-only turn)
     [ServerRpc(RequireOwnership = false)]
     public void EndTurnServerRpc(ServerRpcParams p = default)
     {
         var senderClientId = p.Receive.SenderClientId;
         var netPlayer = NetPlayer.FindByClient(senderClientId);
-        if (netPlayer == null) return;
-        if (netPlayer.Side.Value != CurrentTurn.Value) return;
-        CurrentTurn.Value = (CurrentTurn.Value == TeamColor.White) ? TeamColor.Black : TeamColor.White;
+
+        if (netPlayer == null)
+            return;
+
+        if (netPlayer.Side.Value != CurrentTurn.Value)
+            return;
+
+        CurrentTurn.Value =
+            CurrentTurn.Value == TeamColor.White
+            ? TeamColor.Black
+            : TeamColor.White;
+
         ChessBoard.Instance.ClearEnPassant();
     }
     public override void OnNetworkSpawn()
     {
         base.OnNetworkSpawn();
-        #if UNITY_SERVER || UNITY_EDITOR
-        foreach (var p in GameObject.FindObjectsOfType<ChessPiece>())
+
+#if UNITY_SERVER || UNITY_EDITOR
+        // Reset castling state on server/editor start.
+        foreach (var p in FindObjectsByType<ChessPiece>(
+            FindObjectsInactive.Exclude,
+            FindObjectsSortMode.None))
         {
-            if (p.pieceType == PieceType.King || p.pieceType == PieceType.Rook)
+            if (p.pieceType == PieceType.King ||
+                p.pieceType == PieceType.Rook)
+            {
                 p.hasMoved = false;
+            }
         }
-        ChessBoard.Instance.RebuildBoardAndIndexFromScene();
-        #endif
-        //sync turn
-        if (TurnManager.Instance)TurnManager.Instance.SyncTurn(CurrentTurn.Value);
-        CurrentTurn.OnValueChanged += (oldV, NewV) =>
+
+        // Make sure server board/index matches the scene.
+        if (ChessBoard.Instance != null)
         {
-            if (TurnManager.Instance) TurnManager.Instance.SyncTurn(NewV);
-        };
-        {
-            base.OnNetworkSpawn();
-
-            if (TurnManager.Instance) TurnManager.Instance.SyncTurn(CurrentTurn.Value);
-            CurrentTurn.OnValueChanged += (oldV, NewV) =>
-            {
-                if (TurnManager.Instance) TurnManager.Instance.SyncTurn(NewV);
-            };
-
-            // Hook move number changes for local UI listeners (purely cosmetic on clients)
-            MoveNumber.OnValueChanged += (oldV, newV) =>
-            {
-                TurnCounterUI.BroadcastMoveNumber(newV);
-            };
-
-            if (IsServer) StartCoroutine(BoardHeartbeat());
+            ChessBoard.Instance.RebuildBoardAndIndexFromScene();
         }
-        if (IsServer) StartCoroutine(BoardHeartbeat());
+#endif
+
+        // Initial local turn sync.
+        if (TurnManager.Instance != null)
+        {
+            TurnManager.Instance.SyncTurn(CurrentTurn.Value);
+        }
+
+        // Keep local turn state synced whenever server changes turn.
+        CurrentTurn.OnValueChanged += HandleCurrentTurnChanged;
+
+        // Keep move counter UI synced.
+        MoveNumber.OnValueChanged += HandleMoveNumberChanged;
+
+        // Only the server should run the board heartbeat.
+        if (IsServer)
+        {
+            StartCoroutine(BoardHeartbeat());
+        }
+    }
+    private void HandleCurrentTurnChanged(
+    TeamColor oldValue,
+    TeamColor newValue)
+    {
+        if (TurnManager.Instance != null)
+        {
+            TurnManager.Instance.SyncTurn(newValue);
+        }
     }
 
+    private void HandleMoveNumberChanged(
+        int oldValue,
+        int newValue)
+    {
+        TurnCounterUI.BroadcastMoveNumber(newValue);
+    }
+    public override void OnNetworkDespawn()
+    {
+        CurrentTurn.OnValueChanged -= HandleCurrentTurnChanged;
+        MoveNumber.OnValueChanged -= HandleMoveNumberChanged;
+
+        base.OnNetworkDespawn();
+    }
     private System.Collections.IEnumerator BoardHeartbeat()
     {
         // small delay to let initializers finish

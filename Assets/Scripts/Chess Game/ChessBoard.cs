@@ -269,7 +269,15 @@ public class ChessBoard : NetworkBehaviour
 
             Debug.Log($"[CAPTURE] Captured {target.pieceType}, sprite: {target.pieceSprite?.name}");
 
-            if (audioSource != null && captureClip != null) audioSource.PlayOneShot(captureClip);
+            bool isNet =
+            NetworkManager.Singleton != null && NetworkManager.Singleton.IsListening;
+
+            if (!isNet &&
+                audioSource != null &&
+                captureClip != null)
+            {
+                audioSource.PlayOneShot(captureClip);
+            }
 
             // No need to invoke OnGraveyardChanged() again here – AddCapturedPiece already did it.
             GameObject.Destroy(target.gameObject);

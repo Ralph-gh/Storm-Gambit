@@ -458,6 +458,30 @@ public class ChessPiece : NetworkBehaviour
             return;
         }
 
+        // =========================================================
+        // NETWORKED MOVE
+        // Server is responsible for capture/move resolution.
+        // Do NOT modify the board locally.
+        // =========================================================
+
+        var nm = NetworkManager.Singleton;
+
+        if (nm != null && nm.IsListening)
+        {
+            if (NetPlayer.Local != null &&
+                NetPlayer.Local.CanAct() &&
+                NetPlayer.Local.Side.Value == team)
+            {
+                NetPlayer.Local.TryRequestMove(Id, newCell);
+            }
+
+            // Wait for server ClientRpc to actually move the piece.
+            SnapBackToCurrentCell();
+            return;
+        }
+
+
+        // Everything below here is OFFLINE ONLY.
         Vector2Int oldCell = currentCell;
 
         // =========================================================
@@ -573,17 +597,6 @@ public class ChessPiece : NetworkBehaviour
             ChessBoard.Instance.pawnToPromote = this;
             ChessBoard.Instance.TriggerPromotion(this);
 
-            return;
-        }
-
-        // (Safety: if a NetworkManager exists but not listening, this won't early-return)
-        var nm = Unity.Netcode.NetworkManager.Singleton;
-        if (nm && nm.IsListening)
-        {
-            if (NetPlayer.Local != null && NetPlayer.Local.CanAct())
-                NetPlayer.Local.TryRequestMove(this.Id, newCell);
-            else
-                transform.position = originalPosition;
             return;
         }
 

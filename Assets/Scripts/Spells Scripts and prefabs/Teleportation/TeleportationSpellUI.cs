@@ -113,18 +113,23 @@ public class TeleportationSpellUI : MonoBehaviour
         // Networked path: ask server; clients will sync via RPC
         if (Unity.Netcode.NetworkManager.Singleton && Unity.Netcode.NetworkManager.Singleton.IsListening)
         {
-            GameState.Instance.TeleportPieceServerRpc(piece.Id, targetCell.x, targetCell.y);
+            GameState.Instance.TeleportPieceServerRpc(
+                piece.Id,
+                targetCell.x,
+                targetCell.y
+            );
 
-            // Consume the free spell ONLY if it’s my turn (it is, but keep invariant)
-            if (TurnManager.Instance.IsPlayersTurn(piece.team))
-                if (!isMageAbility)
-                {
-                    if (TurnManager.Instance != null &&
-                        TurnManager.Instance.IsPlayersTurn(MySide))
-                    {
-                        TurnManager.Instance.RegisterFreeSpellCast();
-                    }
-                }
+            if (!isMageAbility &&
+                TurnManager.Instance != null &&
+                TurnManager.Instance.IsPlayersTurn(MySide))
+            {
+                TurnManager.Instance.RegisterFreeSpellCast();
+            }
+
+            // Teleport request accepted from UI side:
+            // close prompt and consume/deactivate appropriately.
+            CloseSuccess();
+
             return;
         }
 
