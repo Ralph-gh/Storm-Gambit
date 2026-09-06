@@ -260,7 +260,15 @@ public class CardUI : MonoBehaviour
             BeginPendingSpell();
             return;
         }
+        FreezeSpellUI freezeUI =
+    spellObject.GetComponent<FreezeSpellUI>();
 
+        if (freezeUI != null)
+        {
+            freezeUI.BindSourceCard(this);
+            BeginPendingSpell();
+            return;
+        }
         // Explosive Trap follows the same success/cancel pattern.
         ExplosiveTrapSpellUI trapUI =
             spellObject.GetComponent<ExplosiveTrapSpellUI>();

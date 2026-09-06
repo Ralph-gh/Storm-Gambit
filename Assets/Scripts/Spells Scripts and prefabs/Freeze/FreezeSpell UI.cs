@@ -11,6 +11,7 @@ public class FreezeSpellUI : MonoBehaviour
 
     private System.Action mageAbilitySuccess;
     private System.Action mageAbilityCancel;
+    private CardUI sourceCard;
 
     [Header("UI")]
     [SerializeField] private GameObject legacyFreezePanel;
@@ -101,7 +102,13 @@ public class FreezeSpellUI : MonoBehaviour
         }
 
         if (isMageAbility)
+        {
             mageAbilitySuccess?.Invoke();
+        }
+        else
+        {
+            sourceCard?.ConsumeCardAfterSuccessfulCast();
+        }
 
         Destroy(gameObject);
     }
@@ -114,9 +121,19 @@ public class FreezeSpellUI : MonoBehaviour
         }
 
         if (isMageAbility)
+        {
             mageAbilityCancel?.Invoke();
+        }
+        else
+        {
+            sourceCard?.CancelPendingSpellCast();
+        }
 
         Destroy(gameObject);
+    }
+    public void BindSourceCard(CardUI card)
+    {
+        sourceCard = card;
     }
     Vector2Int WorldToCell(Vector3 world)
     {

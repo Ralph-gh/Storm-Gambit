@@ -9,8 +9,9 @@ public class MageAbilityController : MonoBehaviour
     [Header("Ability Prefabs")]
     public GameObject teleportationSpellUIPrefab;
     public GameObject freezeSpellUIPrefab;
-    private SpellPromptPanelUI activePrompt;
+    public System.Action OnAbilityUsed;
 
+    private SpellPromptPanelUI activePrompt;
     private bool abilityUsed = false;
     private bool abilityInProgress = false;
     public bool TryActivateMageAbility(CardData mageCard)
@@ -149,6 +150,8 @@ public class MageAbilityController : MonoBehaviour
     {
         abilityInProgress = false;
         abilityUsed = true;
+
+        OnAbilityUsed?.Invoke();
 
         Debug.Log(
             "[MageAbility] Mage ability completed successfully."

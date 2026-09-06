@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.AI;
 using UnityEngine.TextCore.Text;
 
 public class CharacterPanelUI : MonoBehaviour
@@ -39,18 +40,37 @@ public class CharacterPanelUI : MonoBehaviour
 
         bool used = abilityController.TryActivateMageAbility(mageCard);
 
-        if (used && active != null)
+       /*if (used && active != null)
         {
-            active.SetInteractable(false);   // single use rule
+            active.SetInteractable(false);
             Debug.Log("[CharacterPanelUI] Mage card disabled (single-use ability).");
             active.SetSpentVisual(true);
-        }
+        }*/ //old disable
     }
     public void SetInteractable(bool canClick)
     {
         if (active) active.SetInteractable(canClick);
     }
+    private void OnEnable()
+    {
+        if (abilityController != null)
+            abilityController.OnAbilityUsed += HandleAbilityUsed;
+    }
+    private void OnDisable()
+    {
+        if (abilityController != null)
+            abilityController.OnAbilityUsed -= HandleAbilityUsed;
+    }
+    private void HandleAbilityUsed()
+    {
+        if (active == null)
+            return;
 
+        active.SetInteractable(false);
+        active.SetSpentVisual(true);
+
+        Debug.Log("[CharacterPanelUI] Mage card disabled after successful ability.");
+    }
     public void Clear()
     {
         if (active) Destroy(active.gameObject);
