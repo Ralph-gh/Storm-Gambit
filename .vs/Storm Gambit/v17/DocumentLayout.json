@@ -3,6 +3,22 @@
   "WorkspaceRootPath": "C:\\Users\\Ralph Ghnatios\\Storm Gambit\\",
   "Documents": [
     {
+      "AbsoluteMoniker": "D:0:0:{4F775C81-8B19-1FBE-4E5F-B4483DFBD379}|Assembly-CSharp.csproj|C:\\Users\\Ralph Ghnatios\\Storm Gambit\\assets\\scripts\\cards\\cardui.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{4F775C81-8B19-1FBE-4E5F-B4483DFBD379}|Assembly-CSharp.csproj|solutionrelative:assets\\scripts\\cards\\cardui.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{4F775C81-8B19-1FBE-4E5F-B4483DFBD379}|Assembly-CSharp.csproj|C:\\Users\\Ralph Ghnatios\\Storm Gambit\\assets\\scripts\\ui\\spellcardpreviewui.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{4F775C81-8B19-1FBE-4E5F-B4483DFBD379}|Assembly-CSharp.csproj|solutionrelative:assets\\scripts\\ui\\spellcardpreviewui.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{4F775C81-8B19-1FBE-4E5F-B4483DFBD379}|Assembly-CSharp.csproj|c:\\users\\ralph ghnatios\\storm gambit\\assets\\scripts\\spells scripts and prefabs\\resurrection\\resurrectionspellui.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{4F775C81-8B19-1FBE-4E5F-B4483DFBD379}|Assembly-CSharp.csproj|solutionrelative:assets\\scripts\\spells scripts and prefabs\\resurrection\\resurrectionspellui.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{4F775C81-8B19-1FBE-4E5F-B4483DFBD379}|Assembly-CSharp.csproj|C:\\Users\\Ralph Ghnatios\\Storm Gambit\\assets\\scripts\\spells scripts and prefabs\\divine protection\\divineprotectionui.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{4F775C81-8B19-1FBE-4E5F-B4483DFBD379}|Assembly-CSharp.csproj|solutionrelative:assets\\scripts\\spells scripts and prefabs\\divine protection\\divineprotectionui.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
       "AbsoluteMoniker": "D:0:0:{4F775C81-8B19-1FBE-4E5F-B4483DFBD379}|Assembly-CSharp.csproj|C:\\Users\\Ralph Ghnatios\\Storm Gambit\\assets\\scripts\\characters\\characterpanelui.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{4F775C81-8B19-1FBE-4E5F-B4483DFBD379}|Assembly-CSharp.csproj|solutionrelative:assets\\scripts\\characters\\characterpanelui.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
@@ -19,7 +35,7 @@
       "RelativeMoniker": "D:0:0:{4F775C81-8B19-1FBE-4E5F-B4483DFBD379}|Assembly-CSharp.csproj|solutionrelative:assets\\scripts\\characters\\characterchoicepanel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{4F775C81-8B19-1FBE-4E5F-B4483DFBD379}|Assembly-CSharp.csproj|c:\\users\\ralph ghnatios\\storm gambit\\assets\\scriptableobjects\\mages\\mageabilitydata.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "AbsoluteMoniker": "D:0:0:{4F775C81-8B19-1FBE-4E5F-B4483DFBD379}|Assembly-CSharp.csproj|C:\\Users\\Ralph Ghnatios\\Storm Gambit\\assets\\scriptableobjects\\mages\\mageabilitydata.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{4F775C81-8B19-1FBE-4E5F-B4483DFBD379}|Assembly-CSharp.csproj|solutionrelative:assets\\scriptableobjects\\mages\\mageabilitydata.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
@@ -31,16 +47,8 @@
       "RelativeMoniker": "D:0:0:{4F775C81-8B19-1FBE-4E5F-B4483DFBD379}|Assembly-CSharp.csproj|solutionrelative:assets\\scripts\\camera\\boardflipcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{4F775C81-8B19-1FBE-4E5F-B4483DFBD379}|Assembly-CSharp.csproj|C:\\Users\\Ralph Ghnatios\\Storm Gambit\\assets\\scripts\\cards\\cardui.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{4F775C81-8B19-1FBE-4E5F-B4483DFBD379}|Assembly-CSharp.csproj|solutionrelative:assets\\scripts\\cards\\cardui.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{4F775C81-8B19-1FBE-4E5F-B4483DFBD379}|Assembly-CSharp.csproj|c:\\users\\ralph ghnatios\\storm gambit\\assets\\scripts\\ui\\spellcardpreviewtrigger.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "AbsoluteMoniker": "D:0:0:{4F775C81-8B19-1FBE-4E5F-B4483DFBD379}|Assembly-CSharp.csproj|C:\\Users\\Ralph Ghnatios\\Storm Gambit\\assets\\scripts\\ui\\spellcardpreviewtrigger.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{4F775C81-8B19-1FBE-4E5F-B4483DFBD379}|Assembly-CSharp.csproj|solutionrelative:assets\\scripts\\ui\\spellcardpreviewtrigger.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{4F775C81-8B19-1FBE-4E5F-B4483DFBD379}|Assembly-CSharp.csproj|C:\\Users\\Ralph Ghnatios\\Storm Gambit\\assets\\scripts\\ui\\spellcardpreviewui.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{4F775C81-8B19-1FBE-4E5F-B4483DFBD379}|Assembly-CSharp.csproj|solutionrelative:assets\\scripts\\ui\\spellcardpreviewui.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{4F775C81-8B19-1FBE-4E5F-B4483DFBD379}|Assembly-CSharp.csproj|C:\\Users\\Ralph Ghnatios\\Storm Gambit\\assets\\scripts\\chess game\\chessboard.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
@@ -75,10 +83,6 @@
       "RelativeMoniker": "D:0:0:{4F775C81-8B19-1FBE-4E5F-B4483DFBD379}|Assembly-CSharp.csproj|solutionrelative:assets\\scripts\\ui\\ingamemenuui.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{4F775C81-8B19-1FBE-4E5F-B4483DFBD379}|Assembly-CSharp.csproj|C:\\Users\\Ralph Ghnatios\\Storm Gambit\\assets\\scripts\\spells scripts and prefabs\\divine protection\\divineprotectionui.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{4F775C81-8B19-1FBE-4E5F-B4483DFBD379}|Assembly-CSharp.csproj|solutionrelative:assets\\scripts\\spells scripts and prefabs\\divine protection\\divineprotectionui.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
       "AbsoluteMoniker": "D:0:0:{4F775C81-8B19-1FBE-4E5F-B4483DFBD379}|Assembly-CSharp.csproj|C:\\Users\\Ralph Ghnatios\\Storm Gambit\\assets\\scripts\\ui\\spellpromptpanelui.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{4F775C81-8B19-1FBE-4E5F-B4483DFBD379}|Assembly-CSharp.csproj|solutionrelative:assets\\scripts\\ui\\spellpromptpanelui.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
@@ -89,10 +93,6 @@
     {
       "AbsoluteMoniker": "D:0:0:{4F775C81-8B19-1FBE-4E5F-B4483DFBD379}|Assembly-CSharp.csproj|C:\\Users\\Ralph Ghnatios\\Storm Gambit\\assets\\scriptableobjects\\mages\\magedata.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{4F775C81-8B19-1FBE-4E5F-B4483DFBD379}|Assembly-CSharp.csproj|solutionrelative:assets\\scriptableobjects\\mages\\magedata.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{4F775C81-8B19-1FBE-4E5F-B4483DFBD379}|Assembly-CSharp.csproj|C:\\Users\\Ralph Ghnatios\\Storm Gambit\\assets\\scripts\\spells scripts and prefabs\\resurrection\\resurrectionspellui.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{4F775C81-8B19-1FBE-4E5F-B4483DFBD379}|Assembly-CSharp.csproj|solutionrelative:assets\\scripts\\spells scripts and prefabs\\resurrection\\resurrectionspellui.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{4F775C81-8B19-1FBE-4E5F-B4483DFBD379}|Assembly-CSharp.csproj|C:\\Users\\Ralph Ghnatios\\Storm Gambit\\assets\\scripts\\ui\\spelloverlaymanager.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
@@ -187,10 +187,6 @@
       "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:Assets\\Scripts\\Spells\\ISpell.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\Ralph Ghnatios\\Storm Gambit\\Assets\\Scripts\\Spells Scripts and prefabs\\Divine Protection\\DivineProtection.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:Assets\\Scripts\\Spells Scripts and prefabs\\Divine Protection\\DivineProtection.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
       "AbsoluteMoniker": "D:0:0:{4F775C81-8B19-1FBE-4E5F-B4483DFBD379}|Assembly-CSharp.csproj|C:\\Users\\Ralph Ghnatios\\Storm Gambit\\assets\\scripts\\ui\\victoryui.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{4F775C81-8B19-1FBE-4E5F-B4483DFBD379}|Assembly-CSharp.csproj|solutionrelative:assets\\scripts\\ui\\victoryui.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
@@ -214,115 +210,11 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 6,
+          "SelectedChildIndex": 4,
           "Children": [
             {
               "$type": "Document",
-              "DocumentIndex": 4,
-              "Title": "MageAbilityData.cs",
-              "DocumentMoniker": "C:\\Users\\Ralph Ghnatios\\Storm Gambit\\Assets\\ScriptableObjects\\Mages\\MageAbilityData.cs",
-              "RelativeDocumentMoniker": "Assets\\ScriptableObjects\\Mages\\MageAbilityData.cs",
-              "ToolTip": "C:\\Users\\Ralph Ghnatios\\Storm Gambit\\Assets\\ScriptableObjects\\Mages\\MageAbilityData.cs",
-              "RelativeToolTip": "Assets\\ScriptableObjects\\Mages\\MageAbilityData.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAA4AAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-09-05T23:58:15.957Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
               "DocumentIndex": 1,
-              "Title": "MageAbilityController.cs",
-              "DocumentMoniker": "C:\\Users\\Ralph Ghnatios\\Storm Gambit\\Assets\\Scripts\\Characters\\MageAbilityController.cs",
-              "RelativeDocumentMoniker": "Assets\\Scripts\\Characters\\MageAbilityController.cs",
-              "ToolTip": "C:\\Users\\Ralph Ghnatios\\Storm Gambit\\Assets\\Scripts\\Characters\\MageAbilityController.cs",
-              "RelativeToolTip": "Assets\\Scripts\\Characters\\MageAbilityController.cs",
-              "ViewState": "AgIAAIkAAAAAAAAAAADwv5kAAAAgAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-01-04T02:55:49.405Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 6,
-              "Title": "BoardFlipController.cs",
-              "DocumentMoniker": "C:\\Users\\Ralph Ghnatios\\Storm Gambit\\Assets\\Scripts\\Camera\\BoardFlipController.cs",
-              "RelativeDocumentMoniker": "Assets\\Scripts\\Camera\\BoardFlipController.cs",
-              "ToolTip": "C:\\Users\\Ralph Ghnatios\\Storm Gambit\\Assets\\Scripts\\Camera\\BoardFlipController.cs",
-              "RelativeToolTip": "Assets\\Scripts\\Camera\\BoardFlipController.cs",
-              "ViewState": "AgIAACgAAAAAAAAAAAAwwE8AAAABAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-08-31T23:45:08.43Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 7,
-              "Title": "CardUI.cs",
-              "DocumentMoniker": "C:\\Users\\Ralph Ghnatios\\Storm Gambit\\Assets\\Scripts\\Cards\\CardUI.cs",
-              "RelativeDocumentMoniker": "Assets\\Scripts\\Cards\\CardUI.cs",
-              "ToolTip": "C:\\Users\\Ralph Ghnatios\\Storm Gambit\\Assets\\Scripts\\Cards\\CardUI.cs",
-              "RelativeToolTip": "Assets\\Scripts\\Cards\\CardUI.cs",
-              "ViewState": "AgIAAPQAAAAAAAAAAAAlwAYBAAAOAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-12-15T04:57:16.133Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 2,
-              "Title": "CharacterSelectionUI.cs",
-              "DocumentMoniker": "C:\\Users\\Ralph Ghnatios\\Storm Gambit\\Assets\\Scripts\\Characters\\CharacterSelectionUI.cs",
-              "RelativeDocumentMoniker": "Assets\\Scripts\\Characters\\CharacterSelectionUI.cs",
-              "ToolTip": "C:\\Users\\Ralph Ghnatios\\Storm Gambit\\Assets\\Scripts\\Characters\\CharacterSelectionUI.cs",
-              "RelativeToolTip": "Assets\\Scripts\\Characters\\CharacterSelectionUI.cs",
-              "ViewState": "AgIAAGQAAAAAAAAAAAAwwIUAAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-08-19T13:45:27.18Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 3,
-              "Title": "CharacterChoicePanel.cs",
-              "DocumentMoniker": "C:\\Users\\Ralph Ghnatios\\Storm Gambit\\Assets\\Scripts\\Characters\\CharacterChoicePanel.cs",
-              "RelativeDocumentMoniker": "Assets\\Scripts\\Characters\\CharacterChoicePanel.cs",
-              "ToolTip": "C:\\Users\\Ralph Ghnatios\\Storm Gambit\\Assets\\Scripts\\Characters\\CharacterChoicePanel.cs",
-              "RelativeToolTip": "Assets\\Scripts\\Characters\\CharacterChoicePanel.cs",
-              "ViewState": "AgIAAEsAAAAAAAAAAAAAAGwAAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-08-19T18:51:00.1Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 0,
-              "Title": "CharacterPanelUI.cs",
-              "DocumentMoniker": "C:\\Users\\Ralph Ghnatios\\Storm Gambit\\Assets\\Scripts\\Characters\\CharacterPanelUI.cs",
-              "RelativeDocumentMoniker": "Assets\\Scripts\\Characters\\CharacterPanelUI.cs",
-              "ToolTip": "C:\\Users\\Ralph Ghnatios\\Storm Gambit\\Assets\\Scripts\\Characters\\CharacterPanelUI.cs",
-              "RelativeToolTip": "Assets\\Scripts\\Characters\\CharacterPanelUI.cs",
-              "ViewState": "AgIAACkAAAAAAAAAAAAIwCgAAABHAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-08-19T13:57:20.169Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 8,
-              "Title": "SpellCardPreviewTrigger.cs",
-              "DocumentMoniker": "C:\\Users\\Ralph Ghnatios\\Storm Gambit\\Assets\\Scripts\\UI\\SpellCardPreviewTrigger.cs",
-              "RelativeDocumentMoniker": "Assets\\Scripts\\UI\\SpellCardPreviewTrigger.cs",
-              "ToolTip": "C:\\Users\\Ralph Ghnatios\\Storm Gambit\\Assets\\Scripts\\UI\\SpellCardPreviewTrigger.cs",
-              "RelativeToolTip": "Assets\\Scripts\\UI\\SpellCardPreviewTrigger.cs",
-              "ViewState": "AgIAAA0AAAAAAAAAAAAQwBcAAAANAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-09-05T20:19:40.089Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 9,
               "Title": "SpellCardPreviewUI.cs",
               "DocumentMoniker": "C:\\Users\\Ralph Ghnatios\\Storm Gambit\\Assets\\Scripts\\UI\\SpellCardPreviewUI.cs",
               "RelativeDocumentMoniker": "Assets\\Scripts\\UI\\SpellCardPreviewUI.cs",
@@ -335,7 +227,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 11,
+              "DocumentIndex": 13,
               "Title": "ChessPiece.cs",
               "DocumentMoniker": "C:\\Users\\Ralph Ghnatios\\Storm Gambit\\Assets\\Scripts\\Chess Game\\ChessPiece.cs",
               "RelativeDocumentMoniker": "Assets\\Scripts\\Chess Game\\ChessPiece.cs",
@@ -347,7 +239,130 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 15,
+              "DocumentIndex": 2,
+              "Title": "ResurrectionSpellUI.cs",
+              "DocumentMoniker": "C:\\Users\\Ralph Ghnatios\\Storm Gambit\\Assets\\Scripts\\Spells Scripts and prefabs\\Resurrection\\ResurrectionSpellUI.cs",
+              "RelativeDocumentMoniker": "Assets\\Scripts\\Spells Scripts and prefabs\\Resurrection\\ResurrectionSpellUI.cs",
+              "ToolTip": "C:\\Users\\Ralph Ghnatios\\Storm Gambit\\Assets\\Scripts\\Spells Scripts and prefabs\\Resurrection\\ResurrectionSpellUI.cs",
+              "RelativeToolTip": "Assets\\Scripts\\Spells Scripts and prefabs\\Resurrection\\ResurrectionSpellUI.cs",
+              "ViewState": "AgIAAEkAAAAAAAAAAAAuwFwAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-12-15T05:07:04.374Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 6,
+              "Title": "CharacterSelectionUI.cs",
+              "DocumentMoniker": "C:\\Users\\Ralph Ghnatios\\Storm Gambit\\Assets\\Scripts\\Characters\\CharacterSelectionUI.cs",
+              "RelativeDocumentMoniker": "Assets\\Scripts\\Characters\\CharacterSelectionUI.cs",
+              "ToolTip": "C:\\Users\\Ralph Ghnatios\\Storm Gambit\\Assets\\Scripts\\Characters\\CharacterSelectionUI.cs",
+              "RelativeToolTip": "Assets\\Scripts\\Characters\\CharacterSelectionUI.cs",
+              "ViewState": "AgIAAGQAAAAAAAAAAAAwwIUAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-08-19T13:45:27.18Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "CardUI.cs",
+              "DocumentMoniker": "C:\\Users\\Ralph Ghnatios\\Storm Gambit\\Assets\\Scripts\\Cards\\CardUI.cs",
+              "RelativeDocumentMoniker": "Assets\\Scripts\\Cards\\CardUI.cs",
+              "ToolTip": "C:\\Users\\Ralph Ghnatios\\Storm Gambit\\Assets\\Scripts\\Cards\\CardUI.cs",
+              "RelativeToolTip": "Assets\\Scripts\\Cards\\CardUI.cs",
+              "ViewState": "AgIAALcAAAAAAAAAAAAhwMgAAAAeAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-12-15T04:57:16.133Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 10,
+              "Title": "BoardFlipController.cs",
+              "DocumentMoniker": "C:\\Users\\Ralph Ghnatios\\Storm Gambit\\Assets\\Scripts\\Camera\\BoardFlipController.cs",
+              "RelativeDocumentMoniker": "Assets\\Scripts\\Camera\\BoardFlipController.cs",
+              "ToolTip": "C:\\Users\\Ralph Ghnatios\\Storm Gambit\\Assets\\Scripts\\Camera\\BoardFlipController.cs",
+              "RelativeToolTip": "Assets\\Scripts\\Camera\\BoardFlipController.cs",
+              "ViewState": "AgIAACgAAAAAAAAAAAAwwE8AAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-08-31T23:45:08.43Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 5,
+              "Title": "MageAbilityController.cs",
+              "DocumentMoniker": "C:\\Users\\Ralph Ghnatios\\Storm Gambit\\Assets\\Scripts\\Characters\\MageAbilityController.cs",
+              "RelativeDocumentMoniker": "Assets\\Scripts\\Characters\\MageAbilityController.cs",
+              "ToolTip": "C:\\Users\\Ralph Ghnatios\\Storm Gambit\\Assets\\Scripts\\Characters\\MageAbilityController.cs",
+              "RelativeToolTip": "Assets\\Scripts\\Characters\\MageAbilityController.cs",
+              "ViewState": "AgIAAIkAAAAAAAAAAADwv5kAAAAgAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-01-04T02:55:49.405Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "DivineProtectionUI.cs",
+              "DocumentMoniker": "C:\\Users\\Ralph Ghnatios\\Storm Gambit\\Assets\\Scripts\\Spells Scripts and prefabs\\Divine Protection\\DivineProtectionUI.cs",
+              "RelativeDocumentMoniker": "Assets\\Scripts\\Spells Scripts and prefabs\\Divine Protection\\DivineProtectionUI.cs",
+              "ToolTip": "C:\\Users\\Ralph Ghnatios\\Storm Gambit\\Assets\\Scripts\\Spells Scripts and prefabs\\Divine Protection\\DivineProtectionUI.cs",
+              "RelativeToolTip": "Assets\\Scripts\\Spells Scripts and prefabs\\Divine Protection\\DivineProtectionUI.cs",
+              "ViewState": "AgIAAGYAAAAAAAAAAAAAAIcAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-09-15T20:00:30.41Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 11,
+              "Title": "SpellCardPreviewTrigger.cs",
+              "DocumentMoniker": "C:\\Users\\Ralph Ghnatios\\Storm Gambit\\Assets\\Scripts\\UI\\SpellCardPreviewTrigger.cs",
+              "RelativeDocumentMoniker": "Assets\\Scripts\\UI\\SpellCardPreviewTrigger.cs",
+              "ToolTip": "C:\\Users\\Ralph Ghnatios\\Storm Gambit\\Assets\\Scripts\\UI\\SpellCardPreviewTrigger.cs",
+              "RelativeToolTip": "Assets\\Scripts\\UI\\SpellCardPreviewTrigger.cs",
+              "ViewState": "AgIAAA0AAAAAAAAAAAAQwBcAAAANAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-09-05T20:19:40.089Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 4,
+              "Title": "CharacterPanelUI.cs",
+              "DocumentMoniker": "C:\\Users\\Ralph Ghnatios\\Storm Gambit\\Assets\\Scripts\\Characters\\CharacterPanelUI.cs",
+              "RelativeDocumentMoniker": "Assets\\Scripts\\Characters\\CharacterPanelUI.cs",
+              "ToolTip": "C:\\Users\\Ralph Ghnatios\\Storm Gambit\\Assets\\Scripts\\Characters\\CharacterPanelUI.cs",
+              "RelativeToolTip": "Assets\\Scripts\\Characters\\CharacterPanelUI.cs",
+              "ViewState": "AgIAACkAAAAAAAAAAAAIwCgAAABHAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-08-19T13:57:20.169Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 7,
+              "Title": "CharacterChoicePanel.cs",
+              "DocumentMoniker": "C:\\Users\\Ralph Ghnatios\\Storm Gambit\\Assets\\Scripts\\Characters\\CharacterChoicePanel.cs",
+              "RelativeDocumentMoniker": "Assets\\Scripts\\Characters\\CharacterChoicePanel.cs",
+              "ToolTip": "C:\\Users\\Ralph Ghnatios\\Storm Gambit\\Assets\\Scripts\\Characters\\CharacterChoicePanel.cs",
+              "RelativeToolTip": "Assets\\Scripts\\Characters\\CharacterChoicePanel.cs",
+              "ViewState": "AgIAAEsAAAAAAAAAAAAAAGwAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-08-19T18:51:00.1Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 8,
+              "Title": "MageAbilityData.cs",
+              "DocumentMoniker": "C:\\Users\\Ralph Ghnatios\\Storm Gambit\\Assets\\ScriptableObjects\\Mages\\MageAbilityData.cs",
+              "RelativeDocumentMoniker": "Assets\\ScriptableObjects\\Mages\\MageAbilityData.cs",
+              "ToolTip": "C:\\Users\\Ralph Ghnatios\\Storm Gambit\\Assets\\ScriptableObjects\\Mages\\MageAbilityData.cs",
+              "RelativeToolTip": "Assets\\ScriptableObjects\\Mages\\MageAbilityData.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAA4AAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-09-05T23:58:15.957Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 17,
               "Title": "GameStat.cs",
               "DocumentMoniker": "C:\\Users\\Ralph Ghnatios\\Storm Gambit\\Assets\\Scripts\\Network\\GameStat.cs",
               "RelativeDocumentMoniker": "Assets\\Scripts\\Network\\GameStat.cs",
@@ -359,7 +374,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 5,
+              "DocumentIndex": 9,
               "Title": "FreezeSpell UI.cs",
               "DocumentMoniker": "C:\\Users\\Ralph Ghnatios\\Storm Gambit\\Assets\\Scripts\\Spells Scripts and prefabs\\Freeze\\FreezeSpell UI.cs",
               "RelativeDocumentMoniker": "Assets\\Scripts\\Spells Scripts and prefabs\\Freeze\\FreezeSpell UI.cs",
@@ -367,12 +382,11 @@
               "RelativeToolTip": "Assets\\Scripts\\Spells Scripts and prefabs\\Freeze\\FreezeSpell UI.cs",
               "ViewState": "AgIAAG4AAAAAAAAAAAAuwIUAAAArAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-09-03T16:41:39.148Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-09-03T16:41:39.148Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 19,
+              "DocumentIndex": 20,
               "Title": "SpellPromptPanelUI.cs",
               "DocumentMoniker": "C:\\Users\\Ralph Ghnatios\\Storm Gambit\\Assets\\Scripts\\UI\\SpellPromptPanelUI.cs",
               "RelativeDocumentMoniker": "Assets\\Scripts\\UI\\SpellPromptPanelUI.cs",
@@ -384,7 +398,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 12,
+              "DocumentIndex": 14,
               "Title": "MoveIndicator.cs",
               "DocumentMoniker": "C:\\Users\\Ralph Ghnatios\\Storm Gambit\\Assets\\Scripts\\Chess Game\\Visuals on the board\\MoveIndicator.cs",
               "RelativeDocumentMoniker": "Assets\\Scripts\\Chess Game\\Visuals on the board\\MoveIndicator.cs",
@@ -396,7 +410,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 13,
+              "DocumentIndex": 15,
               "Title": "ExplosiveTrapUI.cs",
               "DocumentMoniker": "C:\\Users\\Ralph Ghnatios\\Storm Gambit\\Assets\\Scripts\\Spells Scripts and prefabs\\Explosive Trap\\ExplosiveTrapUI.cs",
               "RelativeDocumentMoniker": "Assets\\Scripts\\Spells Scripts and prefabs\\Explosive Trap\\ExplosiveTrapUI.cs",
@@ -408,7 +422,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 10,
+              "DocumentIndex": 12,
               "Title": "ChessBoard.cs",
               "DocumentMoniker": "C:\\Users\\Ralph Ghnatios\\Storm Gambit\\Assets\\Scripts\\Chess Game\\ChessBoard.cs",
               "RelativeDocumentMoniker": "Assets\\Scripts\\Chess Game\\ChessBoard.cs",
@@ -420,7 +434,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 16,
+              "DocumentIndex": 18,
               "Title": "TeleportationSpellUI.cs",
               "DocumentMoniker": "C:\\Users\\Ralph Ghnatios\\Storm Gambit\\Assets\\Scripts\\Spells Scripts and prefabs\\Teleportation\\TeleportationSpellUI.cs",
               "RelativeDocumentMoniker": "Assets\\Scripts\\Spells Scripts and prefabs\\Teleportation\\TeleportationSpellUI.cs",
@@ -432,7 +446,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 14,
+              "DocumentIndex": 16,
               "Title": "TeleportVFX.cs",
               "DocumentMoniker": "C:\\Users\\Ralph Ghnatios\\Storm Gambit\\Assets\\Scripts\\Spells Scripts and prefabs\\Teleportation\\TeleportVFX.cs",
               "RelativeDocumentMoniker": "Assets\\Scripts\\Spells Scripts and prefabs\\Teleportation\\TeleportVFX.cs",
@@ -444,7 +458,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 20,
+              "DocumentIndex": 21,
               "Title": "TurnManager.cs",
               "DocumentMoniker": "C:\\Users\\Ralph Ghnatios\\Storm Gambit\\Assets\\Scripts\\Turn Manager\\TurnManager.cs",
               "RelativeDocumentMoniker": "Assets\\Scripts\\Turn Manager\\TurnManager.cs",
@@ -456,7 +470,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 21,
+              "DocumentIndex": 22,
               "Title": "MageData.cs",
               "DocumentMoniker": "C:\\Users\\Ralph Ghnatios\\Storm Gambit\\Assets\\ScriptableObjects\\Mages\\MageData.cs",
               "RelativeDocumentMoniker": "Assets\\ScriptableObjects\\Mages\\MageData.cs",
@@ -468,7 +482,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 17,
+              "DocumentIndex": 19,
               "Title": "InGameMenuUI.cs",
               "DocumentMoniker": "C:\\Users\\Ralph Ghnatios\\Storm Gambit\\Assets\\Scripts\\UI\\InGameMenuUI.cs",
               "RelativeDocumentMoniker": "Assets\\Scripts\\UI\\InGameMenuUI.cs",
@@ -477,30 +491,6 @@
               "ViewState": "AgIAABUAAAAAAAAAAAAYwCsAAAAJAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2026-09-04T14:45:58.097Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 18,
-              "Title": "DivineProtectionUI.cs",
-              "DocumentMoniker": "C:\\Users\\Ralph Ghnatios\\Storm Gambit\\Assets\\Scripts\\Spells Scripts and prefabs\\Divine Protection\\DivineProtectionUI.cs",
-              "RelativeDocumentMoniker": "Assets\\Scripts\\Spells Scripts and prefabs\\Divine Protection\\DivineProtectionUI.cs",
-              "ToolTip": "C:\\Users\\Ralph Ghnatios\\Storm Gambit\\Assets\\Scripts\\Spells Scripts and prefabs\\Divine Protection\\DivineProtectionUI.cs",
-              "RelativeToolTip": "Assets\\Scripts\\Spells Scripts and prefabs\\Divine Protection\\DivineProtectionUI.cs",
-              "ViewState": "AgIAAB0AAAAAAAAAAAAhwC4AAAAoAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-09-15T20:00:30.41Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 22,
-              "Title": "ResurrectionSpellUI.cs",
-              "DocumentMoniker": "C:\\Users\\Ralph Ghnatios\\Storm Gambit\\Assets\\Scripts\\Spells Scripts and prefabs\\Resurrection\\ResurrectionSpellUI.cs",
-              "RelativeDocumentMoniker": "Assets\\Scripts\\Spells Scripts and prefabs\\Resurrection\\ResurrectionSpellUI.cs",
-              "ToolTip": "C:\\Users\\Ralph Ghnatios\\Storm Gambit\\Assets\\Scripts\\Spells Scripts and prefabs\\Resurrection\\ResurrectionSpellUI.cs",
-              "RelativeToolTip": "Assets\\Scripts\\Spells Scripts and prefabs\\Resurrection\\ResurrectionSpellUI.cs",
-              "ViewState": "AgIAAC8AAAAAAAAAAIAwwEsAAAA8AAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-12-15T05:07:04.374Z"
             },
             {
               "$type": "Document",
@@ -780,17 +770,6 @@
             {
               "$type": "Document",
               "DocumentIndex": 46,
-              "Title": "DivineProtection.cs",
-              "DocumentMoniker": "C:\\Users\\Ralph Ghnatios\\Storm Gambit\\Assets\\Scripts\\Spells Scripts and prefabs\\Divine Protection\\DivineProtection.cs",
-              "RelativeDocumentMoniker": "Assets\\Scripts\\Spells Scripts and prefabs\\Divine Protection\\DivineProtection.cs",
-              "ToolTip": "C:\\Users\\Ralph Ghnatios\\Storm Gambit\\Assets\\Scripts\\Spells Scripts and prefabs\\Divine Protection\\DivineProtection.cs",
-              "RelativeToolTip": "Assets\\Scripts\\Spells Scripts and prefabs\\Divine Protection\\DivineProtection.cs",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-08-21T19:34:44.406Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 47,
               "Title": "VictoryUI.cs",
               "DocumentMoniker": "C:\\Users\\Ralph Ghnatios\\Storm Gambit\\Assets\\Scripts\\UI\\VictoryUI.cs",
               "RelativeDocumentMoniker": "Assets\\Scripts\\UI\\VictoryUI.cs",
@@ -802,7 +781,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 49,
+              "DocumentIndex": 48,
               "Title": "SpellManager.cs",
               "DocumentMoniker": "C:\\Users\\Ralph Ghnatios\\Storm Gambit\\Assets\\Scripts\\Spells\\SpellManager.cs",
               "RelativeDocumentMoniker": "Assets\\Scripts\\Spells\\SpellManager.cs",
@@ -814,7 +793,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 50,
+              "DocumentIndex": 49,
               "Title": "SpellData.cs",
               "DocumentMoniker": "C:\\Users\\Ralph Ghnatios\\Storm Gambit\\Assets\\Scripts\\Spells\\SpellData.cs",
               "RelativeDocumentMoniker": "Assets\\Scripts\\Spells\\SpellData.cs",
@@ -826,7 +805,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 48,
+              "DocumentIndex": 47,
               "Title": "Knight.cs",
               "DocumentMoniker": "C:\\Users\\Ralph Ghnatios\\Storm Gambit\\Assets\\TutorialInfo\\Scripts\\Chess Game\\Knight.cs",
               "RelativeDocumentMoniker": "Assets\\TutorialInfo\\Scripts\\Chess Game\\Knight.cs",

@@ -250,9 +250,8 @@ public class CardUI : MonoBehaviour
         GameObject spellObject = Instantiate(cardData.spellUI, canvas.transform);
         activeSpellUI = spellObject;
 
-        // Teleportation keeps the card until targeting succeeds or is cancelled.
         TeleportationSpellUI teleportUI =
-            spellObject.GetComponent<TeleportationSpellUI>();
+     spellObject.GetComponent<TeleportationSpellUI>();
 
         if (teleportUI != null)
         {
@@ -260,16 +259,7 @@ public class CardUI : MonoBehaviour
             BeginPendingSpell();
             return;
         }
-        FreezeSpellUI freezeUI =
-    spellObject.GetComponent<FreezeSpellUI>();
 
-        if (freezeUI != null)
-        {
-            freezeUI.BindSourceCard(this);
-            BeginPendingSpell();
-            return;
-        }
-        // Explosive Trap follows the same success/cancel pattern.
         ExplosiveTrapSpellUI trapUI =
             spellObject.GetComponent<ExplosiveTrapSpellUI>();
 
@@ -280,7 +270,35 @@ public class CardUI : MonoBehaviour
             return;
         }
 
-        // Legacy UIs such as the current Resurrection UI do not yet send a
+        FreezeSpellUI freezeUI =
+            spellObject.GetComponent<FreezeSpellUI>();
+
+        if (freezeUI != null)
+        {
+            freezeUI.BindSourceCard(this);
+            BeginPendingSpell();
+            return;
+        }
+
+        DivineProtectionSpellUI divineUI =
+            spellObject.GetComponent<DivineProtectionSpellUI>();
+
+        if (divineUI != null)
+        {
+            divineUI.BindSourceCard(this);
+            BeginPendingSpell();
+            return;
+        }
+
+        ResurrectionSpellUI resurrectionUI =
+            spellObject.GetComponent<ResurrectionSpellUI>();
+
+        if (resurrectionUI != null)
+        {
+            resurrectionUI.BindSourceCard(this);
+            BeginPendingSpell();
+            return;
+        }        // Legacy UIs such as the current Resurrection UI do not yet send a
         // success/cancel callback, so preserve their old immediate-consume behavior.
         Destroy(gameObject);
     }
