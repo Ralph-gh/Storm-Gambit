@@ -105,19 +105,8 @@ public class ChessBoard : NetworkBehaviour
 
     public void ShowExplosiveTrapMarker(Vector2Int cell)
     {
-        if (explosiveTrapMarkerPrefab == null)
-        {
-            Debug.LogError(
-                "[TRAP] Explosive Trap Marker Prefab is not assigned on ChessBoard."
-            );
-            return;
-        }
-
-        if (explosiveTrapMarkers.ContainsKey(cell))
-        {
-            Debug.LogWarning($"[TRAP] A marker already exists at {cell}.");
-            return;
-        }
+        if (explosiveTrapMarkerPrefab == null) return;
+        if (explosiveTrapMarkers.ContainsKey(cell)) return;
 
         Vector3 world = BoardInitializer.Instance
             ? BoardInitializer.Instance.GetWorldPosition(cell)
@@ -135,7 +124,10 @@ public class ChessBoard : NetworkBehaviour
 
         explosiveTrapMarkers[cell] = marker;
 
-        Debug.Log($"[TRAP] Marker spawned at {cell}, world position {world}.");
+        // IMPORTANT:
+        // A newly-created marker must immediately match
+        // this device's current board orientation.
+        BoardFlipController.Instance?.ApplyOrientation(marker.transform);
     }
 
     public void HideExplosiveTrapMarker(Vector2Int cell)
@@ -159,7 +151,18 @@ public class ChessBoard : NetworkBehaviour
         if (audioSource != null && explosiveTrapClip != null)
             audioSource.PlayOneShot(explosiveTrapClip);
     }
+    public void RefreshExplosiveTrapMarkerOrientations()
+    {
+        foreach (var pair in explosiveTrapMarkers)
+        {
+            GameObject marker = pair.Value;
 
+            if (marker != null)
+            {
+                BoardFlipController.Instance?.ApplyOrientation(marker.transform);
+            }
+        }
+    }
     // Server bookkeeping for a mover destroyed by a trap. The GameObject stays alive
     // briefly so the ClientRpc can animate/remove it on host and remote clients.
     public void PrepareExplosiveTrapCaptureServer(ChessPiece target)

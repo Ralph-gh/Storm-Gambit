@@ -13,10 +13,42 @@ public class GameState : NetworkBehaviour
     // Quick piece addressing: ChessPiece must have a stable unique Id.
     // If you don't have it yet, add `public int Id;` to ChessPiece and assign in BoardInitializer.
     // We'll use RPCs to move pieces by Id to avoid full-state replication for now.
+    [Header("UI")]
+    [SerializeField] private GameObject spellNotificationPopupPrefab;
     public NetworkVariable<int> MoveNumber = new NetworkVariable<int>(0);//used for turn counter in network play
     void Awake() => Instance = this;
-    
 
+    private void ShowSpellNotification(string message)
+    {
+        if (spellNotificationPopupPrefab == null)
+            return;
+
+        GameObject canvas = GameObject.Find("MainCanvas");
+
+        if (canvas == null)
+        {
+            Debug.LogWarning("MainCanvas not found for spell notification.");
+            return;
+        }
+
+        GameObject popup = Instantiate(
+            spellNotificationPopupPrefab,
+            canvas.transform,
+            false
+        );
+
+        SpellPromptPanelUI panel =
+            popup.GetComponent<SpellPromptPanelUI>();
+
+        if (panel != null)
+        {
+            panel.Setup(
+                message,
+                true,   // OK
+                false   // Cancel
+            );
+        }
+    }
     public bool IsMyTurn(TeamColor mySide) => CurrentTurn.Value == mySide;
 
     [ServerRpc(RequireOwnership = false)]
@@ -292,6 +324,10 @@ public class GameState : NetworkBehaviour
             ChessBoard.Instance.RebuildIndexFromScene();
             mover = ChessBoard.Instance.GetPieceById(moverId);
         }
+        // IMPORTANT:
+        // Server accepted the move.
+        // Unlock this piece.
+        mover.ConfirmNetworkMove();
 
         if (mover != null)
         {
@@ -635,12 +671,25 @@ public class GameState : NetworkBehaviour
         }
     }
     private void HandleCurrentTurnChanged(
-    TeamColor oldValue,
-    TeamColor newValue)
+       TeamColor oldValue,
+       TeamColor newValue)
     {
         if (TurnManager.Instance != null)
         {
             TurnManager.Instance.SyncTurn(newValue);
+        }
+
+        // SAFETY:
+        // Once the authoritative server changes turn,
+        // no piece should still be waiting for move confirmation.
+        ChessPiece[] pieces = FindObjectsByType<ChessPiece>(
+            FindObjectsInactive.Exclude,
+            FindObjectsSortMode.None
+        );
+
+        foreach (ChessPiece piece in pieces)
+        {
+            piece.ConfirmNetworkMove();
         }
     }
 
@@ -702,6 +751,9 @@ public class GameState : NetworkBehaviour
         // The trap is hidden from the opponent. Only its owner receives a marker.
         if (NetPlayer.Local != null && NetPlayer.Local.Side.Value == owner)
             ChessBoard.Instance.ShowExplosiveTrapMarker(cell);
+        // BOTH players know that a trap was planted.
+        ShowSpellNotification(
+            "An explosive trap has been planted!");
     }
     
 

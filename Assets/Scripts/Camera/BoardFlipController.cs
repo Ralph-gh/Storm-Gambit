@@ -55,7 +55,7 @@ public class BoardFlipController : MonoBehaviour
         RefreshAllPieces();
     }
 
-    public void RefreshAllPieces()
+    private void RefreshAllPieces()
     {
         ChessPiece[] pieces = FindObjectsByType<ChessPiece>(
             FindObjectsInactive.Exclude,
@@ -63,9 +63,9 @@ public class BoardFlipController : MonoBehaviour
         );
 
         foreach (ChessPiece piece in pieces)
-        {
             ApplyOrientation(piece);
-        }
+
+        ChessBoard.Instance?.RefreshExplosiveTrapMarkerOrientations();
     }
 
     public void ApplyOrientation(ChessPiece piece)
@@ -74,6 +74,14 @@ public class BoardFlipController : MonoBehaviour
             return;
 
         piece.transform.rotation = IsFlipped
+            ? Quaternion.Euler(0f, 0f, 180f)
+            : Quaternion.identity;
+    }
+    public void ApplyOrientation(Transform target)
+    {
+        if (target == null) return;
+
+        target.rotation = IsFlipped
             ? Quaternion.Euler(0f, 0f, 180f)
             : Quaternion.identity;
     }

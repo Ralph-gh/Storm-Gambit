@@ -72,7 +72,7 @@ public class ChessPiece : NetworkBehaviour
         NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
     public NetworkVariable<Vector2Int> BoardCell = new(default,
         NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
-
+    private bool awaitingNetworkMove = false; //used for moving the black pieces (client)
 
     void Awake()
     {
@@ -377,6 +377,7 @@ public class ChessPiece : NetworkBehaviour
     void OnMouseDown()
     {
         if (ChessBoard.Instance.gameOver) return;
+        if (awaitingNetworkMove) return;
         if (isStunned)
         {
             Debug.Log($"{name} is stunned and cannot move.");
@@ -472,11 +473,23 @@ public class ChessPiece : NetworkBehaviour
                 NetPlayer.Local.CanAct() &&
                 NetPlayer.Local.Side.Value == team)
             {
-                NetPlayer.Local.TryRequestMove(Id, newCell);
+                // Keep the piece VISUALLY on the destination.
+                // Do NOT change currentCell or ChessBoard yet.
+                transform.position =
+                    BoardInitializer.Instance.GetWorldPosition(newCell);
+
+                awaitingNetworkMove = true;
+
+                NetPlayer.Local.TryRequestMove(
+                    Id,
+                    newCell
+                );
+            }
+            else
+            {
+                SnapBackToCurrentCell();
             }
 
-            // Wait for server ClientRpc to actually move the piece.
-            SnapBackToCurrentCell();
             return;
         }
 
@@ -816,6 +829,20 @@ public class ChessPiece : NetworkBehaviour
         // Use the EXISTING movement pipeline.
         OnMouseUp();
     }
+    public void ConfirmNetworkMove()
+    {
+        awaitingNetworkMove = false;
+    }
+
+    public void RejectNetworkMove()
+    {
+        awaitingNetworkMove = false;
+
+        isDragging = false;
+        canDrag = false;
+
+        SnapBackToCurrentCell();
+    }
     void SnapBackToCurrentCell()
     {
         Vector3 p = BoardInitializer.Instance
@@ -823,6 +850,7 @@ public class ChessPiece : NetworkBehaviour
             : transform.position; // fallback
         transform.position = p;
     }
+   
 }
 
 
