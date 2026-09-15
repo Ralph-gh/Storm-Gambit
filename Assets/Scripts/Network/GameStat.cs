@@ -798,29 +798,52 @@ public class GameState : NetworkBehaviour
     }
 
     [ClientRpc]
-    void ResurrectClientRpc(TeamColor team, PieceType pieceType, int spawnX, int spawnY, int newId)
+    void ResurrectClientRpc(
+    TeamColor team,
+    PieceType pieceType,
+    int spawnX,
+    int spawnY,
+    int newId)
     {
-    // Host already has the server-instantiated piece — do NOT also instantiate on the host.
+        // Host already created its copy on the server.
         if (Unity.Netcode.NetworkManager.Singleton != null &&
-        Unity.Netcode.NetworkManager.Singleton.IsHost)
-                   {
-                        // (Optional) ensure local caches/index/UI are up-to-date, but skip instantiation
+            Unity.Netcode.NetworkManager.Singleton.IsHost)
+        {
             ChessBoard.Instance.RebuildIndexFromScene();
-                        return;
-                    }
+            return;
+        }
+
         var spawn = new Vector2Int(spawnX, spawnY);
+
         var prefab = BoardInitializer.Instance.GetPrefab(team, pieceType);
         if (prefab == null) return;
 
-        var go = Instantiate(prefab, BoardInitializer.Instance.GetWorldPosition(spawn), Quaternion.identity);
+        var go = Instantiate(
+            prefab,
+            BoardInitializer.Instance.GetWorldPosition(spawn),
+            Quaternion.identity
+        );
+
         var p = go.GetComponent<ChessPiece>();
+
         p.team = team;
         p.pieceType = pieceType;
-        p.SetPosition(spawn, BoardInitializer.Instance.GetWorldPosition(spawn));
+
+        p.SetPosition(
+            spawn,
+            BoardInitializer.Instance.GetWorldPosition(spawn)
+        );
+
         p.MarkAsResurrected();
 
-        // Use the server-assigned Id and register locally
+        // FIX:
+        // Newly spawned client-side pieces must respect this client's
+        // current board orientation.
+        BoardFlipController.Instance?.ApplyOrientation(p);
+
+        // Use the server-assigned ID
         p.Id = newId;
+
         ChessBoard.Instance.RegisterPiece(p);
         ChessBoard.Instance.PlacePiece(p, spawn);
     }
