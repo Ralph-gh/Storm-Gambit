@@ -13,41 +13,23 @@ public class GameState : NetworkBehaviour
     // Quick piece addressing: ChessPiece must have a stable unique Id.
     // If you don't have it yet, add `public int Id;` to ChessPiece and assign in BoardInitializer.
     // We'll use RPCs to move pieces by Id to avoid full-state replication for now.
-    [Header("UI")]
-    [SerializeField] private GameObject spellNotificationPopupPrefab;
+    
     public NetworkVariable<int> MoveNumber = new NetworkVariable<int>(0);//used for turn counter in network play
     void Awake() => Instance = this;
 
     private void ShowSpellNotification(string message)
     {
-        if (spellNotificationPopupPrefab == null)
-            return;
-
-        GameObject canvas = GameObject.Find("MainCanvas");
-
-        if (canvas == null)
+        if (SpellOverlayManager.Instance == null)
         {
-            Debug.LogWarning("MainCanvas not found for spell notification.");
-            return;
-        }
-
-        GameObject popup = Instantiate(
-            spellNotificationPopupPrefab,
-            canvas.transform,
-            false
-        );
-
-        SpellPromptPanelUI panel =
-            popup.GetComponent<SpellPromptPanelUI>();
-
-        if (panel != null)
-        {
-            panel.Setup(
-                message,
-                true,   // OK
-                false   // Cancel
+            Debug.LogWarning(
+                "[GameState] SpellOverlayManager not found."
             );
+            return;
         }
+
+        SpellOverlayManager.Instance.ShowNotificationPopup(
+            message
+        );
     }
     public bool IsMyTurn(TeamColor mySide) => CurrentTurn.Value == mySide;
 
