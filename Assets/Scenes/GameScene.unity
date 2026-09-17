@@ -544,6 +544,17 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 44157092}
   m_CullTransparentMesh: 1
+--- !u!114 &55427767 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 5575624458492960625, guid: 85718cb55bfeb0441904e36d8c3564da, type: 3}
+  m_PrefabInstance: {fileID: 259970744652959258}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f4688fdb7df04437aeb418b961361dc5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!224 &64086111 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 2239777888820123789, guid: 77d8ad1046ab60a40bc252d8328abc55, type: 3}
@@ -1066,7 +1077,6 @@ RectTransform:
   - {fileID: 1461948189}
   - {fileID: 1647326253}
   - {fileID: 651557584866109903}
-  - {fileID: 1498956760}
   - {fileID: 1624536397}
   - {fileID: 1520072902}
   - {fileID: 1424444767}
@@ -1353,6 +1363,17 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 215303031}
   m_CullTransparentMesh: 1
+--- !u!114 &229341514 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 3627255141886254211, guid: 85718cb55bfeb0441904e36d8c3564da, type: 3}
+  m_PrefabInstance: {fileID: 259970744652959258}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4e29b1a8efbd4b44bb3f3716e73f07ff, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &254461975
 GameObject:
   m_ObjectHideFlags: 0
@@ -2512,6 +2533,11 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: bd49c507d4c0e0b4fa022cfdcb3f9ad9, type: 3}
+--- !u!1 &679387314 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 243237158398968306, guid: 85718cb55bfeb0441904e36d8c3564da, type: 3}
+  m_PrefabInstance: {fileID: 259970744652959258}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &697443752
 GameObject:
   m_ObjectHideFlags: 0
@@ -4644,89 +4670,26 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1484663887}
   m_CullTransparentMesh: 1
---- !u!1001 &1498956759
-PrefabInstance:
-  m_ObjectHideFlags: 0
-  serializedVersion: 2
-  m_Modification:
-    serializedVersion: 3
-    m_TransformParent: {fileID: 204145833}
-    m_Modifications:
-    - target: {fileID: 1723507072342892904, guid: 772492f43dc659e459d2dc1c785f1214, type: 3}
-      propertyPath: m_LocalScale.x
-      value: 0.9
-      objectReference: {fileID: 0}
-    - target: {fileID: 1723507072342892904, guid: 772492f43dc659e459d2dc1c785f1214, type: 3}
-      propertyPath: m_LocalScale.y
-      value: 0.9
-      objectReference: {fileID: 0}
-    - target: {fileID: 1723507072342892904, guid: 772492f43dc659e459d2dc1c785f1214, type: 3}
-      propertyPath: m_LocalScale.z
-      value: 0.9
-      objectReference: {fileID: 0}
-    - target: {fileID: 1723507072342892904, guid: 772492f43dc659e459d2dc1c785f1214, type: 3}
-      propertyPath: m_LocalPosition.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 1723507072342892904, guid: 772492f43dc659e459d2dc1c785f1214, type: 3}
-      propertyPath: m_LocalPosition.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 1723507072342892904, guid: 772492f43dc659e459d2dc1c785f1214, type: 3}
-      propertyPath: m_LocalPosition.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 1723507072342892904, guid: 772492f43dc659e459d2dc1c785f1214, type: 3}
-      propertyPath: m_LocalRotation.w
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 1723507072342892904, guid: 772492f43dc659e459d2dc1c785f1214, type: 3}
-      propertyPath: m_LocalRotation.x
-      value: -0
-      objectReference: {fileID: 0}
-    - target: {fileID: 1723507072342892904, guid: 772492f43dc659e459d2dc1c785f1214, type: 3}
-      propertyPath: m_LocalRotation.y
-      value: -0
-      objectReference: {fileID: 0}
-    - target: {fileID: 1723507072342892904, guid: 772492f43dc659e459d2dc1c785f1214, type: 3}
-      propertyPath: m_LocalRotation.z
-      value: -0
-      objectReference: {fileID: 0}
-    - target: {fileID: 1723507072342892904, guid: 772492f43dc659e459d2dc1c785f1214, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 1723507072342892904, guid: 772492f43dc659e459d2dc1c785f1214, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 1723507072342892904, guid: 772492f43dc659e459d2dc1c785f1214, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 7481715314718980169, guid: 772492f43dc659e459d2dc1c785f1214, type: 3}
-      propertyPath: m_Name
-      value: SpellActionPrompt prototype
-      objectReference: {fileID: 0}
-    - target: {fileID: 7481715314718980169, guid: 772492f43dc659e459d2dc1c785f1214, type: 3}
-      propertyPath: m_IsActive
-      value: 0
-      objectReference: {fileID: 0}
-    m_RemovedComponents: []
-    m_RemovedGameObjects: []
-    m_AddedGameObjects: []
-    m_AddedComponents: []
-  m_SourcePrefab: {fileID: 100100000, guid: 772492f43dc659e459d2dc1c785f1214, type: 3}
---- !u!4 &1498956760 stripped
-Transform:
-  m_CorrespondingSourceObject: {fileID: 1723507072342892904, guid: 772492f43dc659e459d2dc1c785f1214, type: 3}
-  m_PrefabInstance: {fileID: 1498956759}
-  m_PrefabAsset: {fileID: 0}
 --- !u!224 &1520072902 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 8727708494719628741, guid: 85718cb55bfeb0441904e36d8c3564da, type: 3}
   m_PrefabInstance: {fileID: 259970744652959258}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &1520072903
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 679387314}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: afe8b95526fc5174eb63a58fa194603d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  messageText: {fileID: 55427767}
+  okButton: {fileID: 229341514}
+  cancelButton: {fileID: 0}
 --- !u!224 &1624536397 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 4371672612254895081, guid: c17ba1d2483d8b543beaaa6eb9de3f0c, type: 3}
@@ -7609,6 +7572,18 @@ PrefabInstance:
       propertyPath: m_AnchoredPosition.y
       value: 20
       objectReference: {fileID: 0}
+    - target: {fileID: 3627255141886254211, guid: 85718cb55bfeb0441904e36d8c3564da, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
+      value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 3627255141886254211, guid: 85718cb55bfeb0441904e36d8c3564da, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
+      value: Close
+      objectReference: {fileID: 0}
+    - target: {fileID: 3627255141886254211, guid: 85718cb55bfeb0441904e36d8c3564da, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_TargetAssemblyTypeName
+      value: SpellPromptPanelUI, Assembly-CSharp
+      objectReference: {fileID: 0}
     - target: {fileID: 8727708494719628741, guid: 85718cb55bfeb0441904e36d8c3564da, type: 3}
       propertyPath: m_Pivot.x
       value: 0.5
@@ -7689,10 +7664,14 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
-    m_RemovedComponents: []
+    m_RemovedComponents:
+    - {fileID: 2467612001163060526, guid: 85718cb55bfeb0441904e36d8c3564da, type: 3}
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 243237158398968306, guid: 85718cb55bfeb0441904e36d8c3564da, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1520072903}
   m_SourcePrefab: {fileID: 100100000, guid: 85718cb55bfeb0441904e36d8c3564da, type: 3}
 --- !u!1001 &651557584866109902
 PrefabInstance:
