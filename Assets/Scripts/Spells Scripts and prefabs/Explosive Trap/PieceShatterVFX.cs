@@ -122,7 +122,7 @@ public class PieceShatterVFX : MonoBehaviour
                 else
                     radial.Normalize();
 
-                rb.velocity =
+                rb.linearVelocity =
                  radial * Random.Range(minForce, maxForce) +
                  Random.insideUnitCircle * randomForce;
 
