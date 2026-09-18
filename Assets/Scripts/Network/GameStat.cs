@@ -6,7 +6,12 @@ using UnityEngine.UIElements;
 public class GameState : NetworkBehaviour
 {
     public static GameState Instance { get; private set; }
+    // =========================================================
+    // NETWORK PROMOTION
+    // =========================================================
 
+    private int pendingPromotionPawnId = -1;
+    private ulong pendingPromotionClientId;
     // Which side can act
     public NetworkVariable<TeamColor> CurrentTurn = new NetworkVariable<TeamColor>(TeamColor.White);
 
@@ -40,6 +45,12 @@ public class GameState : NetworkBehaviour
         // Always ensure the server-side board/index are fresh before any legality checks
         ChessBoard.Instance.RebuildBoardAndIndexFromScene();
         var sender = p.Receive.SenderClientId;
+        // Do not allow another chess move while a promotion choice is pending.
+        if (pendingPromotionPawnId >= 0)
+        {
+            Debug.Log("[PROMOTION] Move rejected: waiting for promotion choice.");
+            return;
+        }
         var player = NetPlayer.FindByClient(sender);
         if (player == null || player.Side.Value != CurrentTurn.Value)
         {
@@ -247,12 +258,62 @@ public class GameState : NetworkBehaviour
         }
         // Move king on server
         ChessBoard.Instance.ExecuteMoveServer(piece, to);
+        // =========================================================
+        // NETWORK PROMOTION
+        // =========================================================
 
+        bool needsPromotion =
+            !explosiveTrapTriggered &&
+            piece.pieceType == PieceType.Pawn &&
+            Pawn.ShouldPromote(to, piece.team);
+
+        if (needsPromotion)
+        {
+            Debug.Log(
+                $"[PROMOTION/SERVER] Pawn#{piece.Id} reached {to}. " +
+                $"Waiting for {piece.team} promotion choice."
+            );
+
+            pendingPromotionPawnId = piece.Id;
+            pendingPromotionClientId = sender;
+
+            // Promotion ends any en-passant window.
+            ChessBoard.Instance.ClearEnPassant();
+
+            SetEnPassantClientRpc(
+                -1,
+                -1,
+                -1
+            );
+
+            // ONLY the player who owns this pawn should see the panel.
+            ClientRpcParams targetPlayer =
+                new ClientRpcParams
+                {
+                    Send = new ClientRpcSendParams
+                    {
+                        TargetClientIds =
+                            new ulong[] { sender }
+                    }
+                };
+
+            ShowPromotionClientRpc(
+                piece.Id,
+                to.x,
+                to.y,
+                piece.team,
+                targetPlayer
+            );
+
+            // VERY IMPORTANT:
+            // Do NOT change the turn yet.
+            return;
+        }
         // Notify clients: king move + optional castle rook move
-      
-        
 
-        
+
+
+
         // ===== En Passant window maintenance ===== 
         int epX = -1, epY = -1, epPawnId = -1;
         ChessBoard.Instance.ClearEnPassant();
@@ -737,24 +798,118 @@ public class GameState : NetworkBehaviour
         ShowSpellNotification(
             "An explosive trap has been planted!");
     }
-    
 
     [ServerRpc(RequireOwnership = false)]
-    public void TeleportPieceServerRpc(int pieceId, int x, int y, ServerRpcParams p = default)
+    public void TeleportPieceServerRpc(
+    int pieceId,
+    int x,
+    int y,
+    ServerRpcParams p = default)
     {
         var piece = ChessBoard.Instance.GetPieceById(pieceId);
-        if (piece == null) { Debug.Log($"[SRPC] Teleport: no piece {pieceId}"); return; }
 
-        var to = new Vector2Int(x, y);
-        if (!ChessBoard.Instance.IsInsideBoard(to)) return;
-        if (ChessBoard.Instance.GetPieceAt(to) != null) return; // must be empty per your UI flow
+        if (piece == null)
+        {
+            Debug.Log($"[SRPC] Teleport: no piece {pieceId}");
+            return;
+        }
 
-        // Server: apply teleport (board + piece)
-        ChessBoard.Instance.MovePiece(piece.currentCell, to);
-        piece.SetPosition(to, BoardInitializer.Instance.GetWorldPosition(to));
+        Vector2Int to = new Vector2Int(x, y);
+
+        if (!ChessBoard.Instance.IsInsideBoard(to))
+            return;
+
+        // Teleport destination must still be empty.
+        if (ChessBoard.Instance.GetPieceAt(to) != null)
+            return;
+
+        Vector2Int from = piece.currentCell;
+
+        // =========================================================
+        // CHECK EXPLOSIVE TRAP BEFORE NORMAL TELEPORT RESOLUTION
+        // =========================================================
+
+        bool explosiveTrapTriggered =
+            ChessBoard.Instance.TryConsumeEnemyExplosiveTrap(
+                to,
+                piece.team,
+                out TeamColor trapOwner
+            );
+
+        if (explosiveTrapTriggered)
+        {
+            Debug.Log(
+                $"[TELEPORT/TRAP] {piece.pieceType}#{piece.Id} " +
+                $"teleported from {from} onto enemy trap at {to}"
+            );
+
+            // -----------------------------------------------------
+            // Move the piece onto the trap square on the SERVER.
+            // -----------------------------------------------------
+
+            ChessBoard.Instance.MovePiece(
+                piece.currentCell,
+                to
+            );
+
+            piece.SetPosition(
+                to,
+                BoardInitializer.Instance.GetWorldPosition(to)
+            );
+
+            piece.hasMoved = true;
+
+            // -----------------------------------------------------
+            // Record it as captured without destroying immediately.
+            // Existing trap animation RPC needs the object alive.
+            // -----------------------------------------------------
+
+            ChessBoard.Instance.PrepareExplosiveTrapCaptureServer(
+                piece
+            );
+
+            // Teleport lands on an EMPTY square,
+            // therefore there is no captured victim.
+            int capturedId = -1;
+
+            ApplyExplosiveTrapMoveClientRpc(
+                piece.Id,
+                from.x,
+                from.y,
+                to.x,
+                to.y,
+                capturedId,
+                trapOwner
+            );
+
+            StartCoroutine(
+                CleanupExplodedMoverServerAfterVFX(piece)
+            );
+
+            return;
+        }
+
+        // =========================================================
+        // NORMAL TELEPORT
+        // =========================================================
+
+        ChessBoard.Instance.MovePiece(
+            piece.currentCell,
+            to
+        );
+
+        piece.SetPosition(
+            to,
+            BoardInitializer.Instance.GetWorldPosition(to)
+        );
+
         piece.hasMoved = true;
 
-        TeleportPieceClientRpc(pieceId, x, y);
+        TeleportPieceClientRpc(
+            pieceId,
+            x,
+            y
+        );
     }
 
     [ClientRpc]
@@ -913,5 +1068,352 @@ public class GameState : NetworkBehaviour
         if (board.audioSource && board.victoryClip)
             board.audioSource.PlayOneShot(board.victoryClip);
     }
+    [ClientRpc]
+    private void ShowPromotionClientRpc(
+    int pawnId,
+    int x,
+    int y,
+    TeamColor team,
+    ClientRpcParams rpcParams = default)
+    {
+        ChessPiece pawn =
+            ChessBoard.Instance.GetPieceById(pawnId);
 
+        if (pawn == null)
+        {
+            ChessBoard.Instance.RebuildIndexFromScene();
+
+            pawn =
+                ChessBoard.Instance.GetPieceById(pawnId);
+        }
+
+        if (pawn == null)
+        {
+            Debug.LogWarning(
+                $"[PROMOTION/CLIENT] Pawn {pawnId} not found."
+            );
+
+            return;
+        }
+
+        Vector2Int cell =
+            new Vector2Int(x, y);
+
+        ChessBoard.Instance.pawnToPromote = pawn;
+
+        Vector3 worldPosition =
+            BoardInitializer.Instance.GetWorldPosition(cell);
+
+        if (ChessBoard.Instance.promotionSelector != null)
+        {
+            ChessBoard.Instance.promotionSelector.Show(
+                worldPosition,
+                cell,
+                team
+            );
+        }
+        else
+        {
+            Debug.LogWarning(
+                "[PROMOTION/CLIENT] PromotionSelector is missing."
+            );
+        }
+    }
+    [ServerRpc(RequireOwnership = false)]
+    public void RequestPromotionServerRpc(
+    int pawnId,
+    PieceType promoteTo,
+    ServerRpcParams p = default)
+    {
+        ulong sender =
+            p.Receive.SenderClientId;
+
+        // =========================================================
+        // VALIDATE REQUEST
+        // =========================================================
+
+        if (pendingPromotionPawnId < 0)
+        {
+            Debug.LogWarning(
+                "[PROMOTION/SERVER] No promotion pending."
+            );
+
+            return;
+        }
+
+        if (sender != pendingPromotionClientId)
+        {
+            Debug.LogWarning(
+                "[PROMOTION/SERVER] Wrong client attempted promotion."
+            );
+
+            return;
+        }
+
+        if (pawnId != pendingPromotionPawnId)
+        {
+            Debug.LogWarning(
+                "[PROMOTION/SERVER] Wrong pawn ID."
+            );
+
+            return;
+        }
+
+        if (promoteTo != PieceType.Queen &&
+            promoteTo != PieceType.Rook &&
+            promoteTo != PieceType.Bishop &&
+            promoteTo != PieceType.Knight)
+        {
+            Debug.LogWarning(
+                "[PROMOTION/SERVER] Invalid promotion piece."
+            );
+
+            return;
+        }
+
+        ChessPiece pawn =
+            ChessBoard.Instance.GetPieceById(pawnId);
+
+        if (pawn == null)
+        {
+            Debug.LogWarning(
+                $"[PROMOTION/SERVER] Pawn {pawnId} not found."
+            );
+
+            return;
+        }
+
+        if (pawn.pieceType != PieceType.Pawn)
+            return;
+
+        if (!Pawn.ShouldPromote(
+            pawn.currentCell,
+            pawn.team))
+        {
+            Debug.LogWarning(
+                "[PROMOTION/SERVER] Pawn is not on promotion rank."
+            );
+
+            return;
+        }
+
+        Vector2Int cell =
+            pawn.currentCell;
+
+        TeamColor team =
+            pawn.team;
+
+        GameObject prefab =
+            BoardInitializer.Instance.GetPrefab(
+                team,
+                promoteTo
+            );
+
+        if (prefab == null)
+        {
+            Debug.LogWarning(
+                $"[PROMOTION/SERVER] Missing prefab for {team} {promoteTo}."
+            );
+
+            return;
+        }
+
+        int oldPawnId =
+            pawn.Id;
+
+        // =========================================================
+        // REMOVE PAWN ON SERVER
+        // =========================================================
+
+        pawn.gameObject.SetActive(false);
+
+        ChessBoard.Instance.RemovePieceLocal(
+            pawn
+        );
+
+        // =========================================================
+        // CREATE PROMOTED PIECE ON SERVER
+        // =========================================================
+
+        Vector3 worldPosition =
+            BoardInitializer.Instance.GetWorldPosition(cell);
+
+        GameObject go =
+            Instantiate(
+                prefab,
+                worldPosition,
+                Quaternion.identity
+            );
+
+        ChessPiece newPiece =
+            go.GetComponent<ChessPiece>();
+
+        newPiece.team = team;
+        newPiece.pieceType = promoteTo;
+
+        newPiece.SetPosition(
+            cell,
+            worldPosition
+        );
+
+        newPiece.hasMoved = true;
+        newPiece.startingCell = cell;
+        newPiece.originalPrefab = prefab;
+
+        SpriteRenderer sr =
+            go.GetComponent<SpriteRenderer>();
+
+        if (sr != null)
+            newPiece.pieceSprite = sr.sprite;
+
+        newPiece.Id =
+            ChessBoard.Instance.AllocatePieceId();
+
+        ChessBoard.Instance.RegisterPiece(
+            newPiece
+        );
+
+        ChessBoard.Instance.PlacePiece(
+            newPiece,
+            cell
+        );
+
+        BoardFlipController.Instance
+            ?.ApplyOrientation(newPiece);
+
+        // =========================================================
+        // SYNC CLIENTS
+        // =========================================================
+
+        PromotionResolvedClientRpc(
+            oldPawnId,
+            newPiece.Id,
+            team,
+            promoteTo,
+            cell.x,
+            cell.y
+        );
+
+        // Promotion is now finished.
+        pendingPromotionPawnId = -1;
+
+        // NOW the turn can change.
+        CurrentTurn.Value =
+            team == TeamColor.White
+                ? TeamColor.Black
+                : TeamColor.White;
+    }
+    [ClientRpc]
+    private void PromotionResolvedClientRpc(
+    int oldPawnId,
+    int newPieceId,
+    TeamColor team,
+    PieceType newType,
+    int x,
+    int y)
+    {
+        // Clear local promotion state.
+        ChessBoard.Instance.pawnToPromote = null;
+
+        if (ChessBoard.Instance.promotionSelector != null)
+        {
+            ChessBoard.Instance
+                .promotionSelector
+                .gameObject
+                .SetActive(false);
+        }
+
+        // Host already performed the replacement.
+        if (NetworkManager.Singleton != null &&
+            NetworkManager.Singleton.IsHost)
+        {
+            ChessBoard.Instance
+                .RebuildIndexFromScene();
+
+            return;
+        }
+
+        // =========================================================
+        // REMOVE OLD PAWN
+        // =========================================================
+
+        ChessPiece oldPawn =
+            ChessBoard.Instance.GetPieceById(
+                oldPawnId
+            );
+
+        if (oldPawn != null)
+        {
+            oldPawn.gameObject.SetActive(false);
+
+            ChessBoard.Instance.RemovePieceLocal(
+                oldPawn
+            );
+        }
+
+        // =========================================================
+        // CREATE PROMOTED PIECE
+        // =========================================================
+
+        Vector2Int cell =
+            new Vector2Int(x, y);
+
+        GameObject prefab =
+            BoardInitializer.Instance.GetPrefab(
+                team,
+                newType
+            );
+
+        if (prefab == null)
+            return;
+
+        Vector3 worldPosition =
+            BoardInitializer.Instance.GetWorldPosition(
+                cell
+            );
+
+        GameObject go =
+            Instantiate(
+                prefab,
+                worldPosition,
+                Quaternion.identity
+            );
+
+        ChessPiece newPiece =
+            go.GetComponent<ChessPiece>();
+
+        newPiece.team = team;
+        newPiece.pieceType = newType;
+
+        newPiece.SetPosition(
+            cell,
+            worldPosition
+        );
+
+        newPiece.hasMoved = true;
+        newPiece.startingCell = cell;
+        newPiece.originalPrefab = prefab;
+
+        SpriteRenderer sr =
+            go.GetComponent<SpriteRenderer>();
+
+        if (sr != null)
+            newPiece.pieceSprite = sr.sprite;
+
+        newPiece.Id =
+            newPieceId;
+
+        ChessBoard.Instance.RegisterPiece(
+            newPiece
+        );
+
+        ChessBoard.Instance.PlacePiece(
+            newPiece,
+            cell
+        );
+
+        // Important if this client currently has the board flipped.
+        BoardFlipController.Instance
+            ?.ApplyOrientation(newPiece);
+    }
 }
