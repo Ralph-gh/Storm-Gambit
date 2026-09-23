@@ -85,6 +85,14 @@ public class GameState : NetworkBehaviour
 
             return;
         }
+        if (piece.IsDivinelyProtected)
+        {
+            Debug.Log(
+                $"[SRPC] move rejected: {piece.pieceType}#{piece.Id} is divinely protected."
+            );
+
+            return;
+        }
 
         TeamColor next = (CurrentTurn.Value == TeamColor.White) ? TeamColor.Black : TeamColor.White;
         //ChessBoard.Instance.EnsureBoardEntry(piece);  

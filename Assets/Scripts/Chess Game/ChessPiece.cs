@@ -388,6 +388,7 @@ public class ChessPiece : NetworkBehaviour
 
             return;
         }
+        
         if (isFrozen)
         {
             Debug.Log($"{name} is frozen and cannot move.");
@@ -400,7 +401,16 @@ public class ChessPiece : NetworkBehaviour
             isDragging = false;
             return;
         }
+        if (divinelyProtected)
+        {
+            Debug.Log($"{name} is divinely protected and cannot move.");
 
+            canDrag = false;
+            isDragging = false;
+            SnapBackToCurrentCell();
+
+            return;
+        }
         canDrag = true;
         isDragging = true;
         originalPosition = transform.position;
@@ -469,6 +479,28 @@ public class ChessPiece : NetworkBehaviour
 
         if (nm != null && nm.IsListening)
         {
+            // =====================================================
+            // BLOCK PROTECTED CAPTURE LOCALLY
+            // =====================================================
+
+            ChessPiece networkTarget =
+                ChessBoard.Instance.GetPieceAt(newCell);
+
+            if (networkTarget != null &&
+                networkTarget.team != team &&
+                (networkTarget.IsDivinelyProtected ||
+                 networkTarget.IsFrozen))
+            {
+                Debug.Log(
+                    $"[NET/LOCAL] Capture blocked: " +
+                    $"{networkTarget.pieceType}#{networkTarget.Id} is protected."
+                );
+
+                awaitingNetworkMove = false;
+                SnapBackToCurrentCell();
+                return;
+            }
+
             if (NetPlayer.Local != null &&
                 NetPlayer.Local.CanAct() &&
                 NetPlayer.Local.Side.Value == team)
@@ -492,7 +524,6 @@ public class ChessPiece : NetworkBehaviour
 
             return;
         }
-
 
         // Everything below here is OFFLINE ONLY.
         Vector2Int oldCell = currentCell;
