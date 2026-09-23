@@ -151,6 +151,34 @@ public class ChessBoard : NetworkBehaviour
         if (audioSource != null && explosiveTrapClip != null)
             audioSource.PlayOneShot(explosiveTrapClip);
     }
+    public void PrepareLightningDestructionServer(
+    ChessPiece pawn)
+    {
+        if (pawn == null)
+            return;
+
+        Vector2Int cell = pawn.currentCell;
+
+        // Remove from logical board immediately.
+        if (IsInsideBoard(cell) &&
+            board[cell.x, cell.y] == pawn)
+        {
+            board[cell.x, cell.y] = null;
+        }
+
+        // Record destruction exactly like a capture
+        // so Resurrection and graveyard systems still work.
+        AddCapturedPiece(pawn);
+
+        // IMPORTANT:
+        // Do NOT unregister or Destroy yet.
+        // GameState needs the actual object alive
+        // while the lightning/shatter animation plays.
+    }
+    
+   
+    
+    
     public void RefreshExplosiveTrapMarkerOrientations()
     {
         foreach (var pair in explosiveTrapMarkers)

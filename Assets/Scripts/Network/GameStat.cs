@@ -1073,7 +1073,178 @@ public class GameState : NetworkBehaviour
 
         ChessBoard.Instance.MovePieceLocal(rook, new Vector2Int(toX, toY));
     }
-    
+    [Rpc(
+    SendTo.Server,
+    InvokePermission = RpcInvokePermission.Everyone
+)]
+    public void LightningDestroyPawnRpc(
+    int pawnId,
+    RpcParams rpcParams = default)
+    {
+        ulong sender =
+            rpcParams.Receive.SenderClientId;
+
+        NetPlayer player =
+            NetPlayer.FindByClient(sender);
+
+        if (player == null ||
+            player.Side.Value != CurrentTurn.Value)
+        {
+            Debug.Log(
+                "[LIGHTNING/SERVER] Rejected: not player's turn."
+            );
+
+            return;
+        }
+
+        ChessBoard.Instance
+            .RebuildBoardAndIndexFromScene();
+
+        ChessPiece pawn =
+            ChessBoard.Instance.GetPieceById(pawnId);
+
+        if (pawn == null)
+        {
+            Debug.Log(
+                $"[LIGHTNING/SERVER] Pawn {pawnId} not found."
+            );
+
+            return;
+        }
+
+        if (pawn.pieceType != PieceType.Pawn)
+        {
+            Debug.Log(
+                $"[LIGHTNING/SERVER] Rejected: " +
+                $"{pawn.pieceType}#{pawn.Id} is not a pawn."
+            );
+
+            return;
+        }
+
+        if (pawn.IsFrozen ||
+            pawn.IsDivinelyProtected)
+        {
+            Debug.Log(
+                $"[LIGHTNING/SERVER] Pawn#{pawn.Id} " +
+                "is protected from destruction."
+            );
+
+            return;
+        }
+
+        Vector2Int cell = pawn.currentCell;
+
+        Debug.Log(
+            $"[LIGHTNING/SERVER] " +
+            $"{player.Side.Value} destroyed " +
+            $"{pawn.team} Pawn#{pawn.Id} at {cell}."
+        );
+
+        ChessBoard.Instance
+            .PrepareLightningDestructionServer(pawn);
+
+        LightningDestroyPawnClientRpc(
+            pawn.Id,
+            cell.x,
+            cell.y
+        );
+
+        StartCoroutine(
+            CleanupLightningPawnServerAfterVFX(pawn)
+        );
+    }
+    [ClientRpc]
+    [Rpc(SendTo.ClientsAndHost,InvokePermission = RpcInvokePermission.Server)]
+    private void LightningDestroyPawnClientRpc(
+    int pawnId,
+    int x,
+    int y)
+    {
+        ChessPiece pawn =
+            ChessBoard.Instance.GetPieceById(pawnId);
+
+        if (pawn == null)
+        {
+            ChessBoard.Instance.RebuildIndexFromScene();
+
+            pawn =
+                ChessBoard.Instance.GetPieceById(pawnId);
+        }
+
+        if (pawn == null)
+        {
+            Debug.LogWarning(
+                $"[LIGHTNING/CLIENT] Pawn {pawnId} missing."
+            );
+
+            return;
+        }
+
+        Vector2Int cell =
+            new Vector2Int(x, y);
+
+        // Make sure the pawn is visually centered.
+        if (BoardInitializer.Instance != null)
+        {
+            pawn.transform.position =
+                BoardInitializer.Instance
+                    .GetWorldPosition(cell);
+        }
+
+        ChessPiece targetPawn = pawn;
+
+        if (LightningStrikeVFX.Instance != null)
+        {
+            LightningStrikeVFX.Instance.PlayStrike(
+                targetPawn,
+                () =>
+                {
+                    // Server/host graveyard was already updated.
+                    // Remote client needs its local copy updated.
+                    if (!IsServer &&
+                        targetPawn != null)
+                    {
+                        ChessBoard.Instance
+                            .AddCapturedPiece(targetPawn);
+
+                        ChessBoard.Instance
+                            .RemovePieceLocal(targetPawn);
+                    }
+                }
+            );
+        }
+        else
+        {
+            Debug.LogWarning(
+                "[LIGHTNING/CLIENT] LightningStrikeVFX missing."
+            );
+
+            if (!IsServer &&
+                targetPawn != null)
+            {
+                ChessBoard.Instance
+                    .AddCapturedPiece(targetPawn);
+
+                ChessBoard.Instance
+                    .RemovePieceLocal(targetPawn);
+            }
+        }
+    }
+    private System.Collections.IEnumerator
+    CleanupLightningPawnServerAfterVFX(
+        ChessPiece pawn)
+    {
+        yield return new WaitForSeconds(0.75f);
+
+        if (pawn != null)
+        {
+            ChessBoard.Instance
+                .UnregisterPiece(pawn);
+
+            Destroy(pawn.gameObject);
+        }
+    }
     [ClientRpc]
     public void ShowVictoryClientRpc(string winnerText)
     {

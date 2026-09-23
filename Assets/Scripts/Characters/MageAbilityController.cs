@@ -10,6 +10,8 @@ public class MageAbilityController : MonoBehaviour
     public GameObject teleportationSpellUIPrefab;
     public GameObject freezeSpellUIPrefab;
     public System.Action OnAbilityUsed;
+    [SerializeField]
+    private GameObject lightningMageAbilityUIPrefab;
 
     private SpellPromptPanelUI activePrompt;
     private bool abilityUsed = false;
@@ -41,7 +43,53 @@ public class MageAbilityController : MonoBehaviour
             Debug.LogError("[MageAbility] MainCanvas not found.");
             return false;
         }
+        // =====================================================
+        // LIGHTNING MAGE
+        // =====================================================
+        if (mageCard.cardName == "Lightning Mage")
+        {
+            if (lightningMageAbilityUIPrefab == null)
+            {
+                Debug.LogError(
+                    "[MageAbility] lightningMageAbilityUIPrefab not assigned."
+                );
 
+                return false;
+            }
+
+            GameObject abilityObject =
+                Instantiate(
+                    lightningMageAbilityUIPrefab,
+                    canvas.transform
+                );
+
+            LightningMageAbilityUI lightningUI =
+                abilityObject.GetComponent<LightningMageAbilityUI>();
+
+            if (lightningUI == null)
+            {
+                Debug.LogError(
+                    "[MageAbility] Assigned Lightning Mage prefab " +
+                    "does not contain LightningMageAbilityUI."
+                );
+
+                Destroy(abilityObject);
+                return false;
+            }
+
+            abilityInProgress = true;
+
+            lightningUI.ConfigureAsMageAbility(
+                OnMageAbilitySucceeded,
+                OnMageAbilityCancelled
+            );
+
+            Debug.Log(
+                "[MageAbility] Lightning Mage ability started."
+            );
+
+            return true;
+        }
         // =====================================================
         // PORTAL MAGE
         // =====================================================
@@ -144,6 +192,7 @@ public class MageAbilityController : MonoBehaviour
         );
 
         return false;
+        
     }
     
     private void OnMageAbilitySucceeded()

@@ -4366,6 +4366,7 @@ MonoBehaviour:
   frostMageCardName: Frost Mage
   teleportationSpellUIPrefab: {fileID: 6763589432106491609, guid: fd9ef4d7275af2d4e8772c71991fd515, type: 3}
   freezeSpellUIPrefab: {fileID: 6763589432106491609, guid: 273736545eb344a4f887f438f6c91300, type: 3}
+  lightningMageAbilityUIPrefab: {fileID: 0}
 --- !u!1001 &1806545008
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -7094,7 +7095,7 @@ PrefabInstance:
       objectReference: {fileID: 1792876988}
     - target: {fileID: 4315868160651269515, guid: 77d8ad1046ab60a40bc252d8328abc55, type: 3}
       propertyPath: characterCards.Array.size
-      value: 2
+      value: 3
       objectReference: {fileID: 0}
     - target: {fileID: 4315868160651269515, guid: 77d8ad1046ab60a40bc252d8328abc55, type: 3}
       propertyPath: 'characterCards.Array.data[1]'
@@ -7103,7 +7104,7 @@ PrefabInstance:
     - target: {fileID: 4315868160651269515, guid: 77d8ad1046ab60a40bc252d8328abc55, type: 3}
       propertyPath: 'characterCards.Array.data[2]'
       value: 
-      objectReference: {fileID: 11400000, guid: 43d4564fc58f6294889bb3b90acf396a, type: 2}
+      objectReference: {fileID: 11400000, guid: 9dbbb74643ac21641924943038832968, type: 2}
     - target: {fileID: 4315868160651269515, guid: 77d8ad1046ab60a40bc252d8328abc55, type: 3}
       propertyPath: 'characterCards.Array.data[3]'
       value: 
