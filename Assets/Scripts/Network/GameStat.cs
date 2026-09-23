@@ -38,9 +38,9 @@ public class GameState : NetworkBehaviour
     }
     public bool IsMyTurn(TeamColor mySide) => CurrentTurn.Value == mySide;
 
-    [ServerRpc(RequireOwnership = false)]
+    [Rpc(SendTo.Server,InvokePermission = RpcInvokePermission.Everyone)]
 
-    public void RequestMoveServerRpc(int pieceId, int targetX, int targetY, ServerRpcParams p = default)
+    public void RequestMoveServerRpc(int pieceId, int targetX, int targetY, RpcParams p = default)
     {
         // Always ensure the server-side board/index are fresh before any legality checks
         ChessBoard.Instance.RebuildBoardAndIndexFromScene();
@@ -516,8 +516,8 @@ public class GameState : NetworkBehaviour
         }
     }
 
-    [ServerRpc(RequireOwnership = false)]
-    public void ApplyFreezeServerRpc(int pieceId, ServerRpcParams p = default)
+    [Rpc(SendTo.Server, InvokePermission = RpcInvokePermission.Everyone)]
+    public void ApplyFreezeServerRpc(int pieceId, RpcParams p = default)
     {
         var piece = ChessBoard.Instance.GetPieceById(pieceId);
         if (piece == null) return;
@@ -660,8 +660,8 @@ public class GameState : NetworkBehaviour
             CurrentTurn.Value
         );
     }
-    [ServerRpc(RequireOwnership = false)]
-    public void EndTurnServerRpc(ServerRpcParams p = default)
+    [Rpc(SendTo.Server, InvokePermission = RpcInvokePermission.Everyone)]
+    public void EndTurnServerRpc(RpcParams p = default)
     {
         var senderClientId = p.Receive.SenderClientId;
         var netPlayer = NetPlayer.FindByClient(senderClientId);
@@ -772,11 +772,11 @@ public class GameState : NetworkBehaviour
         }
     }
     // --- SPELL RPCs ---
-    [ServerRpc(RequireOwnership = false)]
+    [Rpc(SendTo.Server, InvokePermission = RpcInvokePermission.Everyone)]
     public void PlaceExplosiveTrapServerRpc(
          int x,
          int y,
-         ServerRpcParams p = default)
+         RpcParams p = default)
     {
         var player = NetPlayer.FindByClient(p.Receive.SenderClientId);
         if (player == null) return;
@@ -807,12 +807,12 @@ public class GameState : NetworkBehaviour
             "An explosive trap has been planted!");
     }
 
-    [ServerRpc(RequireOwnership = false)]
+    [Rpc(SendTo.Server, InvokePermission = RpcInvokePermission.Everyone)]
     public void TeleportPieceServerRpc(
     int pieceId,
     int x,
     int y,
-    ServerRpcParams p = default)
+    RpcParams p = default)
     {
         var piece = ChessBoard.Instance.GetPieceById(pieceId);
 
@@ -935,8 +935,8 @@ public class GameState : NetworkBehaviour
     }
 
     // Apply Divine Protection on all clients for the selected piece
-    [ServerRpc(RequireOwnership = false)]
-    public void ApplyDivineProtectionServerRpc(int pieceId, ServerRpcParams p = default)
+    [Rpc(SendTo.Server, InvokePermission = RpcInvokePermission.Everyone)]
+    public void ApplyDivineProtectionServerRpc(int pieceId, RpcParams p = default)
     {
         var piece = ChessBoard.Instance.GetPieceById(pieceId);
         if (piece == null) return;
@@ -952,8 +952,8 @@ public class GameState : NetworkBehaviour
     }
 
     // Resurrect by type/team at a server-chosen spawn square
-    [ServerRpc(RequireOwnership = false)]
-    public void ResurrectServerRpc(TeamColor team, PieceType pieceType, int spawnX, int spawnY, ServerRpcParams p = default)
+    [Rpc(SendTo.Server, InvokePermission = RpcInvokePermission.Everyone)]
+    public void ResurrectServerRpc(TeamColor team, PieceType pieceType, int spawnX, int spawnY, RpcParams p = default)
     {
         Vector2Int requested = new Vector2Int(spawnX, spawnY);
 
@@ -979,6 +979,15 @@ public class GameState : NetworkBehaviour
         newPiece.team = team;
         newPiece.pieceType = pieceType;
         newPiece.SetPosition(spawn, BoardInitializer.Instance.GetWorldPosition(spawn));
+        // FIX: preserve the piece's TRUE original chess starting square.
+        // Do NOT use "spawn" because spawn may only be the nearest available square.
+        newPiece.startingCell = requested;
+        newPiece.originalPrefab = prefab;
+        // FIX: preserve sprite for future captures/resurrections
+        SpriteRenderer sr = go.GetComponent<SpriteRenderer>();
+
+        if (sr != null)
+            newPiece.pieceSprite = sr.sprite;
         newPiece.MarkAsResurrected();
         BoardFlipController.Instance?.ApplyOrientation(newPiece);
         // Allocate a shared Id and register BEFORE placing
@@ -991,16 +1000,11 @@ public class GameState : NetworkBehaviour
         RemoveFromGraveyardClientRpc(team, pieceType);
 
         // Send the ACTUAL server-chosen cell to clients
-        ResurrectClientRpc(team, pieceType, spawn.x, spawn.y, newPiece.Id);
+        ResurrectClientRpc(team,pieceType,spawn.x,spawn.y,newPiece.Id,requested.x,requested.y );
     }
 
     [ClientRpc]
-    void ResurrectClientRpc(
-    TeamColor team,
-    PieceType pieceType,
-    int spawnX,
-    int spawnY,
-    int newId)
+    void ResurrectClientRpc(TeamColor team,PieceType pieceType,int spawnX,int spawnY,int newId,int originalX,int originalY)
     {
         // Host already created its copy on the server.
         if (Unity.Netcode.NetworkManager.Singleton != null &&
@@ -1026,10 +1030,13 @@ public class GameState : NetworkBehaviour
         p.team = team;
         p.pieceType = pieceType;
 
-        p.SetPosition(
-            spawn,
-            BoardInitializer.Instance.GetWorldPosition(spawn)
+        p.SetPosition(spawn,BoardInitializer.Instance.GetWorldPosition(spawn)
         );
+        // FIX: restore true original square
+        p.startingCell = new Vector2Int(originalX, originalY);
+        p.originalPrefab = prefab;
+        // NEW: preserve sprite for another capture/resurrection
+        SpriteRenderer sr = go.GetComponent<SpriteRenderer>();
 
         p.MarkAsResurrected();
 
@@ -1047,6 +1054,9 @@ public class GameState : NetworkBehaviour
     [ClientRpc]
     void RemoveFromGraveyardClientRpc(TeamColor team, PieceType type)
     {
+        // NEW: server/host already removed it above
+        if (IsServer) return;
+
         ChessBoard.Instance.RemoveCapturedPieceByTypeAndTeam(type, team);
     }
 
@@ -1127,11 +1137,11 @@ public class GameState : NetworkBehaviour
             );
         }
     }
-    [ServerRpc(RequireOwnership = false)]
+    [Rpc(SendTo.Server, InvokePermission = RpcInvokePermission.Everyone)]
     public void RequestPromotionServerRpc(
     int pawnId,
     PieceType promoteTo,
-    ServerRpcParams p = default)
+    RpcParams p = default)
     {
         ulong sender =
             p.Receive.SenderClientId;
@@ -1381,11 +1391,7 @@ public class GameState : NetworkBehaviour
             );
 
         GameObject go =
-            Instantiate(
-                prefab,
-                worldPosition,
-                Quaternion.identity
-            );
+            Instantiate(prefab,worldPosition,Quaternion.identity);
 
         ChessPiece newPiece =
             go.GetComponent<ChessPiece>();
