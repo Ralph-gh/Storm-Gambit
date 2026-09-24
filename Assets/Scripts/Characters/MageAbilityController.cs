@@ -5,6 +5,7 @@ public class MageAbilityController : MonoBehaviour
     [Header("Mage Names")]
     public string portalMageCardName = "Portal Mage";
     public string frostMageCardName = "Frost Mage";
+    public string lightningMageCardName = "Lightning Mage";
 
     [Header("Ability Prefabs")]
     public GameObject teleportationSpellUIPrefab;

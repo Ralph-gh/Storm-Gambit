@@ -166,12 +166,31 @@ public class LightningStrikeVFX : MonoBehaviour
 
     private IEnumerator FlashScreen()
     {
+        if (whiteFlash == null)
+            yield break;
+
+        // Make sure we start invisible
+        whiteFlash.alpha = 0f;
+
+        // FLASH 1 - soft warning
+        whiteFlash.alpha = 0.45f;
+        yield return new WaitForSeconds(0.05f);
+
+        whiteFlash.alpha = 0f;
+        yield return new WaitForSeconds(0.05f);
+
+        // FLASH 2 - stronger
+        whiteFlash.alpha = 0.75f;
+        yield return new WaitForSeconds(0.06f);
+
+        whiteFlash.alpha = 0f;
+        yield return new WaitForSeconds(0.05f);
+
+        // FLASH 3 - strongest, right before the strike
         whiteFlash.alpha = 1f;
+        yield return new WaitForSeconds(0.10f);
 
-        yield return new WaitForSeconds(
-            0.04f
-        );
-
+        // Short fade out
         float duration = 0.12f;
         float elapsed = 0f;
 
@@ -179,12 +198,11 @@ public class LightningStrikeVFX : MonoBehaviour
         {
             elapsed += Time.deltaTime;
 
-            whiteFlash.alpha =
-                Mathf.Lerp(
-                    1f,
-                    0f,
-                    elapsed / duration
-                );
+            whiteFlash.alpha = Mathf.Lerp(
+                1f,
+                0f,
+                elapsed / duration
+            );
 
             yield return null;
         }
