@@ -36,6 +36,12 @@ public class SpellCardPreviewTrigger :
 
     private void ShowPreview()
     {
+        if (SpellCastState.IsCasting)
+        {
+            HidePreview();
+            return;
+        }
+
         if (!IsPreviewAllowedCard())
             return;
 

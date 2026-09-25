@@ -14,8 +14,35 @@ public class SpellCardPreviewUI : MonoBehaviour
         previewRoot.SetActive(false);
     }
 
+    private void OnEnable()
+    {
+        SpellCastState.CastingChanged += HandleCastingChanged;
+    }
+
+    private void OnDisable()
+    {
+        SpellCastState.CastingChanged -= HandleCastingChanged;
+    }
+
+    private void HandleCastingChanged(bool isCasting)
+    {
+        // As soon as a spell starts casting,
+        // immediately remove any enlarged card preview.
+        if (isCasting)
+        {
+            Hide();
+        }
+    }
+
     public void Show(Sprite cardSprite)
     {
+        // Never show the enlarged preview while casting.
+        if (SpellCastState.IsCasting)
+        {
+            Hide();
+            return;
+        }
+
         if (cardSprite == null)
             return;
 

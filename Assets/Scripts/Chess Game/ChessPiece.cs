@@ -376,6 +376,13 @@ public class ChessPiece : NetworkBehaviour
     }
     void OnMouseDown()
     {
+        if (SpellCastState.IsCasting)
+        {
+            canDrag = false;
+            isDragging = false;
+            SnapBackToCurrentCell();
+            return;
+        }
         if (ChessBoard.Instance.gameOver) return;
         if (awaitingNetworkMove) return;
         if (isStunned)
@@ -420,6 +427,13 @@ public class ChessPiece : NetworkBehaviour
 
     void OnMouseDrag()
     {
+        if (SpellCastState.IsCasting)
+        {
+            isDragging = false;
+            canDrag = false;
+            SnapBackToCurrentCell();
+            return;
+        }
         if (!isDragging || !canDrag || ChessBoard.Instance.gameOver) return;
 
         if (isFrozen || isStunned)
@@ -435,6 +449,13 @@ public class ChessPiece : NetworkBehaviour
     }
     void OnMouseUp()
     {
+        if (SpellCastState.IsCasting)
+        {
+            isDragging = false;
+            canDrag = false;
+            SnapBackToCurrentCell();
+            return;
+        }
         // =========================================================
         // STATUS CHECKS
         // =========================================================
@@ -830,6 +851,11 @@ public class ChessPiece : NetworkBehaviour
 
     public void TryMoveFromTap(Vector2Int targetCell)
     {
+        if (SpellCastState.IsCasting)
+        {
+            SnapBackToCurrentCell();
+            return;
+        }
         if (ChessBoard.Instance.gameOver)
             return;
 

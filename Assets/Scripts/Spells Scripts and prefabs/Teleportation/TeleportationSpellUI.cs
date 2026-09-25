@@ -237,10 +237,15 @@ public class TeleportationSpellUI : MonoBehaviour
         Destroy(gameObject);
     }
     public void ConfigureAsMageAbility(
-    System.Action onSuccess,
-    System.Action onCancel)
+      System.Action onSuccess,
+      System.Action onCancel)
     {
         isMageAbility = true;
+
+        if (GetComponent<SpellCastLockToken>() == null)
+        {
+            gameObject.AddComponent<SpellCastLockToken>();
+        }
 
         mageAbilitySuccess = onSuccess;
         mageAbilityCancel = onCancel;

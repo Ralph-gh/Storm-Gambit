@@ -247,7 +247,14 @@ public class CardUI : MonoBehaviour
             return;
         }
 
-        GameObject spellObject = Instantiate(cardData.spellUI, canvas.transform);
+        GameObject spellObject =
+        Instantiate(cardData.spellUI, canvas.transform);
+
+        if (spellObject.GetComponent<SpellCastLockToken>() == null)
+        {
+            spellObject.AddComponent<SpellCastLockToken>();
+        }
+
         activeSpellUI = spellObject;
 
         TeleportationSpellUI teleportUI =
