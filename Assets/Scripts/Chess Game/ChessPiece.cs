@@ -56,11 +56,23 @@ public class ChessPiece : NetworkBehaviour
     public GameObject divineSpherePrefab;   // assign the sphere prefab in the Inspector
     private GameObject _divineSphere;       // runtime instance
 
-    //Hover Highlights
-    [SerializeField] private Color hoverColor = new Color(0.4f, 0.6f, 1f, 0.85f); // soft icy tint
+    // Hover / selected-piece feedback
+    [SerializeField]
+    private Color hoverColor =
+        new Color(0.4f, 0.6f, 1f, 0.85f);
+
+    [SerializeField]
+    private Color resurrectedColor =
+        new Color(1f, 0.95f, 0.5f, 1f);
+
     private SpriteRenderer _sr;
     private Color _baseColor;
+
     private bool isResurrected = false;
+
+    // NEW: movement selection feedback
+    private bool isSelectedForMove = false;
+    private static ChessPiece selectedMovePiece;
     //freeze visual
     [Header("Freeze Visual")]
     public GameObject frozenSquareMarkerPrefab;
@@ -364,18 +376,129 @@ public class ChessPiece : NetworkBehaviour
             _stunnedMarker = null;
         }
     }
+    private bool CanSelectForMoveFeedback()
+    {
+        if (ChessBoard.Instance == null ||
+            ChessBoard.Instance.gameOver)
+            return false;
 
+        // No normal chess selection while casting a spell.
+        if (SpellCastState.IsCasting)
+            return false;
+
+        if (awaitingNetworkMove)
+            return false;
+
+        if (isStunned ||
+            isFrozen ||
+            divinelyProtected)
+            return false;
+
+        bool isNetworked =
+            NetworkManager.Singleton != null &&
+            NetworkManager.Singleton.IsListening;
+
+        if (isNetworked)
+        {
+            // IMPORTANT:
+            // On multiplayer, only MY pieces may react visually.
+            if (NetPlayer.Local == null ||
+                NetPlayer.Local.Side.Value != team)
+            {
+                return false;
+            }
+
+            if (GameState.Instance == null ||
+                GameState.Instance.CurrentTurn.Value != team)
+            {
+                return false;
+            }
+
+            return true;
+        }
+
+        // Offline
+        return TurnManager.Instance != null &&
+               TurnManager.Instance.IsPlayersTurn(team);
+    }
+
+    private Color GetRestingColor()
+    {
+        if (isFrozen)
+            return frozenColor;
+
+        if (isResurrected)
+            return resurrectedColor;
+
+        return _baseColor;
+    }
+
+    private void SelectForMoveFeedback()
+    {
+        if (!CanSelectForMoveFeedback())
+            return;
+
+        // Remove highlight from previously selected friendly piece.
+        if (selectedMovePiece != null &&
+            selectedMovePiece != this)
+        {
+            selectedMovePiece.ClearMoveSelectionFeedback();
+        }
+
+        selectedMovePiece = this;
+        isSelectedForMove = true;
+
+        if (_sr != null)
+            _sr.color = hoverColor;
+    }
+
+    private void ClearMoveSelectionFeedback()
+    {
+        isSelectedForMove = false;
+
+        if (selectedMovePiece == this)
+            selectedMovePiece = null;
+
+        if (_sr != null)
+            _sr.color = GetRestingColor();
+    }
+
+    public static void ClearCurrentMoveSelection()
+    {
+        if (selectedMovePiece != null)
+            selectedMovePiece.ClearMoveSelectionFeedback();
+    }
     void OnMouseEnter()
     {
-        if (_sr != null) _sr.color = hoverColor;
+        // Only give movement feedback to a piece
+        // that this local player can actually move.
+        if (!CanSelectForMoveFeedback())
+            return;
+
+        if (_sr != null)
+            _sr.color = hoverColor;
     }
 
     void OnMouseExit()
     {
-        if (_sr != null) _sr.color = _baseColor;
+        // A selected piece stays highlighted even
+        // after the pointer/finger leaves it.
+        if (isSelectedForMove)
+            return;
+
+        if (_sr != null)
+            _sr.color = GetRestingColor();
     }
     void OnMouseDown()
     {
+        bool isNetworked =NetworkManager.Singleton != null &&NetworkManager.Singleton.IsListening;
+
+        if (isNetworked &&
+            (NetPlayer.Local == null ||
+             NetPlayer.Local.Side.Value != team))
+        {
+            return;
+        }
         if (SpellCastState.IsCasting)
         {
             canDrag = false;
@@ -418,6 +541,7 @@ public class ChessPiece : NetworkBehaviour
 
             return;
         }
+        SelectForMoveFeedback();
         canDrag = true;
         isDragging = true;
         originalPosition = transform.position;
@@ -470,7 +594,6 @@ public class ChessPiece : NetworkBehaviour
         if (!isDragging || ChessBoard.Instance.gameOver || !canDrag) return;
         isDragging = false;
         canDrag = false;
-        if (_sr != null) _sr.color = _baseColor;
 
 
         // =========================================================
@@ -638,6 +761,8 @@ public class ChessPiece : NetworkBehaviour
             hasMoved = true;
             transform.position = snappedPosition;
 
+            ClearMoveSelectionFeedback();
+
             // An exploded pawn cannot create a new en-passant window.
             ChessBoard.Instance.ClearEnPassant();
 
@@ -646,7 +771,7 @@ public class ChessPiece : NetworkBehaviour
 
             // Explosion -> shatter -> normal CapturePiece bookkeeping.
             StartCoroutine(ResolveExplosiveTrapOffline(newCell));
-
+            
             return;
         }
         // PROMOTION
@@ -839,14 +964,12 @@ public class ChessPiece : NetworkBehaviour
         return new Vector2Int(x, y);
     }
 
-    public void MarkAsResurrected()                 //currently used for visual coloring only
+    public void MarkAsResurrected()
     {
         isResurrected = true;
+
         if (_sr != null)
-        {
-            // Soft yellow tint (permanent)
-            _sr.color = new Color(1f, 0.95f, 0.5f, 1f);
-        }
+            _sr.color = resurrectedColor;
     }
 
     public void TryMoveFromTap(Vector2Int targetCell)
@@ -889,6 +1012,8 @@ public class ChessPiece : NetworkBehaviour
     public void ConfirmNetworkMove()
     {
         awaitingNetworkMove = false;
+
+        ClearMoveSelectionFeedback();
     }
 
     public void RejectNetworkMove()

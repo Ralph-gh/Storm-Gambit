@@ -71,12 +71,16 @@ public class ResurrectionSpellUI : MonoBehaviour
             newPiece.pieceSprite = data.pieceSprite;
 
             newPiece.SetPosition(spawn, BoardInitializer.Instance.GetWorldPosition(spawn));
-            newPiece.MarkAsResurrected();//Used for visual only inside ChessPiece.cs for now
+            newPiece.MarkAsResurrected();
             BoardFlipController.Instance?.ApplyOrientation(newPiece);
             ChessBoard.Instance.PlacePiece(newPiece, spawn);
-            ChessBoard.Instance.graveyard.RemoveCapturedPiece(data);
 
-            if (TurnManager.Instance.IsPlayersTurn(data.team))
+            // NEW: resurrected pieces cannot move immediately
+            newPiece.ApplyStunOneTurn();
+
+        ChessBoard.Instance.graveyard.RemoveCapturedPiece(data);
+
+        if (TurnManager.Instance.IsPlayersTurn(data.team))
                 TurnManager.Instance.RegisterFreeSpellCast();
 
         CloseSuccess(); // close UI and destroy card upon success

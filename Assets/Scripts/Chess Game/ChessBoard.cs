@@ -64,16 +64,35 @@ public class ChessBoard : NetworkBehaviour
             Debug.LogWarning("Promotion UI is not assigned. Auto-promoting to Queen.");
         }
     }
-    public bool IsValidExplosiveTrapCell(Vector2Int cell, TeamColor owner)
+    public bool IsValidExplosiveTrapCell(
+    Vector2Int cell,
+    TeamColor owner)
     {
-        if (!IsInsideBoard(cell)) return false;
-        if (GetPieceAt(cell) != null) return false;
-        if (explosiveTraps.ContainsKey(cell)) return false;
-        if (explosiveTrapMarkers.ContainsKey(cell)) return false;
+        if (!IsInsideBoard(cell))
+            return false;
 
-        // Unity rows are zero-based: White rows 1-4 => y 0-3,
-        // Black rows 5-8 => y 4-7.
-        return owner == TeamColor.White ? cell.y <= 3 : cell.y >= 4;
+        ChessPiece occupant = GetPieceAt(cell);
+
+        // NEW RULE:
+        // Empty square = allowed.
+        // Friendly occupied square = allowed.
+        // Enemy occupied square = NOT allowed.
+        if (occupant != null && occupant.team != owner)
+            return false;
+
+        // Cannot stack traps.
+        if (explosiveTraps.ContainsKey(cell))
+            return false;
+
+        if (explosiveTrapMarkers.ContainsKey(cell))
+            return false;
+
+        // Unity rows are zero-based:
+        // White rows 1-4 => y 0-3
+        // Black rows 5-8 => y 4-7
+        return owner == TeamColor.White
+            ? cell.y <= 3
+            : cell.y >= 4;
     }
 
     public bool TryPlaceExplosiveTrap(Vector2Int cell, TeamColor owner)

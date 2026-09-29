@@ -995,6 +995,9 @@ public class GameState : NetworkBehaviour
         ChessBoard.Instance.RegisterPiece(newPiece);
         ChessBoard.Instance.PlacePiece(newPiece, spawn);
 
+        // NEW: authoritative resurrected piece starts stunned
+        newPiece.ApplyStunOneTurn();
+
         // Update server graveyard + notify clients to update UI
         ChessBoard.Instance.RemoveCapturedPieceByTypeAndTeam(pieceType, team);
         RemoveFromGraveyardClientRpc(team, pieceType);
@@ -1050,6 +1053,9 @@ public class GameState : NetworkBehaviour
 
         ChessBoard.Instance.RegisterPiece(p);
         ChessBoard.Instance.PlacePiece(p, spawn);
+
+        // NEW: show stun + block movement on remote client
+        p.ApplyStunOneTurn();
     }
     [ClientRpc]
     void RemoveFromGraveyardClientRpc(TeamColor team, PieceType type)

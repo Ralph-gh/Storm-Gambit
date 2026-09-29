@@ -20,17 +20,12 @@ public class ExplosiveTrapSpellUI : MonoBehaviour
 
     private void Start()
     {
-        Debug.Log(
-            "Explosive Trap: choose an empty square on your half of the board."
-        );
+        Debug.Log("Explosive Trap: choose a square on your half of the board. " +"The square may be empty or occupied by one of your pieces.");
 
         if (SpellOverlayManager.Instance != null)
         {
-            activePrompt =
-                SpellOverlayManager.Instance.ShowActionPrompt(
-                    "Select a square to place a trap.",
-                    CancelSpell
-                );
+            activePrompt = SpellOverlayManager.Instance.ShowActionPrompt("Select an empty square or one occupied by your piece.",
+        CancelSpell );
         }
         else
         {
@@ -79,11 +74,11 @@ public class ExplosiveTrapSpellUI : MonoBehaviour
                 cell,
                 MySide))
         {
-            Debug.Log(
-                MySide == TeamColor.White
-                    ? "White must place the trap on an empty square in rows 1-4."
-                    : "Black must place the trap on an empty square in rows 5-8."
-            );
+         Debug.Log(
+         MySide == TeamColor.White
+         ? "White must place the trap in rows 1-4 on an empty square or under a White piece."
+         : "Black must place the trap in rows 5-8 on an empty square or under a Black piece."
+        );
 
             return;
         }
