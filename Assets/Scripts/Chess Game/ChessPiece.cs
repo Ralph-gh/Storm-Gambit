@@ -95,6 +95,7 @@ public class ChessPiece : NetworkBehaviour
             _normalBaseColor = _sr.color;
         }
     }
+
     public void SetPosition(Vector2Int cellPosition, Vector3 worldPosition)
     {
         currentCell = cellPosition;
@@ -491,6 +492,24 @@ public class ChessPiece : NetworkBehaviour
     }
     void OnMouseDown()
     {
+        // ADD THIS GUARD NEAR THE TOP OF ChessPiece.OnMouseDown(),
+        // immediately after the gameOver check:
+
+        if (SoloSession.IsConfigured && !SoloSession.IsHumanSide(team))
+        {
+            canDrag = false;
+            isDragging = false;
+            return;
+        }
+
+
+        // ADD THE SAME LOGIC NEAR THE TOP OF TryMoveFromTap(...)
+        // before the tap path starts moving/selecting the piece:
+
+        if (SoloSession.IsConfigured && !SoloSession.IsHumanSide(team))
+        {
+            return;
+        }
         bool isNetworked =NetworkManager.Singleton != null &&NetworkManager.Singleton.IsListening;
 
         if (isNetworked &&
@@ -1008,6 +1027,74 @@ public class ChessPiece : NetworkBehaviour
         // IMPORTANT:
         // Use the EXISTING movement pipeline.
         OnMouseUp();
+    }
+    public bool TryExecuteAIMove(Vector2Int targetCell)
+    {
+        // Solo AI only. Never let this path run during Netcode play.
+        var nm = Unity.Netcode.NetworkManager.Singleton;
+        if (nm != null && nm.IsListening)
+        {
+            Debug.LogWarning("[AI] TryExecuteAIMove blocked during network play.");
+            return false;
+        }
+
+        if (ChessBoard.Instance == null ||
+            TurnManager.Instance == null ||
+            ChessBoard.Instance.gameOver)
+        {
+            return false;
+        }
+
+        // AI may only move its own side, on its own turn.
+        if (!SoloSession.IsAISide(team) ||
+            TurnManager.Instance.currentTurn != team)
+        {
+            return false;
+        }
+
+        // Storm Gambit status effects still have authority over Stockfish.
+        if (isFrozen || isStunned || divinelyProtected)
+        {
+            Debug.Log(
+                $"[AI] {pieceType}#{Id} cannot move because of a Storm Gambit status."
+            );
+            return false;
+        }
+
+        if (!ChessBoard.Instance.IsInsideBoard(targetCell))
+            return false;
+
+        // First classical legality check.
+        if (!ChessBoard.Instance.IsLegalMove(this, targetCell))
+        {
+            Debug.LogWarning(
+                $"[AI] Classical move rejected: {currentCell} -> {targetCell}"
+            );
+            return false;
+        }
+
+        // Reuse the EXISTING offline OnMouseUp resolution instead of creating
+        // a second capture/castling/en-passant/trap implementation.
+        originalPosition = transform.position;
+
+        Vector3 destination =
+            BoardInitializer.Instance != null
+                ? BoardInitializer.Instance.GetWorldPosition(targetCell)
+                : transform.position;
+
+        transform.position = destination;
+
+        canDrag = true;
+        isDragging = true;
+
+        Vector2Int oldCell = currentCell;
+
+        OnMouseUp();
+
+        // Normal moves and castling update currentCell immediately.
+        // Trap/promotion flows can intentionally continue asynchronously / via UI.
+        return currentCell != oldCell ||
+               ChessBoard.Instance.gameOver;
     }
     public void ConfirmNetworkMove()
     {

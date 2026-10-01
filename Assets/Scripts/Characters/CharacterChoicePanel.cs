@@ -6,6 +6,7 @@ public class CharacterChoicePanel : MonoBehaviour
 {
     [Header("Pool & Prefab")]
     public List<CardData> characterCards;     // ONLY Character CardData assets (cardtype = Character)
+    public List<CardData> stockfishCharacterCards; // AI-safe characters
     public GameObject cardPrefab;             // UI prefab: RectTransform + CardUI + Button
 
     [Header("UI")]
@@ -26,18 +27,38 @@ public class CharacterChoicePanel : MonoBehaviour
             Debug.LogError("[CharChoice] optionsContainer is NULL or not a scene object.");
             return;
         }
+
         if (!cardPrefab)
         {
             Debug.LogError("[CharChoice] cardPrefab is NULL.");
             return;
         }
-        if (characterCards == null || characterCards.Count == 0)
+
+        List<CardData> activePool = characterCards;
+
+        bool stockfishCampaign =
+            SoloSession.IsConfigured &&
+            SoloSession.Mode == SoloGameMode.Campaign &&
+            SoloSession.AIEnabled &&
+            SoloSession.Opponent == SoloOpponent.Stockfish;
+
+        if (stockfishCampaign &&
+            stockfishCharacterCards != null &&
+            stockfishCharacterCards.Count > 0)
         {
-            Debug.LogError("[CharChoice] characterCards is empty (drag your Character CardData assets here).");
+            activePool = stockfishCharacterCards;
+
+            Debug.Log("[CharChoice] Using Stockfish-safe character pool.");
+        }
+
+        if (activePool == null || activePool.Count == 0)
+        {
+            Debug.LogError("[CharChoice] Active character pool is empty.");
             return;
         }
 
-        var picks = PickTwo(characterCards);
+        var picks = PickTwo(activePool);
+
         Debug.Log($"[CharChoice] Drawing {picks.Count} picks");
 
         foreach (var data in picks)
@@ -49,24 +70,30 @@ public class CharacterChoicePanel : MonoBehaviour
             }
 
             var go = Instantiate(cardPrefab, optionsContainer);
-            var rt = go.transform as RectTransform;
-            if (rt) { rt.localScale = Vector3.one; }
 
-            // Make sure it’s visible size in the layout
-            var le = go.GetComponent<LayoutElement>() ?? go.AddComponent<LayoutElement>();
+            var rt = go.transform as RectTransform;
+            if (rt)
+                rt.localScale = Vector3.one;
+
+            var le = go.GetComponent<LayoutElement>()
+                     ?? go.AddComponent<LayoutElement>();
+
             le.preferredWidth = 300f;
             le.preferredHeight = 420f;
 
             var ui = go.GetComponent<CardUI>();
+
             if (!ui)
             {
                 Debug.LogError("[CharChoice] Card prefab missing CardUI.");
                 continue;
             }
 
-            // Selection mode: click reports choice ONLY
             ui.LoadCard(data, true, OnPick);
-            Debug.Log($"[CharChoice] Spawned selection card: {data.cardName}");
+
+            Debug.Log(
+                $"[CharChoice] Spawned selection card: {data.cardName}"
+            );
         }
     }
 

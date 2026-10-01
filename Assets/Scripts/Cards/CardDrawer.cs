@@ -11,10 +11,17 @@ public class CardDrawer : MonoBehaviour
     public Transform handPanel;             // Your HandPanel (UI container)
 
     [Header("Draw Settings")]
-    public int startingCardCount = 3;
+    public int startingCardCount = 2;
+
+    [Header("Card Pools")]
+    public List<CardData> defaultCardPool;
+    public List<CardData> stockfishCampaignPool;
+
+    private List<CardData> activeCardPool;
 
     void Start()
     {
+        ConfigureCardPool();
         DrawCards(startingCardCount);
     }
 
@@ -22,9 +29,11 @@ public class CardDrawer : MonoBehaviour
     {
         for (int i = 0; i < count; i++)
         {
-            if (cardPool.Count == 0) return;
+            if (activeCardPool == null || activeCardPool.Count == 0)
+                return;
 
-            CardData drawn = cardPool[Random.Range(0, cardPool.Count)];
+            CardData drawn =
+                activeCardPool[Random.Range(0, activeCardPool.Count)];
             GameObject cardObj = Instantiate(cardPrefab, handPanel);
             cardObj.GetComponent<CardUI>().LoadCard(drawn);
         }
@@ -46,5 +55,22 @@ public class CardDrawer : MonoBehaviour
         var cardObj = Instantiate(cardPrefab, handPanel);
         cardObj.GetComponent<CardUI>().LoadCard(drawn);
     }
+    private void ConfigureCardPool()
+    {
+        bool stockfishCampaign =
+            SoloSession.IsConfigured &&
+            SoloSession.Mode == SoloGameMode.Campaign &&
+            SoloSession.AIEnabled &&
+            SoloSession.Opponent == SoloOpponent.Stockfish;
 
+        activeCardPool = stockfishCampaign
+            ? stockfishCampaignPool
+            : defaultCardPool;
+
+        Debug.Log(
+            stockfishCampaign
+                ? "[CARDS] Using Stockfish Campaign deck."
+                : "[CARDS] Using default deck."
+        );
+    }
 }

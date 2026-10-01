@@ -1714,6 +1714,86 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 7e61ddb72cca70443a54da69a7115685, type: 3}
+--- !u!1 &473148254
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 473148257}
+  - component: {fileID: 473148256}
+  - component: {fileID: 473148255}
+  - component: {fileID: 473148258}
+  m_Layer: 0
+  m_Name: StockFishAI
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &473148255
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 473148254}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4147b05f5c445b446bbe2c5c0e23da2e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::StockfishAITest
+  stockfish: {fileID: 473148256}
+  testAutomaticallyOnStart: 0
+--- !u!114 &473148256
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 473148254}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f9f9eccd81b3fea44842461e3be6a0ad, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::StockfishEngine
+  engineRelativePath: Stockfish/Stockfish.exe
+  moveTimeMs: 700
+--- !u!224 &473148257
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 473148254}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: 0, y: 1.5}
+  m_SizeDelta: {x: 100, y: 100}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &473148258
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 473148254}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d95a0410d972b4e4ab73c6801b286c1a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ComputerPlayer
+  stockfish: {fileID: 473148256}
+  initialDelaySeconds: 0.35
 --- !u!1 &519420028
 GameObject:
   m_ObjectHideFlags: 0
@@ -2392,11 +2472,20 @@ MonoBehaviour:
   cardPool:
   - {fileID: 11400000, guid: f874d798c78f9304abd73e89300cdf3c, type: 2}
   - {fileID: 11400000, guid: 1c263c1cb7ac19b46adbfb744c121df7, type: 2}
-  - {fileID: 11400000, guid: 05e9cd83c97665a458018dbae5341145, type: 2}
   - {fileID: 11400000, guid: 56ee48cdff62ebc4bad92c023ad7211c, type: 2}
+  - {fileID: 11400000, guid: 05e9cd83c97665a458018dbae5341145, type: 2}
   cardPrefab: {fileID: 8266617551161481807, guid: 4fe99c99d28ad844e8761355c0a9e700, type: 3}
   handPanel: {fileID: 80146427}
-  startingCardCount: 3
+  startingCardCount: 2
+  defaultCardPool:
+  - {fileID: 11400000, guid: 1c263c1cb7ac19b46adbfb744c121df7, type: 2}
+  - {fileID: 11400000, guid: f874d798c78f9304abd73e89300cdf3c, type: 2}
+  - {fileID: 11400000, guid: 56ee48cdff62ebc4bad92c023ad7211c, type: 2}
+  - {fileID: 11400000, guid: 05e9cd83c97665a458018dbae5341145, type: 2}
+  stockfishCampaignPool:
+  - {fileID: 11400000, guid: 1c263c1cb7ac19b46adbfb744c121df7, type: 2}
+  - {fileID: 11400000, guid: f874d798c78f9304abd73e89300cdf3c, type: 2}
+  - {fileID: 11400000, guid: 56ee48cdff62ebc4bad92c023ad7211c, type: 2}
 --- !u!4 &738612890
 Transform:
   m_ObjectHideFlags: 0
@@ -2570,7 +2659,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &850396325
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2590,6 +2679,8 @@ MonoBehaviour:
   cardPrefab: {fileID: 8266617551161481807, guid: 4fe99c99d28ad844e8761355c0a9e700, type: 3}
   handPanel: {fileID: 990634019}
   startingCardCount: 3
+  defaultCardPool: []
+  stockfishCampaignPool: []
 --- !u!4 &850396326
 Transform:
   m_ObjectHideFlags: 0
@@ -7468,3 +7559,4 @@ SceneRoots:
   - {fileID: 2139242496}
   - {fileID: 643753683}
   - {fileID: 3461347241024866364}
+  - {fileID: 473148257}
