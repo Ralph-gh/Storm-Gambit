@@ -86,6 +86,8 @@ public class ChessPiece : NetworkBehaviour
         NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
     private bool awaitingNetworkMove = false; //used for moving the black pieces (client)
 
+    private PieceType? pendingAIPromotionChoice;
+
     void Awake()
     {
         _sr = GetComponent<SpriteRenderer>();
@@ -793,15 +795,64 @@ public class ChessPiece : NetworkBehaviour
             
             return;
         }
+        // =========================================================
         // PROMOTION
+        // =========================================================
         if (pieceType == PieceType.Pawn &&
             Pawn.ShouldPromote(newCell, team))
         {
+            // =====================================================
+            // STOCKFISH / AI PROMOTION
+            // =====================================================
+            if (SoloSession.IsAISide(team) &&
+                pendingAIPromotionChoice.HasValue)
+            {
+                PieceType promoteTo =
+                    pendingAIPromotionChoice.Value;
+
+                pendingAIPromotionChoice = null;
+
+                // Commit the pawn move to the board.
+                ChessBoard.Instance.MovePiece(
+                    oldCell,
+                    newCell
+                );
+
+                currentCell = newCell;
+                hasMoved = true;
+                transform.position = snappedPosition;
+
+                ChessBoard.Instance.ClearEnPassant();
+
+                MoveIndicator.Instance?.ShowMove(
+                    oldCell,
+                    newCell
+                );
+
+                Debug.Log(
+                    $"[AI/PROMOTION] Stockfish promotes " +
+                    $"{team} pawn to {promoteTo} at {newCell}."
+                );
+
+                ChessBoard.Instance.ResolveAIPromotion(
+                    this,
+                    promoteTo
+                );
+
+                return;
+            }
+
+            // =====================================================
+            // HUMAN PROMOTION - KEEP EXISTING UI
+            // =====================================================
+
             transform.position = snappedPosition;
             currentCell = newCell;
 
-            // MOVE INDICATOR
-            MoveIndicator.Instance?.ShowMove(oldCell, newCell);
+            MoveIndicator.Instance?.ShowMove(
+                oldCell,
+                newCell
+            );
 
             ChessBoard.Instance.pawnToPromote = this;
             ChessBoard.Instance.TriggerPromotion(this);
@@ -901,7 +952,7 @@ public class ChessPiece : NetworkBehaviour
         yield return new WaitForSeconds(0.45f);
 
         // -----------------------------
-        // 3. EXISTING CAPTURE LOGIC
+        // 3. CAPTURE LOGIC
         // -----------------------------
         ChessBoard.Instance.CapturePiece(trapCell);
 
@@ -1028,13 +1079,19 @@ public class ChessPiece : NetworkBehaviour
         // Use the EXISTING movement pipeline.
         OnMouseUp();
     }
-    public bool TryExecuteAIMove(Vector2Int targetCell)
+    public bool TryExecuteAIMove(
+    Vector2Int targetCell,
+    PieceType? promotionChoice = null)
     {
-        // Solo AI only. Never let this path run during Netcode play.
+        // Solo AI only. Never use this path in multiplayer.
         var nm = Unity.Netcode.NetworkManager.Singleton;
+
         if (nm != null && nm.IsListening)
         {
-            Debug.LogWarning("[AI] TryExecuteAIMove blocked during network play.");
+            Debug.LogWarning(
+                "[AI] TryExecuteAIMove blocked during network play."
+            );
+
             return false;
         }
 
@@ -1045,36 +1102,70 @@ public class ChessPiece : NetworkBehaviour
             return false;
         }
 
-        // AI may only move its own side, on its own turn.
+        // Only the configured AI side may use this path.
         if (!SoloSession.IsAISide(team) ||
             TurnManager.Instance.currentTurn != team)
         {
             return false;
         }
 
-        // Storm Gambit status effects still have authority over Stockfish.
+        // Storm Gambit restrictions still override Stockfish.
         if (isFrozen || isStunned || divinelyProtected)
         {
             Debug.Log(
-                $"[AI] {pieceType}#{Id} cannot move because of a Storm Gambit status."
+                $"[AI] {pieceType}#{Id} cannot move because of a status."
             );
+
             return false;
         }
 
         if (!ChessBoard.Instance.IsInsideBoard(targetCell))
             return false;
 
-        // First classical legality check.
         if (!ChessBoard.Instance.IsLegalMove(this, targetCell))
         {
             Debug.LogWarning(
-                $"[AI] Classical move rejected: {currentCell} -> {targetCell}"
+                $"[AI] Classical move rejected: " +
+                $"{currentCell} -> {targetCell}"
             );
+
             return false;
         }
 
-        // Reuse the EXISTING offline OnMouseUp resolution instead of creating
-        // a second capture/castling/en-passant/trap implementation.
+        // =========================================================
+        // STOCKFISH PROMOTION VALIDATION
+        // =========================================================
+
+        bool reachesPromotion =
+            pieceType == PieceType.Pawn &&
+            Pawn.ShouldPromote(targetCell, team);
+
+        if (reachesPromotion && !promotionChoice.HasValue)
+        {
+            Debug.LogError(
+                $"[AI/PROMOTION] Pawn move {currentCell}->{targetCell} " +
+                "requires a Stockfish promotion choice."
+            );
+
+            return false;
+        }
+
+        if (!reachesPromotion && promotionChoice.HasValue)
+        {
+            Debug.LogWarning(
+                $"[AI/PROMOTION] Stockfish supplied " +
+                $"{promotionChoice.Value} for a non-promotion move."
+            );
+
+            return false;
+        }
+
+        pendingAIPromotionChoice = promotionChoice;
+
+        // =========================================================
+        // REUSE EXISTING OFFLINE MOVE RESOLUTION
+        // =========================================================
+
         originalPosition = transform.position;
 
         Vector3 destination =
@@ -1091,11 +1182,13 @@ public class ChessPiece : NetworkBehaviour
 
         OnMouseUp();
 
-        // Normal moves and castling update currentCell immediately.
-        // Trap/promotion flows can intentionally continue asynchronously / via UI.
+        // Safety: promotion branch normally consumes this itself.
+        pendingAIPromotionChoice = null;
+
         return currentCell != oldCell ||
                ChessBoard.Instance.gameOver;
     }
+
     public void ConfirmNetworkMove()
     {
         awaitingNetworkMove = false;

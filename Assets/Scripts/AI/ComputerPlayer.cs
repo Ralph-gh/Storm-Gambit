@@ -14,7 +14,7 @@ public class ComputerPlayer : MonoBehaviour
 
     private bool isThinking;
     private bool subscribed;
-
+    
     private async void Start()
     {
         await Task.Yield();
@@ -176,9 +176,9 @@ public class ComputerPlayer : MonoBehaviour
 
             if (move.Promotion.HasValue)
             {
-                Debug.LogWarning(
-                    $"[AI] Promotion received: {bestMoveText}. " +
-                    "AI promotion choice will be wired in the promotion pass."
+                Debug.Log(
+                    $"[AI] Stockfish promotion choice: " +
+                    $"{move.Promotion.Value} | UCI={bestMoveText}"
                 );
             }
 
@@ -187,8 +187,7 @@ public class ComputerPlayer : MonoBehaviour
                 $"{bestMoveText}"
             );
 
-            bool accepted =
-                piece.TryExecuteAIMove(move.To);
+            bool accepted =piece.TryExecuteAIMove(move.To,move.Promotion);
 
             if (!accepted)
             {

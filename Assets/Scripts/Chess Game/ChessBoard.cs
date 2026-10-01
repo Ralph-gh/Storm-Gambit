@@ -64,6 +64,155 @@ public class ChessBoard : NetworkBehaviour
             Debug.LogWarning("Promotion UI is not assigned. Auto-promoting to Queen.");
         }
     }
+    public bool ResolveAIPromotion(
+    ChessPiece pawn,
+    PieceType promoteTo)
+    {
+        if (pawn == null)
+            return false;
+
+        // Only standard chess promotion pieces are valid.
+        if (promoteTo != PieceType.Queen &&
+            promoteTo != PieceType.Rook &&
+            promoteTo != PieceType.Bishop &&
+            promoteTo != PieceType.Knight)
+        {
+            Debug.LogError(
+                $"[AI/PROMOTION] Invalid promotion type: {promoteTo}"
+            );
+
+            return false;
+        }
+
+        if (pawn.pieceType != PieceType.Pawn)
+        {
+            Debug.LogError(
+                "[AI/PROMOTION] Attempted to promote a non-pawn."
+            );
+
+            return false;
+        }
+
+        if (!Pawn.ShouldPromote(
+            pawn.currentCell,
+            pawn.team))
+        {
+            Debug.LogError(
+                $"[AI/PROMOTION] Pawn is not on promotion rank: " +
+                $"{pawn.currentCell}"
+            );
+
+            return false;
+        }
+
+        if (BoardInitializer.Instance == null)
+        {
+            Debug.LogError(
+                "[AI/PROMOTION] BoardInitializer missing."
+            );
+
+            return false;
+        }
+
+        Vector2Int cell = pawn.currentCell;
+        TeamColor team = pawn.team;
+
+        GameObject prefab =
+            BoardInitializer.Instance.GetPrefab(
+                team,
+                promoteTo
+            );
+
+        if (prefab == null)
+        {
+            Debug.LogError(
+                $"[AI/PROMOTION] Missing prefab for " +
+                $"{team} {promoteTo}."
+            );
+
+            return false;
+        }
+
+        // Promotion ends any en-passant opportunity.
+        ClearEnPassant();
+
+        // =====================================================
+        // REMOVE PAWN
+        // =====================================================
+
+        pawn.gameObject.SetActive(false);
+
+        RemovePieceLocal(pawn);
+
+        // =====================================================
+        // CREATE STOCKFISH'S CHOSEN PIECE
+        // =====================================================
+
+        Vector3 worldPosition =
+            BoardInitializer.Instance.GetWorldPosition(cell);
+
+        GameObject go =
+            Instantiate(
+                prefab,
+                worldPosition,
+                Quaternion.identity
+            );
+
+        ChessPiece newPiece =
+            go.GetComponent<ChessPiece>();
+
+        if (newPiece == null)
+        {
+            Debug.LogError(
+                $"[AI/PROMOTION] {promoteTo} prefab has no ChessPiece."
+            );
+
+            Destroy(go);
+            return false;
+        }
+
+        newPiece.team = team;
+        newPiece.pieceType = promoteTo;
+
+        newPiece.SetPosition(
+            cell,
+            worldPosition
+        );
+
+        newPiece.hasMoved = true;
+        newPiece.startingCell = cell;
+        newPiece.originalPrefab = prefab;
+
+        SpriteRenderer sr =
+            go.GetComponent<SpriteRenderer>();
+
+        if (sr != null)
+            newPiece.pieceSprite = sr.sprite;
+
+        newPiece.Id = AllocatePieceId();
+
+        RegisterPiece(newPiece);
+        PlacePiece(newPiece, cell);
+
+        BoardFlipController.Instance
+            ?.ApplyOrientation(newPiece);
+
+        pawnToPromote = null;
+
+        Debug.Log(
+            $"[AI/PROMOTION] Stockfish promoted " +
+            $"{team} pawn to {promoteTo} at {cell}."
+        );
+
+        // Promotion completes the AI move.
+        if (!gameOver &&
+            TurnManager.Instance != null)
+        {
+            TurnManager.Instance.NextTurn();
+        }
+
+        return true;
+    }
     public bool IsValidExplosiveTrapCell(
     Vector2Int cell,
     TeamColor owner)
