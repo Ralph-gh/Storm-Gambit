@@ -1423,6 +1423,52 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 372185828}
   m_CullTransparentMesh: 1
+--- !u!1 &390141895
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 390141897}
+  - component: {fileID: 390141896}
+  m_Layer: 0
+  m_Name: SoloCardDrawer
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &390141896
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 390141895}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b7299da608dca314c85bbb18758cc5ba, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::SoloCardDrawController
+  playerCardDrawer: {fileID: 738612889}
+  movesPerCardDraw: 7
+--- !u!4 &390141897
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 390141895}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -725, y: 293, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &435863656
 GameObject:
   m_ObjectHideFlags: 0
@@ -2476,7 +2522,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 05e9cd83c97665a458018dbae5341145, type: 2}
   cardPrefab: {fileID: 8266617551161481807, guid: 4fe99c99d28ad844e8761355c0a9e700, type: 3}
   handPanel: {fileID: 80146427}
-  startingCardCount: 3
+  startingCardCount: 2
   defaultCardPool:
   - {fileID: 11400000, guid: 1c263c1cb7ac19b46adbfb744c121df7, type: 2}
   - {fileID: 11400000, guid: f874d798c78f9304abd73e89300cdf3c, type: 2}
@@ -7560,3 +7606,4 @@ SceneRoots:
   - {fileID: 643753683}
   - {fileID: 3461347241024866364}
   - {fileID: 473148257}
+  - {fileID: 390141897}

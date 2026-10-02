@@ -37,23 +37,44 @@ public class CardDrawer : MonoBehaviour
             GameObject cardObj = Instantiate(cardPrefab, handPanel);
             cardObj.GetComponent<CardUI>().LoadCard(drawn);
         }
+
     }
+
     public void DrawOneSpellCard()
     {
-        if (cardPool == null || cardPool.Count == 0 || cardPrefab == null || handPanel == null)
+        if (activeCardPool == null ||
+            activeCardPool.Count == 0 ||
+            cardPrefab == null ||
+            handPanel == null)
+        {
+            Debug.LogWarning("[CARDS] Cannot draw spell card.");
             return;
+        }
 
         // Filter to spells only (exclude Character cards)
         var spells = new List<CardData>();
-        foreach (var c in cardPool)
+
+        foreach (var c in activeCardPool)
+        {
             if (c != null && c.cardtype != CardType.Character)
                 spells.Add(c);
+        }
 
-        if (spells.Count == 0) return;
+        if (spells.Count == 0)
+        {
+            Debug.LogWarning("[CARDS] No spell cards available in active deck.");
+            return;
+        }
 
-        var drawn = spells[Random.Range(0, spells.Count)];
-        var cardObj = Instantiate(cardPrefab, handPanel);
+        CardData drawn =
+            spells[Random.Range(0, spells.Count)];
+
+        GameObject cardObj =
+            Instantiate(cardPrefab, handPanel);
+
         cardObj.GetComponent<CardUI>().LoadCard(drawn);
+
+        Debug.Log($"[CARDS] Drew spell card: {drawn.cardName}");
     }
     private void ConfigureCardPool()
     {
