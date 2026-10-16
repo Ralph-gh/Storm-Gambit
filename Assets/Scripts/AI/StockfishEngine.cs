@@ -197,7 +197,7 @@ public class StockfishEngine : MonoBehaviour
 
             return await WithTimeout(
                 bestMoveTcs.Task,
-                thinkTime + 10000,
+                thinkTime + 1500,
                 "Stockfish did not return bestmove."
             );
         }
