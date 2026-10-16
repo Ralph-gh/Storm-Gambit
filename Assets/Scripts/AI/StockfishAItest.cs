@@ -77,11 +77,22 @@ public class StockfishAITest : MonoBehaviour
             );
 
             if (bestMove == "(none)" ||
-                bestMove == "0000")
+     bestMove == "0000")
             {
                 Debug.LogWarning(
-                    "[AI TEST] Stockfish reports no legal move."
+                    "[AI TEST] Stockfish reports no legal move. " +
+                    "Passing position to Storm no-move resolver."
                 );
+
+                StockfishNoMoveResult result =
+                    StockfishNoMoveResolver.Resolve(
+                        sideToMove
+                    );
+
+                Debug.Log(
+                    $"[AI TEST] No-move resolution: {result}"
+                );
+
                 return;
             }
 

@@ -3350,6 +3350,95 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1117919922}
   m_CullTransparentMesh: 1
+--- !u!1 &1121528166
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1121528170}
+  - component: {fileID: 1121528169}
+  - component: {fileID: 1121528168}
+  - component: {fileID: 1121528167}
+  - component: {fileID: 1121528171}
+  m_Layer: 0
+  m_Name: ChessRulesDebug
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1121528167
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1121528166}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5dff95f31060e654c9907506d9ec8c73, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::MoveValidationDebugTester
+  fromSquare: {x: 0, y: 0}
+  destinationSquare: {x: 0, y: 0}
+--- !u!114 &1121528168
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1121528166}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 72a174b084a6b24449095b8d7e62e496, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::CheckDebugTester
+  teamToTest: 0
+--- !u!114 &1121528169
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1121528166}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 36bef740064344f418430d60f90646b5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PositionSimulationDebugTester
+  fromSquare: {x: 0, y: 0}
+  destinationSquare: {x: 0, y: 0}
+--- !u!4 &1121528170
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1121528166}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -725, y: 293, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1121528171
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1121528166}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c855f395d2ccbc1429d45ddb57148419, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::StockfishNoMoveDebugTester
+  aiTeam: 1
 --- !u!1 &1125116776
 GameObject:
   m_ObjectHideFlags: 0
@@ -7615,3 +7704,4 @@ SceneRoots:
   - {fileID: 3461347241024866364}
   - {fileID: 473148257}
   - {fileID: 390141897}
+  - {fileID: 1121528170}

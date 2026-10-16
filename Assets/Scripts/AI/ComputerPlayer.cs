@@ -125,8 +125,49 @@ public class ComputerPlayer : MonoBehaviour
                 $"[AI] {aiSide} thinking from FEN: {fen}"
             );
 
-            string bestMoveText =
-                await stockfish.GetBestMoveAsync(fen);
+            string bestMoveText;
+
+            try
+            {
+                bestMoveText =
+                    await stockfish.GetBestMoveAsync(fen);
+            }
+            catch (TimeoutException)
+            {
+                Debug.LogWarning(
+                    $"[AI] Stockfish timed out for {aiSide}. " +
+                    "Passing position to Storm no-move resolver."
+                );
+
+                stockfish.StopSearch();
+
+                if (this == null ||
+                    TurnManager.Instance == null ||
+                    ChessBoard.Instance == null ||
+                    ChessBoard.Instance.gameOver)
+                {
+                    return;
+                }
+
+                if (TurnManager.Instance.currentTurn != aiSide)
+                {
+                    Debug.LogWarning(
+                        "[AI] Turn changed during Stockfish timeout. " +
+                        "Ignoring resolver."
+                    );
+
+                    return;
+                }
+
+                StockfishNoMoveResult noMoveResult =
+                    StockfishNoMoveResolver.Resolve(aiSide);
+
+                Debug.Log(
+                    $"[AI] Storm timeout resolution = {noMoveResult}"
+                );
+
+                return;
+            }
 
             if (this == null ||
                 TurnManager.Instance == null ||
@@ -144,14 +185,44 @@ public class ComputerPlayer : MonoBehaviour
                 );
                 return;
             }
+            // =========================================================
+            // STOCKFISH HAS NO USABLE MOVE
+            // =========================================================
+
+            string normalizedBestMove =
+                bestMoveText?.Trim();
+
+            if (string.IsNullOrWhiteSpace(normalizedBestMove) ||
+                normalizedBestMove == "(none)" ||
+                normalizedBestMove == "0000")
+            {
+                Debug.LogWarning(
+                    $"[AI] Stockfish has NO MOVE for {aiSide}. " +
+                    "Forcing Storm Gambit resolution."
+                );
+
+                StockfishNoMoveResult noMoveResult =
+                    StockfishNoMoveResolver.Resolve(aiSide);
+
+                Debug.Log(
+                    $"[AI] Forced no-move result = {noMoveResult}"
+                );
+
+                return;
+            }
+
+            // =========================================================
+            // NORMAL STOCKFISH MOVE
+            // =========================================================
 
             if (!UciMoveParser.TryParse(
-                bestMoveText,
-                out UciMove move))
+                    bestMoveText,
+                    out UciMove move))
             {
                 Debug.LogError(
                     $"[AI] Could not parse Stockfish move: {bestMoveText}"
                 );
+
                 return;
             }
 
