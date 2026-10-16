@@ -1,9 +1,10 @@
+using System;
 using UnityEngine;
 
 public static class ChessAttackEvaluator
 {
     // =========================================================
-    // FIND KING
+    // LIVE BOARD WRAPPERS
     // =========================================================
 
     public static ChessPiece FindKing(TeamColor team)
@@ -14,14 +15,78 @@ public static class ChessAttackEvaluator
             return null;
         }
 
+        return FindKing(
+            team,
+            ChessBoard.Instance.GetPieceAt
+        );
+    }
+
+    public static bool IsKingInCheck(TeamColor team)
+    {
+        if (ChessBoard.Instance == null)
+            return false;
+
+        return IsKingInCheck(
+            team,
+            ChessBoard.Instance.GetPieceAt
+        );
+    }
+
+    public static bool IsSquareAttacked(
+        Vector2Int square,
+        TeamColor byTeam)
+    {
+        if (ChessBoard.Instance == null)
+            return false;
+
+        return IsSquareAttacked(
+            square,
+            byTeam,
+            ChessBoard.Instance.GetPieceAt
+        );
+    }
+
+    public static bool TryGetAttacker(
+        Vector2Int square,
+        TeamColor byTeam,
+        out ChessPiece attacker)
+    {
+        if (ChessBoard.Instance == null)
+        {
+            attacker = null;
+            return false;
+        }
+
+        return TryGetAttacker(
+            square,
+            byTeam,
+            ChessBoard.Instance.GetPieceAt,
+            out attacker
+        );
+    }
+
+    // =========================================================
+    // GENERIC BOARD VIEW
+    //
+    // These versions work with:
+    // - the real ChessBoard
+    // - simulated board copies
+    // - future replay / AI board states
+    // =========================================================
+
+    public static ChessPiece FindKing(
+        TeamColor team,
+        Func<Vector2Int, ChessPiece> getPieceAt)
+    {
+        if (getPieceAt == null)
+            return null;
+
         for (int x = 0; x < 8; x++)
         {
             for (int y = 0; y < 8; y++)
             {
                 ChessPiece piece =
-                    ChessBoard.Instance.GetPieceAt(
-                        new Vector2Int(x, y)
-                    );
+                    getPieceAt(new Vector2Int(x, y));
 
                 if (piece == null)
                     continue;
@@ -37,15 +102,16 @@ public static class ChessAttackEvaluator
         return null;
     }
 
-    // =========================================================
-    // KING CHECK
-    // =========================================================
-
-    public static bool IsKingInCheck(TeamColor team)
+    public static bool IsKingInCheck(
+        TeamColor team,
+        Func<Vector2Int, ChessPiece> getPieceAt)
     {
-        ChessPiece king = FindKing(team);
+        Vector2Int kingSquare;
 
-        if (king == null)
+        if (!TryFindKingSquare(
+                team,
+                getPieceAt,
+                out kingSquare))
         {
             Debug.LogWarning(
                 $"[CHECK] {team} king was not found."
@@ -55,57 +121,51 @@ public static class ChessAttackEvaluator
         }
 
         TeamColor enemyTeam =
-            team == TeamColor.White
-                ? TeamColor.Black
-                : TeamColor.White;
+            OppositeTeam(team);
 
         return IsSquareAttacked(
-            king.currentCell,
-            enemyTeam
+            kingSquare,
+            enemyTeam,
+            getPieceAt
         );
     }
 
-    // =========================================================
-    // SQUARE ATTACK
-    // =========================================================
-
     public static bool IsSquareAttacked(
         Vector2Int square,
-        TeamColor byTeam)
+        TeamColor byTeam,
+        Func<Vector2Int, ChessPiece> getPieceAt)
     {
         return TryGetAttacker(
             square,
             byTeam,
+            getPieceAt,
             out _
         );
     }
 
-    // Useful later for:
-    // - highlighting the checking piece
-    // - check notifications
-    // - debugging
-    // - checkmate analysis
     public static bool TryGetAttacker(
         Vector2Int square,
         TeamColor byTeam,
+        Func<Vector2Int, ChessPiece> getPieceAt,
         out ChessPiece attacker)
     {
         attacker = null;
 
-        if (ChessBoard.Instance == null)
+        if (getPieceAt == null)
             return false;
 
-        if (!ChessBoard.Instance.IsInsideBoard(square))
+        if (!IsInsideBoard(square))
             return false;
 
         for (int x = 0; x < 8; x++)
         {
             for (int y = 0; y < 8; y++)
             {
+                Vector2Int from =
+                    new Vector2Int(x, y);
+
                 ChessPiece piece =
-                    ChessBoard.Instance.GetPieceAt(
-                        new Vector2Int(x, y)
-                    );
+                    getPieceAt(from);
 
                 if (piece == null)
                     continue;
@@ -113,7 +173,11 @@ public static class ChessAttackEvaluator
                 if (piece.team != byTeam)
                     continue;
 
-                if (CanPieceAttackSquare(piece, square))
+                if (CanPieceAttackSquare(
+                        piece,
+                        from,
+                        square,
+                        getPieceAt))
                 {
                     attacker = piece;
                     return true;
@@ -125,23 +189,44 @@ public static class ChessAttackEvaluator
     }
 
     // =========================================================
-    // RAW ATTACK RULES
+    // RAW PIECE ATTACKS
     // =========================================================
 
     public static bool CanPieceAttackSquare(
         ChessPiece piece,
         Vector2Int target)
     {
-        if (piece == null)
+        if (piece == null ||
+            ChessBoard.Instance == null)
+        {
             return false;
+        }
 
-        if (ChessBoard.Instance == null)
+        return CanPieceAttackSquare(
+            piece,
+            piece.currentCell,
+            target,
+            ChessBoard.Instance.GetPieceAt
+        );
+    }
+
+    public static bool CanPieceAttackSquare(
+        ChessPiece piece,
+        Vector2Int from,
+        Vector2Int target,
+        Func<Vector2Int, ChessPiece> getPieceAt)
+    {
+        if (piece == null ||
+            getPieceAt == null)
+        {
             return false;
+        }
 
-        if (!ChessBoard.Instance.IsInsideBoard(target))
+        if (!IsInsideBoard(from) ||
+            !IsInsideBoard(target))
+        {
             return false;
-
-        Vector2Int from = piece.currentCell;
+        }
 
         if (from == target)
             return false;
@@ -151,12 +236,6 @@ public static class ChessAttackEvaluator
 
         switch (piece.pieceType)
         {
-            // -------------------------------------------------
-            // PAWN
-            // Pawns ATTACK diagonally.
-            // Do not use normal pawn movement here.
-            // -------------------------------------------------
-
             case PieceType.Pawn:
                 {
                     int direction =
@@ -169,10 +248,6 @@ public static class ChessAttackEvaluator
                         dy == direction;
                 }
 
-            // -------------------------------------------------
-            // KNIGHT
-            // -------------------------------------------------
-
             case PieceType.Knight:
                 {
                     int absX = Mathf.Abs(dx);
@@ -183,33 +258,29 @@ public static class ChessAttackEvaluator
                         (absX == 2 && absY == 1);
                 }
 
-            // -------------------------------------------------
-            // BISHOP
-            // -------------------------------------------------
-
             case PieceType.Bishop:
                 {
                     if (Mathf.Abs(dx) != Mathf.Abs(dy))
                         return false;
 
-                    return IsPathClear(from, target);
+                    return IsPathClear(
+                        from,
+                        target,
+                        getPieceAt
+                    );
                 }
-
-            // -------------------------------------------------
-            // ROOK
-            // -------------------------------------------------
 
             case PieceType.Rook:
                 {
                     if (dx != 0 && dy != 0)
                         return false;
 
-                    return IsPathClear(from, target);
+                    return IsPathClear(
+                        from,
+                        target,
+                        getPieceAt
+                    );
                 }
-
-            // -------------------------------------------------
-            // QUEEN
-            // -------------------------------------------------
 
             case PieceType.Queen:
                 {
@@ -222,16 +293,12 @@ public static class ChessAttackEvaluator
                     if (!diagonal && !straight)
                         return false;
 
-                    return IsPathClear(from, target);
+                    return IsPathClear(
+                        from,
+                        target,
+                        getPieceAt
+                    );
                 }
-
-            // -------------------------------------------------
-            // KING
-            //
-            // IMPORTANT:
-            // Only adjacent attacks.
-            // Castling is NOT an attack.
-            // -------------------------------------------------
 
             case PieceType.King:
                 {
@@ -246,12 +313,45 @@ public static class ChessAttackEvaluator
     }
 
     // =========================================================
-    // SLIDING PIECE PATH CHECK
+    // HELPERS
     // =========================================================
+
+    private static bool TryFindKingSquare(
+        TeamColor team,
+        Func<Vector2Int, ChessPiece> getPieceAt,
+        out Vector2Int kingSquare)
+    {
+        kingSquare = new Vector2Int(-1, -1);
+
+        for (int x = 0; x < 8; x++)
+        {
+            for (int y = 0; y < 8; y++)
+            {
+                Vector2Int cell =
+                    new Vector2Int(x, y);
+
+                ChessPiece piece =
+                    getPieceAt(cell);
+
+                if (piece == null)
+                    continue;
+
+                if (piece.team == team &&
+                    piece.pieceType == PieceType.King)
+                {
+                    kingSquare = cell;
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
 
     private static bool IsPathClear(
         Vector2Int from,
-        Vector2Int target)
+        Vector2Int target,
+        Func<Vector2Int, ChessPiece> getPieceAt)
     {
         int stepX =
             target.x == from.x
@@ -273,16 +373,34 @@ public static class ChessAttackEvaluator
                 from.y + stepY
             );
 
-        // Stop BEFORE the target.
-        // The target itself may contain the enemy king.
         while (current != target)
         {
-            if (ChessBoard.Instance.GetPieceAt(current) != null)
+            if (getPieceAt(current) != null)
                 return false;
 
-            current += new Vector2Int(stepX, stepY);
+            current +=
+                new Vector2Int(stepX, stepY);
         }
 
         return true;
+    }
+
+    private static bool IsInsideBoard(
+        Vector2Int cell)
+    {
+        return
+            cell.x >= 0 &&
+            cell.x < 8 &&
+            cell.y >= 0 &&
+            cell.y < 8;
+    }
+
+    public static TeamColor OppositeTeam(
+        TeamColor team)
+    {
+        return
+            team == TeamColor.White
+                ? TeamColor.Black
+                : TeamColor.White;
     }
 }
