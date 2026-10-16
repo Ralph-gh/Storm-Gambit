@@ -7334,6 +7334,10 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 1608706766}
     - target: {fileID: 792507812601018810, guid: 45b56ce7f186f2e41b144c2ab94f3364, type: 3}
+      propertyPath: thunderClip
+      value: 
+      objectReference: {fileID: 8300000, guid: 0fb6028fa8d1d434fba62d5b12be0c94, type: 3}
+    - target: {fileID: 792507812601018810, guid: 45b56ce7f186f2e41b144c2ab94f3364, type: 3}
       propertyPath: warningDelay
       value: 0.1
       objectReference: {fileID: 0}
@@ -7384,6 +7388,10 @@ PrefabInstance:
     - target: {fileID: 4187731101055398248, guid: 45b56ce7f186f2e41b144c2ab94f3364, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5728132098323827005, guid: 45b56ce7f186f2e41b144c2ab94f3364, type: 3}
+      propertyPath: m_Volume
+      value: 0.12
       objectReference: {fileID: 0}
     - target: {fileID: 8541394734622065992, guid: 45b56ce7f186f2e41b144c2ab94f3364, type: 3}
       propertyPath: m_Name
