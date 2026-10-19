@@ -50,15 +50,9 @@ public static class StockfishNoMoveResolver
         // Do NOT use classical king-safety rules here.
         // =====================================================
 
-        if (TryCaptureHumanKing(
-                aiTeam,
-                humanTeam))
+        if (TryCaptureHumanKing(aiTeam, humanTeam))
         {
-            Debug.Log(
-                "[NO MOVE] Human king was capturable. " +
-                "Forced king capture executed."
-            );
-
+            Debug.Log("[NO MOVE] Human king is capturable. King Slayer sequence started.");
             return StockfishNoMoveResult.HumanKingCaptured;
         }
 
@@ -230,30 +224,38 @@ public static class StockfishNoMoveResolver
                     promotion = PieceType.Queen;
                 }
 
-                bool executed =
-                    attacker.TryExecuteAIMove(
-                        kingSquare,
-                        promotion
-                    );
+                // =====================================================
+                // KING SLAYER CINEMATIC
+                // =====================================================
 
-                if (executed)
+                if (KingSlaySequenceController.Instance != null)
                 {
-                    // Ensure Solo victory UI appears even if
-                    // CapturePiece only handled gameOver itself.
-                    if (ChessBoard.Instance.gameOver)
-                    {
-                        DeclareHumanLossByCapture(
-                            aiTeam
-                        );
-                    }
+                    Debug.Log("[NO MOVE] Starting King Slayer cinematic.");
 
+                    KingSlaySequenceController.Instance.Play(attacker, humanKing, kingSquare, promotion);
+
+                    // The cinematic performs the real TryExecuteAIMove
+                    // after the sword sequence finishes.
                     return true;
                 }
 
-                Debug.LogWarning(
-                    "[NO MOVE] Forced king capture was found " +
-                    "but TryExecuteAIMove rejected it."
-                );
+                // =====================================================
+                // FALLBACK
+                // Keep the original capture working if the cinematic
+                // controller is ever missing from the scene.
+                // =====================================================
+
+                Debug.LogWarning("[NO MOVE] KingSlaySequenceController missing. Using direct king capture.");
+
+                bool executed = attacker.TryExecuteAIMove(kingSquare, promotion);
+
+                if (executed)
+                {
+                    if (ChessBoard.Instance.gameOver) DeclareHumanLossByCapture(aiTeam);
+                    return true;
+                }
+
+                Debug.LogWarning("[NO MOVE] Forced king capture was found but TryExecuteAIMove rejected it.");
             }
         }
 
