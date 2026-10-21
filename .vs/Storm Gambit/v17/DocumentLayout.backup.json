@@ -3,15 +3,23 @@
   "WorkspaceRootPath": "C:\\Users\\Ralph Ghnatios\\Storm Gambit\\",
   "Documents": [
     {
+      "AbsoluteMoniker": "D:0:0:{4F775C81-8B19-1FBE-4E5F-B4483DFBD379}|Assembly-CSharp.csproj|C:\\Users\\Ralph Ghnatios\\Storm Gambit\\assets\\scripts\\network\\gamestat.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{4F775C81-8B19-1FBE-4E5F-B4483DFBD379}|Assembly-CSharp.csproj|solutionrelative:assets\\scripts\\network\\gamestat.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
       "AbsoluteMoniker": "D:0:0:{4F775C81-8B19-1FBE-4E5F-B4483DFBD379}|Assembly-CSharp.csproj|c:\\users\\ralph ghnatios\\storm gambit\\assets\\scripts\\ai\\stockfishnomoveresolver.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{4F775C81-8B19-1FBE-4E5F-B4483DFBD379}|Assembly-CSharp.csproj|solutionrelative:assets\\scripts\\ai\\stockfishnomoveresolver.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{4F775C81-8B19-1FBE-4E5F-B4483DFBD379}|Assembly-CSharp.csproj|c:\\users\\ralph ghnatios\\storm gambit\\assets\\scripts\\ai\\kingslayersequencecontrol.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "AbsoluteMoniker": "D:0:0:{4F775C81-8B19-1FBE-4E5F-B4483DFBD379}|Assembly-CSharp.csproj|C:\\Users\\Ralph Ghnatios\\Storm Gambit\\assets\\scripts\\spells scripts and prefabs\\resurrection\\resurrectionspellui.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{4F775C81-8B19-1FBE-4E5F-B4483DFBD379}|Assembly-CSharp.csproj|solutionrelative:assets\\scripts\\spells scripts and prefabs\\resurrection\\resurrectionspellui.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{4F775C81-8B19-1FBE-4E5F-B4483DFBD379}|Assembly-CSharp.csproj|C:\\Users\\Ralph Ghnatios\\Storm Gambit\\assets\\scripts\\ai\\kingslayersequencecontrol.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{4F775C81-8B19-1FBE-4E5F-B4483DFBD379}|Assembly-CSharp.csproj|solutionrelative:assets\\scripts\\ai\\kingslayersequencecontrol.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{4F775C81-8B19-1FBE-4E5F-B4483DFBD379}|Assembly-CSharp.csproj|c:\\users\\ralph ghnatios\\storm gambit\\assets\\scripts\\ai\\stockfishengine.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "AbsoluteMoniker": "D:0:0:{4F775C81-8B19-1FBE-4E5F-B4483DFBD379}|Assembly-CSharp.csproj|C:\\Users\\Ralph Ghnatios\\Storm Gambit\\assets\\scripts\\ai\\stockfishengine.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{4F775C81-8B19-1FBE-4E5F-B4483DFBD379}|Assembly-CSharp.csproj|solutionrelative:assets\\scripts\\ai\\stockfishengine.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
@@ -83,10 +91,6 @@
       "RelativeMoniker": "D:0:0:{4F775C81-8B19-1FBE-4E5F-B4483DFBD379}|Assembly-CSharp.csproj|solutionrelative:assets\\scripts\\chess game\\chessboard.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{4F775C81-8B19-1FBE-4E5F-B4483DFBD379}|Assembly-CSharp.csproj|C:\\Users\\Ralph Ghnatios\\Storm Gambit\\assets\\scripts\\network\\gamestat.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{4F775C81-8B19-1FBE-4E5F-B4483DFBD379}|Assembly-CSharp.csproj|solutionrelative:assets\\scripts\\network\\gamestat.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
       "AbsoluteMoniker": "D:0:0:{4F775C81-8B19-1FBE-4E5F-B4483DFBD379}|Assembly-CSharp.csproj|C:\\Users\\Ralph Ghnatios\\Storm Gambit\\assets\\scripts\\turn manager\\spellcaststate.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{4F775C81-8B19-1FBE-4E5F-B4483DFBD379}|Assembly-CSharp.csproj|solutionrelative:assets\\scripts\\turn manager\\spellcaststate.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
@@ -113,10 +117,6 @@
     {
       "AbsoluteMoniker": "D:0:0:{4F775C81-8B19-1FBE-4E5F-B4483DFBD379}|Assembly-CSharp.csproj|C:\\Users\\Ralph Ghnatios\\Storm Gambit\\assets\\scripts\\spells scripts and prefabs\\explosive trap\\explosivetrapui.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{4F775C81-8B19-1FBE-4E5F-B4483DFBD379}|Assembly-CSharp.csproj|solutionrelative:assets\\scripts\\spells scripts and prefabs\\explosive trap\\explosivetrapui.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{4F775C81-8B19-1FBE-4E5F-B4483DFBD379}|Assembly-CSharp.csproj|C:\\Users\\Ralph Ghnatios\\Storm Gambit\\assets\\scripts\\spells scripts and prefabs\\resurrection\\resurrectionspellui.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{4F775C81-8B19-1FBE-4E5F-B4483DFBD379}|Assembly-CSharp.csproj|solutionrelative:assets\\scripts\\spells scripts and prefabs\\resurrection\\resurrectionspellui.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{4F775C81-8B19-1FBE-4E5F-B4483DFBD379}|Assembly-CSharp.csproj|C:\\Users\\Ralph Ghnatios\\Storm Gambit\\assets\\scripts\\turn manager\\spellcastlocktoken.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
@@ -154,11 +154,72 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 0,
+          "SelectedChildIndex": 6,
           "Children": [
             {
               "$type": "Document",
-              "DocumentIndex": 0,
+              "DocumentIndex": 9,
+              "Title": "ChessMoveValidator.cs",
+              "DocumentMoniker": "C:\\Users\\Ralph Ghnatios\\Storm Gambit\\Assets\\Scripts\\Chess Game\\Rules\\ChessMoveValidator.cs",
+              "RelativeDocumentMoniker": "Assets\\Scripts\\Chess Game\\Rules\\ChessMoveValidator.cs",
+              "ToolTip": "C:\\Users\\Ralph Ghnatios\\Storm Gambit\\Assets\\Scripts\\Chess Game\\Rules\\ChessMoveValidator.cs",
+              "RelativeToolTip": "Assets\\Scripts\\Chess Game\\Rules\\ChessMoveValidator.cs",
+              "ViewState": "AgIAAOYAAAAAAAAAAAAAAAkBAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-10-16T02:53:49.011Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 5,
+              "Title": "ComputerPlayer.cs",
+              "DocumentMoniker": "C:\\Users\\Ralph Ghnatios\\Storm Gambit\\Assets\\Scripts\\AI\\ComputerPlayer.cs",
+              "RelativeDocumentMoniker": "Assets\\Scripts\\AI\\ComputerPlayer.cs",
+              "ToolTip": "C:\\Users\\Ralph Ghnatios\\Storm Gambit\\Assets\\Scripts\\AI\\ComputerPlayer.cs",
+              "RelativeToolTip": "Assets\\Scripts\\AI\\ComputerPlayer.cs",
+              "ViewState": "AgIAAMYAAAAAAAAAAIBJwOIAAAANAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-10-01T19:53:52.92Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 8,
+              "Title": "MoveValidationDebugtester.cs",
+              "DocumentMoniker": "C:\\Users\\Ralph Ghnatios\\Storm Gambit\\Assets\\Scripts\\Chess Game\\Rules\\MoveValidationDebugtester.cs",
+              "RelativeDocumentMoniker": "Assets\\Scripts\\Chess Game\\Rules\\MoveValidationDebugtester.cs",
+              "ToolTip": "C:\\Users\\Ralph Ghnatios\\Storm Gambit\\Assets\\Scripts\\Chess Game\\Rules\\MoveValidationDebugtester.cs",
+              "RelativeToolTip": "Assets\\Scripts\\Chess Game\\Rules\\MoveValidationDebugtester.cs",
+              "ViewState": "AgIAABwAAAAAAAAAAAAuwEAAAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-10-16T02:55:00.329Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 4,
+              "Title": "StockfishEngine.cs",
+              "DocumentMoniker": "C:\\Users\\Ralph Ghnatios\\Storm Gambit\\Assets\\Scripts\\AI\\StockfishEngine.cs",
+              "RelativeDocumentMoniker": "Assets\\Scripts\\AI\\StockfishEngine.cs",
+              "ToolTip": "C:\\Users\\Ralph Ghnatios\\Storm Gambit\\Assets\\Scripts\\AI\\StockfishEngine.cs",
+              "RelativeToolTip": "Assets\\Scripts\\AI\\StockfishEngine.cs",
+              "ViewState": "AgIAALYAAAAAAAAAAAAWwMoAAAAJAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-10-01T05:54:37.036Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "ResurrectionSpellUI.cs",
+              "DocumentMoniker": "C:\\Users\\Ralph Ghnatios\\Storm Gambit\\Assets\\Scripts\\Spells Scripts and prefabs\\Resurrection\\ResurrectionSpellUI.cs",
+              "RelativeDocumentMoniker": "Assets\\Scripts\\Spells Scripts and prefabs\\Resurrection\\ResurrectionSpellUI.cs",
+              "ToolTip": "C:\\Users\\Ralph Ghnatios\\Storm Gambit\\Assets\\Scripts\\Spells Scripts and prefabs\\Resurrection\\ResurrectionSpellUI.cs",
+              "RelativeToolTip": "Assets\\Scripts\\Spells Scripts and prefabs\\Resurrection\\ResurrectionSpellUI.cs",
+              "ViewState": "AgIAAE4AAAAAAAAAAAAAAFoAAABFAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-09-29T16:20:54.252Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
               "Title": "StockfishNoMoveResolver.cs",
               "DocumentMoniker": "C:\\Users\\Ralph Ghnatios\\Storm Gambit\\Assets\\Scripts\\AI\\StockfishNoMoveResolver.cs",
               "RelativeDocumentMoniker": "Assets\\Scripts\\AI\\StockfishNoMoveResolver.cs",
@@ -171,44 +232,20 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 1,
-              "Title": "KingSlayerSequenceControl.cs",
-              "DocumentMoniker": "C:\\Users\\Ralph Ghnatios\\Storm Gambit\\Assets\\Scripts\\AI\\KingSlayerSequenceControl.cs",
-              "RelativeDocumentMoniker": "Assets\\Scripts\\AI\\KingSlayerSequenceControl.cs",
-              "ToolTip": "C:\\Users\\Ralph Ghnatios\\Storm Gambit\\Assets\\Scripts\\AI\\KingSlayerSequenceControl.cs",
-              "RelativeToolTip": "Assets\\Scripts\\AI\\KingSlayerSequenceControl.cs",
-              "ViewState": "AgIAAA8CAAAAAAAAAAD4vyECAAABAAAAAAAAAA==",
+              "DocumentIndex": 0,
+              "Title": "GameStat.cs",
+              "DocumentMoniker": "C:\\Users\\Ralph Ghnatios\\Storm Gambit\\Assets\\Scripts\\Network\\GameStat.cs",
+              "RelativeDocumentMoniker": "Assets\\Scripts\\Network\\GameStat.cs",
+              "ToolTip": "C:\\Users\\Ralph Ghnatios\\Storm Gambit\\Assets\\Scripts\\Network\\GameStat.cs",
+              "RelativeToolTip": "Assets\\Scripts\\Network\\GameStat.cs",
+              "ViewState": "AgIAABcEAAAAAAAAAAAgwDUEAAAmAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-10-19T14:57:47.801Z",
+              "WhenOpened": "2026-09-18T20:14:38.269Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 10,
-              "Title": "ChessPositionSimulator.cs",
-              "DocumentMoniker": "C:\\Users\\Ralph Ghnatios\\Storm Gambit\\Assets\\Scripts\\Chess Game\\Rules\\ChessPositionSimulator.cs",
-              "RelativeDocumentMoniker": "Assets\\Scripts\\Chess Game\\Rules\\ChessPositionSimulator.cs",
-              "ToolTip": "C:\\Users\\Ralph Ghnatios\\Storm Gambit\\Assets\\Scripts\\Chess Game\\Rules\\ChessPositionSimulator.cs",
-              "RelativeToolTip": "Assets\\Scripts\\Chess Game\\Rules\\ChessPositionSimulator.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAABABAAABAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-10-16T02:34:06.856Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 12,
-              "Title": "CheckDebugtester.cs",
-              "DocumentMoniker": "C:\\Users\\Ralph Ghnatios\\Storm Gambit\\Assets\\Scripts\\Chess Game\\Rules\\CheckDebugtester.cs",
-              "RelativeDocumentMoniker": "Assets\\Scripts\\Chess Game\\Rules\\CheckDebugtester.cs",
-              "ToolTip": "C:\\Users\\Ralph Ghnatios\\Storm Gambit\\Assets\\Scripts\\Chess Game\\Rules\\CheckDebugtester.cs",
-              "RelativeToolTip": "Assets\\Scripts\\Chess Game\\Rules\\CheckDebugtester.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAoAAAAFAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-10-16T02:11:06.547Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 5,
+              "DocumentIndex": 7,
               "Title": "StockfishAItest.cs",
               "DocumentMoniker": "C:\\Users\\Ralph Ghnatios\\Storm Gambit\\Assets\\Scripts\\AI\\StockfishAItest.cs",
               "RelativeDocumentMoniker": "Assets\\Scripts\\AI\\StockfishAItest.cs",
@@ -220,56 +257,43 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 7,
-              "Title": "ChessMoveValidator.cs",
-              "DocumentMoniker": "C:\\Users\\Ralph Ghnatios\\Storm Gambit\\Assets\\Scripts\\Chess Game\\Rules\\ChessMoveValidator.cs",
-              "RelativeDocumentMoniker": "Assets\\Scripts\\Chess Game\\Rules\\ChessMoveValidator.cs",
-              "ToolTip": "C:\\Users\\Ralph Ghnatios\\Storm Gambit\\Assets\\Scripts\\Chess Game\\Rules\\ChessMoveValidator.cs",
-              "RelativeToolTip": "Assets\\Scripts\\Chess Game\\Rules\\ChessMoveValidator.cs",
-              "ViewState": "AgIAAOYAAAAAAAAAAAAAAAkBAAABAAAAAAAAAA==",
+              "DocumentIndex": 14,
+              "Title": "CheckDebugtester.cs",
+              "DocumentMoniker": "C:\\Users\\Ralph Ghnatios\\Storm Gambit\\Assets\\Scripts\\Chess Game\\Rules\\CheckDebugtester.cs",
+              "RelativeDocumentMoniker": "Assets\\Scripts\\Chess Game\\Rules\\CheckDebugtester.cs",
+              "ToolTip": "C:\\Users\\Ralph Ghnatios\\Storm Gambit\\Assets\\Scripts\\Chess Game\\Rules\\CheckDebugtester.cs",
+              "RelativeToolTip": "Assets\\Scripts\\Chess Game\\Rules\\CheckDebugtester.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAoAAAAFAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-10-16T02:53:49.011Z"
+              "WhenOpened": "2026-10-16T02:11:06.547Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 12,
+              "Title": "ChessPositionSimulator.cs",
+              "DocumentMoniker": "C:\\Users\\Ralph Ghnatios\\Storm Gambit\\Assets\\Scripts\\Chess Game\\Rules\\ChessPositionSimulator.cs",
+              "RelativeDocumentMoniker": "Assets\\Scripts\\Chess Game\\Rules\\ChessPositionSimulator.cs",
+              "ToolTip": "C:\\Users\\Ralph Ghnatios\\Storm Gambit\\Assets\\Scripts\\Chess Game\\Rules\\ChessPositionSimulator.cs",
+              "RelativeToolTip": "Assets\\Scripts\\Chess Game\\Rules\\ChessPositionSimulator.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABABAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-10-16T02:34:06.856Z"
             },
             {
               "$type": "Document",
               "DocumentIndex": 3,
-              "Title": "ComputerPlayer.cs",
-              "DocumentMoniker": "C:\\Users\\Ralph Ghnatios\\Storm Gambit\\Assets\\Scripts\\AI\\ComputerPlayer.cs",
-              "RelativeDocumentMoniker": "Assets\\Scripts\\AI\\ComputerPlayer.cs",
-              "ToolTip": "C:\\Users\\Ralph Ghnatios\\Storm Gambit\\Assets\\Scripts\\AI\\ComputerPlayer.cs",
-              "RelativeToolTip": "Assets\\Scripts\\AI\\ComputerPlayer.cs",
-              "ViewState": "AgIAAMYAAAAAAAAAAIBJwOIAAAANAAAAAAAAAA==",
+              "Title": "KingSlayerSequenceControl.cs",
+              "DocumentMoniker": "C:\\Users\\Ralph Ghnatios\\Storm Gambit\\Assets\\Scripts\\AI\\KingSlayerSequenceControl.cs",
+              "RelativeDocumentMoniker": "Assets\\Scripts\\AI\\KingSlayerSequenceControl.cs",
+              "ToolTip": "C:\\Users\\Ralph Ghnatios\\Storm Gambit\\Assets\\Scripts\\AI\\KingSlayerSequenceControl.cs",
+              "RelativeToolTip": "Assets\\Scripts\\AI\\KingSlayerSequenceControl.cs",
+              "ViewState": "AgIAAA8CAAAAAAAAAAD4vyECAAABAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-10-01T19:53:52.92Z"
+              "WhenOpened": "2026-10-19T14:57:47.801Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 6,
-              "Title": "MoveValidationDebugtester.cs",
-              "DocumentMoniker": "C:\\Users\\Ralph Ghnatios\\Storm Gambit\\Assets\\Scripts\\Chess Game\\Rules\\MoveValidationDebugtester.cs",
-              "RelativeDocumentMoniker": "Assets\\Scripts\\Chess Game\\Rules\\MoveValidationDebugtester.cs",
-              "ToolTip": "C:\\Users\\Ralph Ghnatios\\Storm Gambit\\Assets\\Scripts\\Chess Game\\Rules\\MoveValidationDebugtester.cs",
-              "RelativeToolTip": "Assets\\Scripts\\Chess Game\\Rules\\MoveValidationDebugtester.cs",
-              "ViewState": "AgIAABwAAAAAAAAAAAAuwEAAAAABAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-10-16T02:55:00.329Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 2,
-              "Title": "StockfishEngine.cs",
-              "DocumentMoniker": "C:\\Users\\Ralph Ghnatios\\Storm Gambit\\Assets\\Scripts\\AI\\StockfishEngine.cs",
-              "RelativeDocumentMoniker": "Assets\\Scripts\\AI\\StockfishEngine.cs",
-              "ToolTip": "C:\\Users\\Ralph Ghnatios\\Storm Gambit\\Assets\\Scripts\\AI\\StockfishEngine.cs",
-              "RelativeToolTip": "Assets\\Scripts\\AI\\StockfishEngine.cs",
-              "ViewState": "AgIAALYAAAAAAAAAAAAWwMoAAAAJAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-10-01T05:54:37.036Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 9,
+              "DocumentIndex": 11,
               "Title": "TextMeshProFloatingText.cs",
               "DocumentMoniker": "C:\\Users\\Ralph Ghnatios\\Storm Gambit\\Assets\\TextMesh Pro\\Examples \u0026 Extras\\Scripts\\TextMeshProFloatingText.cs",
               "RelativeDocumentMoniker": "Assets\\TextMesh Pro\\Examples \u0026 Extras\\Scripts\\TextMeshProFloatingText.cs",
@@ -281,7 +305,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 8,
+              "DocumentIndex": 10,
               "Title": "PositionSimulatorDebugtester.cs",
               "DocumentMoniker": "C:\\Users\\Ralph Ghnatios\\Storm Gambit\\Assets\\Scripts\\Chess Game\\Rules\\PositionSimulatorDebugtester.cs",
               "RelativeDocumentMoniker": "Assets\\Scripts\\Chess Game\\Rules\\PositionSimulatorDebugtester.cs",
@@ -293,7 +317,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 4,
+              "DocumentIndex": 6,
               "Title": "StockfishNoMoveDebugTester.cs",
               "DocumentMoniker": "C:\\Users\\Ralph Ghnatios\\Storm Gambit\\Assets\\Scripts\\AI\\StockfishNoMoveDebugTester.cs",
               "RelativeDocumentMoniker": "Assets\\Scripts\\AI\\StockfishNoMoveDebugTester.cs",
@@ -305,7 +329,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 11,
+              "DocumentIndex": 13,
               "Title": "ChessAttackEvaluator.cs",
               "DocumentMoniker": "C:\\Users\\Ralph Ghnatios\\Storm Gambit\\Assets\\Scripts\\Chess Game\\Rules\\ChessAttackEvaluator.cs",
               "RelativeDocumentMoniker": "Assets\\Scripts\\Chess Game\\Rules\\ChessAttackEvaluator.cs",
@@ -317,7 +341,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 16,
+              "DocumentIndex": 18,
               "Title": "CardDrawer.cs",
               "DocumentMoniker": "C:\\Users\\Ralph Ghnatios\\Storm Gambit\\Assets\\Scripts\\Cards\\CardDrawer.cs",
               "RelativeDocumentMoniker": "Assets\\Scripts\\Cards\\CardDrawer.cs",
@@ -329,7 +353,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 22,
+              "DocumentIndex": 23,
               "Title": "CardUI.cs",
               "DocumentMoniker": "C:\\Users\\Ralph Ghnatios\\Storm Gambit\\Assets\\Scripts\\Cards\\CardUI.cs",
               "RelativeDocumentMoniker": "Assets\\Scripts\\Cards\\CardUI.cs",
@@ -341,7 +365,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 21,
+              "DocumentIndex": 22,
               "Title": "SpellCastState.cs",
               "DocumentMoniker": "C:\\Users\\Ralph Ghnatios\\Storm Gambit\\Assets\\Scripts\\Turn Manager\\SpellCastState.cs",
               "RelativeDocumentMoniker": "Assets\\Scripts\\Turn Manager\\SpellCastState.cs",
@@ -353,7 +377,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 14,
+              "DocumentIndex": 16,
               "Title": "LightningBoltVisual.cs",
               "DocumentMoniker": "C:\\Users\\Ralph Ghnatios\\Storm Gambit\\Assets\\Scripts\\Spells Scripts and prefabs\\LightningBolt\\LightningBoltVisual.cs",
               "RelativeDocumentMoniker": "Assets\\Scripts\\Spells Scripts and prefabs\\LightningBolt\\LightningBoltVisual.cs",
@@ -365,19 +389,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 20,
-              "Title": "GameStat.cs",
-              "DocumentMoniker": "C:\\Users\\Ralph Ghnatios\\Storm Gambit\\Assets\\Scripts\\Network\\GameStat.cs",
-              "RelativeDocumentMoniker": "Assets\\Scripts\\Network\\GameStat.cs",
-              "ToolTip": "C:\\Users\\Ralph Ghnatios\\Storm Gambit\\Assets\\Scripts\\Network\\GameStat.cs",
-              "RelativeToolTip": "Assets\\Scripts\\Network\\GameStat.cs",
-              "ViewState": "AgIAAAcEAAAAAAAAAAAqwCEEAAAdAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-09-18T20:14:38.269Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 19,
+              "DocumentIndex": 21,
               "Title": "ChessBoard.cs",
               "DocumentMoniker": "C:\\Users\\Ralph Ghnatios\\Storm Gambit\\Assets\\Scripts\\Chess Game\\ChessBoard.cs",
               "RelativeDocumentMoniker": "Assets\\Scripts\\Chess Game\\ChessBoard.cs",
@@ -389,7 +401,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 13,
+              "DocumentIndex": 15,
               "Title": "LightningStrikeVFX.cs",
               "DocumentMoniker": "C:\\Users\\Ralph Ghnatios\\Storm Gambit\\Assets\\Scripts\\Spells Scripts and prefabs\\LightningBolt\\LightningStrikeVFX.cs",
               "RelativeDocumentMoniker": "Assets\\Scripts\\Spells Scripts and prefabs\\LightningBolt\\LightningStrikeVFX.cs",
@@ -401,7 +413,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 23,
+              "DocumentIndex": 24,
               "Title": "CharacterChoicePanel.cs",
               "DocumentMoniker": "C:\\Users\\Ralph Ghnatios\\Storm Gambit\\Assets\\Scripts\\Characters\\CharacterChoicePanel.cs",
               "RelativeDocumentMoniker": "Assets\\Scripts\\Characters\\CharacterChoicePanel.cs",
@@ -413,7 +425,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 17,
+              "DocumentIndex": 19,
               "Title": "AndroidManifest.xml",
               "DocumentMoniker": "C:\\Users\\Ralph Ghnatios\\Storm Gambit\\Assets\\Plugins\\Android\\AndroidManifest.xml",
               "RelativeDocumentMoniker": "Assets\\Plugins\\Android\\AndroidManifest.xml",
@@ -425,7 +437,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 15,
+              "DocumentIndex": 17,
               "Title": "SoloCardDrawController.cs",
               "DocumentMoniker": "C:\\Users\\Ralph Ghnatios\\Storm Gambit\\Assets\\Scripts\\Cards\\SoloCardDrawController.cs",
               "RelativeDocumentMoniker": "Assets\\Scripts\\Cards\\SoloCardDrawController.cs",
@@ -437,7 +449,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 18,
+              "DocumentIndex": 20,
               "Title": "ChessPiece.cs",
               "DocumentMoniker": "C:\\Users\\Ralph Ghnatios\\Storm Gambit\\Assets\\Scripts\\Chess Game\\ChessPiece.cs",
               "RelativeDocumentMoniker": "Assets\\Scripts\\Chess Game\\ChessPiece.cs",
@@ -449,7 +461,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 25,
+              "DocumentIndex": 26,
               "Title": "MainMenu.cs",
               "DocumentMoniker": "C:\\Users\\Ralph Ghnatios\\Storm Gambit\\Assets\\Scripts\\Main Menu\\MainMenu.cs",
               "RelativeDocumentMoniker": "Assets\\Scripts\\Main Menu\\MainMenu.cs",
@@ -461,7 +473,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 24,
+              "DocumentIndex": 25,
               "Title": "SpellCardPreviewTrigger.cs",
               "DocumentMoniker": "C:\\Users\\Ralph Ghnatios\\Storm Gambit\\Assets\\Scripts\\UI\\SpellCardPreviewTrigger.cs",
               "RelativeDocumentMoniker": "Assets\\Scripts\\UI\\SpellCardPreviewTrigger.cs",
@@ -485,7 +497,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 26,
+              "DocumentIndex": 27,
               "Title": "StormFenBuilder.cs",
               "DocumentMoniker": "C:\\Users\\Ralph Ghnatios\\Storm Gambit\\Assets\\Scripts\\AI\\StormFenBuilder.cs",
               "RelativeDocumentMoniker": "Assets\\Scripts\\AI\\StormFenBuilder.cs",
@@ -510,18 +522,6 @@
             {
               "$type": "Document",
               "DocumentIndex": 28,
-              "Title": "ResurrectionSpellUI.cs",
-              "DocumentMoniker": "C:\\Users\\Ralph Ghnatios\\Storm Gambit\\Assets\\Scripts\\Spells Scripts and prefabs\\Resurrection\\ResurrectionSpellUI.cs",
-              "RelativeDocumentMoniker": "Assets\\Scripts\\Spells Scripts and prefabs\\Resurrection\\ResurrectionSpellUI.cs",
-              "ToolTip": "C:\\Users\\Ralph Ghnatios\\Storm Gambit\\Assets\\Scripts\\Spells Scripts and prefabs\\Resurrection\\ResurrectionSpellUI.cs",
-              "RelativeToolTip": "Assets\\Scripts\\Spells Scripts and prefabs\\Resurrection\\ResurrectionSpellUI.cs",
-              "ViewState": "AgIAAC8AAAAAAAAAAAAqwE0AAAA5AAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-09-29T16:20:54.252Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 27,
               "Title": "ExplosiveTrapUI.cs",
               "DocumentMoniker": "C:\\Users\\Ralph Ghnatios\\Storm Gambit\\Assets\\Scripts\\Spells Scripts and prefabs\\Explosive Trap\\ExplosiveTrapUI.cs",
               "RelativeDocumentMoniker": "Assets\\Scripts\\Spells Scripts and prefabs\\Explosive Trap\\ExplosiveTrapUI.cs",

@@ -61,24 +61,57 @@ public class ResurrectionSpellUI : MonoBehaviour
             Debug.Log("No available square to resurrect.");
             return;
         }
+        // Get the prefab stored with the captured piece.
+        // Fallback to BoardInitializer in case an older graveyard entry
+        // was created before originalPrefab was preserved.
+        GameObject prefab = data.originalPrefab;
+
+        if (prefab == null && BoardInitializer.Instance != null)
+        {
+            prefab = BoardInitializer.Instance.GetPrefab(
+                data.team,
+                data.pieceType
+            );
+        }
+
+        if (prefab == null)
+        {
+            Debug.LogError(
+                $"[RESURRECTION] No prefab found for {data.team} {data.pieceType}."
+            );
+            return;
+        }
+
         GameObject resurrected = Instantiate(
-           data.originalPrefab,
-           BoardInitializer.Instance.GetWorldPosition(spawn),
-           Quaternion.identity);
-            ChessPiece newPiece = resurrected.GetComponent<ChessPiece>();
-            newPiece.team = data.team;
-            newPiece.pieceType = data.pieceType;
-            newPiece.pieceSprite = data.pieceSprite;
+            prefab,
+            BoardInitializer.Instance.GetWorldPosition(spawn),
+            Quaternion.identity
+        );
 
-            newPiece.SetPosition(spawn, BoardInitializer.Instance.GetWorldPosition(spawn));
-            newPiece.MarkAsResurrected();
-            BoardFlipController.Instance?.ApplyOrientation(newPiece);
-            ChessBoard.Instance.PlacePiece(newPiece, spawn);
+        ChessPiece newPiece = resurrected.GetComponent<ChessPiece>();
 
-            // NEW: resurrected pieces cannot move immediately
-            newPiece.ApplyStunOneTurn();
+        newPiece.team = data.team;
+        newPiece.pieceType = data.pieceType;
+        newPiece.pieceSprite = data.pieceSprite;
 
-        ChessBoard.Instance.graveyard.RemoveCapturedPiece(data);
+        // IMPORTANT:
+        // Preserve resurrection information if this piece is captured again.
+        newPiece.originalPrefab = prefab;
+        newPiece.startingCell = data.originalPosition;
+
+        newPiece.SetPosition(
+            spawn,
+            BoardInitializer.Instance.GetWorldPosition(spawn)
+        );
+
+        newPiece.MarkAsResurrected();
+
+        BoardFlipController.Instance?.ApplyOrientation(newPiece);
+
+        ChessBoard.Instance.PlacePiece(newPiece, spawn);
+
+        // Use ChessBoard wrapper so OnGraveyardChanged is raised.
+        ChessBoard.Instance.RemoveCapturedPiece(data);
 
         if (TurnManager.Instance.IsPlayersTurn(data.team))
                 TurnManager.Instance.RegisterFreeSpellCast();

@@ -956,6 +956,41 @@ public class GameState : NetworkBehaviour
     public void ResurrectServerRpc(TeamColor team, PieceType pieceType, int spawnX, int spawnY, RpcParams p = default)
     {
         Vector2Int requested = new Vector2Int(spawnX, spawnY);
+        NetPlayer player = NetPlayer.FindByClient(
+    p.Receive.SenderClientId
+);
+
+        if (player == null ||
+            player.Side.Value != CurrentTurn.Value ||
+            player.Side.Value != team)
+        {
+            Debug.LogWarning(
+                "[RESURRECTION] Rejected: invalid player or turn."
+            );
+            return;
+        }
+
+        var captured =
+            ChessBoard.Instance.graveyard.GetCapturedByTeam(team);
+
+        if (captured == null ||
+            !captured.Exists(d =>
+                d.pieceType == pieceType &&
+                d.originalPosition == requested))
+        {
+            Debug.LogWarning(
+                "[RESURRECTION] Rejected: matching captured piece not found."
+            );
+            return;
+        }
+
+        if (!ChessBoard.Instance.IsInsideBoard(requested))
+        {
+            Debug.LogWarning(
+                "[RESURRECTION] Invalid original square."
+            );
+            return;
+        }
 
         // Decide the final spawn on the SERVER
         Vector2Int spawn = ChessBoard.Instance.GetPieceAt(requested) == null
@@ -978,12 +1013,11 @@ public class GameState : NetworkBehaviour
         
         newPiece.team = team;
         newPiece.pieceType = pieceType;
-        newPiece.SetPosition(spawn, BoardInitializer.Instance.GetWorldPosition(spawn));
-        // FIX: preserve the piece's TRUE original chess starting square.
-        // Do NOT use "spawn" because spawn may only be the nearest available square.
-        newPiece.startingCell = requested;
         newPiece.originalPrefab = prefab;
-        // FIX: preserve sprite for future captures/resurrections
+        newPiece.startingCell = requested;
+        newPiece.SetPosition(spawn, BoardInitializer.Instance.GetWorldPosition(spawn));
+
+        //preserve sprite for future captures/resurrections
         SpriteRenderer sr = go.GetComponent<SpriteRenderer>();
 
         if (sr != null)
@@ -1040,7 +1074,8 @@ public class GameState : NetworkBehaviour
         p.originalPrefab = prefab;
         // NEW: preserve sprite for another capture/resurrection
         SpriteRenderer sr = go.GetComponent<SpriteRenderer>();
-
+        if (sr != null)
+            p.pieceSprite = sr.sprite;
         p.MarkAsResurrected();
 
         // FIX:
@@ -1594,14 +1629,8 @@ public class GameState : NetworkBehaviour
         newPiece.Id =
             newPieceId;
 
-        ChessBoard.Instance.RegisterPiece(
-            newPiece
-        );
-
-        ChessBoard.Instance.PlacePiece(
-            newPiece,
-            cell
-        );
+        ChessBoard.Instance.RegisterPiece( newPiece);
+        ChessBoard.Instance.PlacePiece(newPiece,cell);
 
         // Important if this client currently has the board flipped.
         BoardFlipController.Instance
