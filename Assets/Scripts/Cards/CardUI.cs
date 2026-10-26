@@ -306,7 +306,9 @@ public class CardUI : MonoBehaviour
             BeginPendingSpell();
             return;
         }        // Legacy UIs such as the current Resurrection UI do not yet send a
-        // success/cancel callback, so preserve their old immediate-consume behavior.
+                 // success/cancel callback, so preserve their old immediate-consume behavior.
+        //Debug.Log("[CARD] Spell successfully consumed.");
+        CardDrawer.Instance?.NotifySpellConsumed();//notify card consumed before counting down 1 in hand
         Destroy(gameObject);
     }
 

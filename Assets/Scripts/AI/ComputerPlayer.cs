@@ -268,6 +268,11 @@ public class ComputerPlayer : MonoBehaviour
                     "through UCI searchmoves."
                 );
             }
+            if (accepted && !ChessBoard.Instance.gameOver)
+            {
+                TeamColor humanSide = ChessAttackEvaluator.OppositeTeam(aiSide);
+                StormEndgameEvaluator.TryResolveCheckmate(humanSide);
+            }
         }
         catch (Exception ex)
         {

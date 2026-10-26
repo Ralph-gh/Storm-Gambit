@@ -3,6 +3,8 @@ using UnityEngine;
 
 public class CardDrawer : MonoBehaviour
 {
+    public static CardDrawer Instance { get; private set; }
+    public int CurrentSpellCount { get; private set; }
     [Header("Card Data")]
     public List<CardData> cardPool;         // Assign ScriptableObjects here
 
@@ -23,6 +25,11 @@ public class CardDrawer : MonoBehaviour
     {
         ConfigureCardPool();
         DrawCards(startingCardCount);
+        SyncSpellCountToNetwork();
+    }
+    private void Awake()
+    {
+        Instance = this;
     }
 
     void DrawCards(int count)
@@ -69,12 +76,13 @@ public class CardDrawer : MonoBehaviour
         CardData drawn =
             spells[Random.Range(0, spells.Count)];
 
-        GameObject cardObj =
-            Instantiate(cardPrefab, handPanel);
-
+        GameObject cardObj = Instantiate(cardPrefab, handPanel);
         cardObj.GetComponent<CardUI>().LoadCard(drawn);
+        CurrentSpellCount++;
 
         Debug.Log($"[CARDS] Drew spell card: {drawn.cardName}");
+        CurrentSpellCount++;
+        SyncSpellCountToNetwork();
     }
     private void ConfigureCardPool()
     {
@@ -93,5 +101,18 @@ public class CardDrawer : MonoBehaviour
                 ? "[CARDS] Using Stockfish Campaign deck."
                 : "[CARDS] Using default deck."
         );
+    }
+    public void NotifySpellConsumed()
+    {
+        CurrentSpellCount = Mathf.Max(0, CurrentSpellCount - 1);
+        SyncSpellCountToNetwork();
+
+        Debug.Log($"[MAGIC] Local spell count = {CurrentSpellCount}");
+    }
+
+    public void SyncSpellCountToNetwork()
+    {
+        if (SpellRules.IsNet && NetPlayer.Local != null)
+            NetPlayer.Local.SetSpellCountServerRpc(CurrentSpellCount);
     }
 }

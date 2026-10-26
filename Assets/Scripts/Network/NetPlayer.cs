@@ -5,6 +5,17 @@ public class NetPlayer : NetworkBehaviour
 {
     public static NetPlayer Local; // convenience
     public NetworkVariable<TeamColor> Side = new NetworkVariable<TeamColor>();
+    public NetworkVariable<int> SpellCount = new NetworkVariable<int>(
+    3,
+    NetworkVariableReadPermission.Owner,
+    NetworkVariableWritePermission.Server
+);
+
+    public NetworkVariable<bool> MageAbilityAvailable = new NetworkVariable<bool>(
+        false,
+        NetworkVariableReadPermission.Owner,
+        NetworkVariableWritePermission.Server
+    );
     // AUTO-FLIP BLACK CLIENT
     private bool automaticBlackFlipApplied = false;
     private Coroutine autoFlipRoutine;
@@ -13,6 +24,7 @@ public class NetPlayer : NetworkBehaviour
         if (IsOwner)
         {
             Local = this;
+            CardDrawer.Instance?.SyncSpellCountToNetwork();
 
             // NEW: react when this player receives its side
             Side.OnValueChanged += HandleSideChanged;
@@ -100,5 +112,30 @@ public class NetPlayer : NetworkBehaviour
         }
 
         base.OnNetworkDespawn();
+    }
+    [ServerRpc]
+    public void SetSpellCountServerRpc(int count)
+    {
+        SpellCount.Value = Mathf.Max(0, count);
+    }
+
+    [ServerRpc]
+    public void SetMageAbilityAvailableServerRpc(bool available)
+    {
+        MageAbilityAvailable.Value = available;
+    }
+
+    public void AddSpellServer(int amount)
+    {
+        if (!IsServer) return;
+        SpellCount.Value = Mathf.Max(0, SpellCount.Value + amount);
+    }
+
+    public static NetPlayer FindBySide(TeamColor side)
+    {
+        foreach (NetPlayer player in FindObjectsByType<NetPlayer>(FindObjectsInactive.Exclude, FindObjectsSortMode.None))
+            if (player.Side.Value == side) return player;
+
+        return null;
     }
 }

@@ -11,12 +11,24 @@ public class CharacterPanelUI : MonoBehaviour
 
     public GameObject freezeSpellUIPrefab;
     private CardData currentCharacter;
+    public static CharacterPanelUI Instance { get; private set; }
 
+    private bool mageAbilityAvailable;
+    public bool HasAvailableMageAbility => mageAbilityAvailable;
+
+    private void Awake()
+    {
+        Instance = this;
+    }
     public void Show(CardData character)
     {
         Clear();
 
         currentCharacter = character;
+        mageAbilityAvailable = true;
+
+        if (SpellRules.IsNet && NetPlayer.Local != null)
+            NetPlayer.Local.SetMageAbilityAvailableServerRpc(true);
         var go = Instantiate(cardPrefab, slot);
         active = go.GetComponent<CardUI>();
 
@@ -63,13 +75,18 @@ public class CharacterPanelUI : MonoBehaviour
     }
     private void HandleAbilityUsed()
     {
-        if (active == null)
-            return;
+        mageAbilityAvailable = false;
 
-        active.SetInteractable(false);
-        active.SetSpentVisual(true);
+        if (SpellRules.IsNet && NetPlayer.Local != null)
+            NetPlayer.Local.SetMageAbilityAvailableServerRpc(false);
 
-        Debug.Log("[CharacterPanelUI] Mage card disabled after successful ability.");
+        if (active != null)
+        {
+            active.SetInteractable(false);
+            active.SetSpentVisual(true);
+        }
+
+       // Debug.Log("[CharacterPanelUI] Mage ability successfully consumed.");
     }
     public void Clear()
     {

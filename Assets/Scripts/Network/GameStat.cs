@@ -109,11 +109,15 @@ public class GameState : NetworkBehaviour
             // Every 10 full moves, on White’s turn, both players draw 1 spell
             if (MoveNumber.Value > 0 && MoveNumber.Value % 10 == 0)
             {
+                foreach (NetPlayer netPlayer in FindObjectsByType<NetPlayer>(FindObjectsInactive.Exclude, FindObjectsSortMode.None))
+                    netPlayer.AddSpellServer(1);
                 // Server (host) draws for itself locally
                 DrawSpellForBothPlayersLocal();
 
                 // Then notify remote clients to draw
                 DrawSpellForBothPlayersClientRpc();
+
+
             }
         }
 
@@ -338,8 +342,10 @@ public class GameState : NetworkBehaviour
             MoveRookClientRpc(rookId, rookToX, rookToY);
         // Send the EP window for the NEXT move
         SetEnPassantClientRpc(epX, epY, epPawnId);
-        // flip turn...
-        //var next = (CurrentTurn.Value == TeamColor.White) ? TeamColor.Black : TeamColor.White;
+
+        // Before giving the opponent the turn, check Storm checkmate.
+        if (StormEndgameEvaluator.TryResolveCheckmate(next)) return;
+
         CurrentTurn.Value = next;
     }
 
@@ -672,11 +678,19 @@ public class GameState : NetworkBehaviour
         if (netPlayer.Side.Value != CurrentTurn.Value)
             return;
 
-        CurrentTurn.Value =
-            CurrentTurn.Value == TeamColor.White
-            ? TeamColor.Black
-            : TeamColor.White;
+        TeamColor current = CurrentTurn.Value;
 
+        // Important after magic:
+        // if this player used their last magical resource but is still
+        // classically checkmated, they now lose.
+        if (StormEndgameEvaluator.TryResolveCheckmate(current)) return;
+
+        TeamColor next = current == TeamColor.White ? TeamColor.Black : TeamColor.White;
+
+        // Magic may also have created a checkmate against the opponent.
+        if (StormEndgameEvaluator.TryResolveCheckmate(next)) return;
+
+        CurrentTurn.Value = next;
         ChessBoard.Instance.ClearEnPassant();
     }
     public override void OnNetworkSpawn()
@@ -1527,11 +1541,11 @@ public class GameState : NetworkBehaviour
         // Promotion is now finished.
         pendingPromotionPawnId = -1;
 
-        // NOW the turn can change.
-        CurrentTurn.Value =
-            team == TeamColor.White
-                ? TeamColor.Black
-                : TeamColor.White;
+        TeamColor next = team == TeamColor.White ? TeamColor.Black : TeamColor.White;
+
+        if (StormEndgameEvaluator.TryResolveCheckmate(next)) return;
+
+        CurrentTurn.Value = next;
     }
     [ClientRpc]
     private void PromotionResolvedClientRpc(
