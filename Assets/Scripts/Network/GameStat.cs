@@ -1,3 +1,4 @@
+using UnityEngine.SceneManagement;
 using Unity.Collections;
 using Unity.Netcode;
 using UnityEngine;
@@ -12,6 +13,8 @@ public class GameState : NetworkBehaviour
 
     private int pendingPromotionPawnId = -1;
     private ulong pendingPromotionClientId;
+    private bool whiteRematchReady=false;
+    private bool blackRematchReady=false;
     // Which side can act
     public NetworkVariable<TeamColor> CurrentTurn = new NetworkVariable<TeamColor>(TeamColor.White);
 
@@ -21,7 +24,96 @@ public class GameState : NetworkBehaviour
     
     public NetworkVariable<int> MoveNumber = new NetworkVariable<int>(0);//used for turn counter in network play
     void Awake() => Instance = this;
+    [Rpc(SendTo.Server,InvokePermission = RpcInvokePermission.Everyone)]
+    public void RequestRematchServerRpc(
+    RpcParams rpcParams = default)
+    {
+        ulong sender =
+            rpcParams.Receive.SenderClientId;
 
+        NetPlayer player =
+            NetPlayer.FindByClient(sender);
+
+        if (player == null)
+        {
+            Debug.LogWarning(
+                "[REMATCH] Request came from unknown player."
+            );
+
+            return;
+        }
+
+        // Rematch should only be possible once the match ended.
+        if (ChessBoard.Instance == null ||
+            !ChessBoard.Instance.gameOver)
+        {
+            return;
+        }
+
+        if (player.Side.Value == TeamColor.White)
+            whiteRematchReady = true;
+        else
+            blackRematchReady = true;
+
+        Debug.Log(
+            $"[REMATCH] White={whiteRematchReady}, " +
+            $"Black={blackRematchReady}"
+        );
+
+        UpdateRematchStatusClientRpc(
+            whiteRematchReady,
+            blackRematchReady
+        );
+
+        // Wait until BOTH players request a rematch.
+        if (!whiteRematchReady ||
+            !blackRematchReady)
+        {
+            return;
+        }
+
+        Debug.Log(
+            "[REMATCH] Both players accepted. " +
+            "Reloading game through NetworkSceneManager."
+        );
+
+        whiteRematchReady = false;
+        blackRematchReady = false;
+
+        if (NetworkManager.Singleton == null ||
+            NetworkManager.Singleton.SceneManager == null)
+        {
+            Debug.LogError(
+                "[REMATCH] Network SceneManager is unavailable."
+            );
+
+            return;
+        }
+
+        NetworkManager.Singleton.SceneManager.LoadScene(
+            SceneManager.GetActiveScene().name,
+            LoadSceneMode.Single
+        );
+    }
+
+    [ClientRpc]
+    private void UpdateRematchStatusClientRpc(
+        bool whiteReady,
+        bool blackReady)
+    {
+        VictoryPanelUI victoryUI =
+            FindFirstObjectByType<VictoryPanelUI>(
+                FindObjectsInactive.Include
+            );
+
+        if (victoryUI != null)
+        {
+            victoryUI.ApplyRematchStatus(
+                whiteReady,
+                blackReady
+            );
+        }
+    }
     private void ShowSpellNotification(string message)
     {
         if (SpellOverlayManager.Instance == null)
