@@ -19,6 +19,8 @@ public class ComputerPlayer : MonoBehaviour
     {
         await Task.Yield();
 
+        if (this == null || !isActiveAndEnabled) return;
+
         SubscribeToTurnManager();
 
         if (initialDelaySeconds > 0f)
@@ -36,11 +38,18 @@ public class ComputerPlayer : MonoBehaviour
     private void OnEnable()
     {
         SubscribeToTurnManager();
+        SpellCastState.CastingChanged += HandleCastingChanged;
     }
 
     private void OnDisable()
     {
         UnsubscribeFromTurnManager();
+        SpellCastState.CastingChanged -= HandleCastingChanged;
+    }
+
+    private void HandleCastingChanged(bool casting)
+    {
+        if (!casting) TryStartAITurn();
     }
 
     private void SubscribeToTurnManager()
@@ -83,7 +92,7 @@ public class ComputerPlayer : MonoBehaviour
 
     private bool CanAIActNow()
     {
-        if (isThinking)
+        if (this == null || isThinking || !isActiveAndEnabled || SpellRules.IsNet || SpellCastState.IsCasting)
             return false;
 
         if (!SoloSession.IsConfigured ||
@@ -166,6 +175,9 @@ public class ComputerPlayer : MonoBehaviour
                     $"[AI] Storm timeout resolution = {noMoveResult}"
                 );
 
+                if (noMoveResult == StockfishNoMoveResult.EnginePositionMismatch)
+                    TryFallbackMove(aiSide);
+
                 return;
             }
 
@@ -208,6 +220,9 @@ public class ComputerPlayer : MonoBehaviour
                     $"[AI] Forced no-move result = {noMoveResult}"
                 );
 
+                if (noMoveResult == StockfishNoMoveResult.EnginePositionMismatch)
+                    TryFallbackMove(aiSide);
+
                 return;
             }
 
@@ -223,6 +238,8 @@ public class ComputerPlayer : MonoBehaviour
                     $"[AI] Could not parse Stockfish move: {bestMoveText}"
                 );
 
+                TryFallbackMove(aiSide);
+
                 return;
             }
 
@@ -234,6 +251,7 @@ public class ComputerPlayer : MonoBehaviour
                 Debug.LogError(
                     $"[AI] No piece at {move.From} for {bestMoveText}."
                 );
+                TryFallbackMove(aiSide);
                 return;
             }
 
@@ -242,6 +260,7 @@ public class ComputerPlayer : MonoBehaviour
                 Debug.LogError(
                     $"[AI] Wrong-side piece selected for {bestMoveText}."
                 );
+                TryFallbackMove(aiSide);
                 return;
             }
 
@@ -263,10 +282,9 @@ public class ComputerPlayer : MonoBehaviour
             if (!accepted)
             {
                 Debug.LogWarning(
-                    $"[AI] Storm Gambit rejected {bestMoveText}. " +
-                    "Later, magic restrictions will be sent to Stockfish " +
-                    "through UCI searchmoves."
+                    $"[AI] Storm Gambit rejected {bestMoveText}; trying a Storm-legal fallback."
                 );
+                TryFallbackMove(aiSide);
             }
             if (accepted && !ChessBoard.Instance.gameOver)
             {
@@ -284,5 +302,25 @@ public class ComputerPlayer : MonoBehaviour
         {
             isThinking = false;
         }
+    }
+
+    private bool TryFallbackMove(TeamColor aiSide)
+    {
+        if (this == null || !isActiveAndEnabled || SpellRules.IsNet ||
+            ChessBoard.Instance == null || ChessBoard.Instance.gameOver ||
+            TurnManager.Instance == null || TurnManager.Instance.currentTurn != aiSide)
+            return false;
+
+        StockfishNoMoveResult resolution = StockfishNoMoveResolver.Resolve(aiSide);
+        if (resolution != StockfishNoMoveResult.EnginePositionMismatch) return true;
+
+        if (!StockfishNoMoveResolver.TryGetValidEscape(aiSide,
+                out ChessPiece piece, out Vector2Int destination)) return false;
+        PieceType? promotion = piece.pieceType == PieceType.Pawn &&
+            Pawn.ShouldPromote(destination, aiSide) ? PieceType.Queen : (PieceType?)null;
+        bool accepted = piece.TryExecuteAIMove(destination, promotion);
+        if (accepted && !ChessBoard.Instance.gameOver)
+            StormEndgameEvaluator.TryResolveCheckmate(ChessAttackEvaluator.OppositeTeam(aiSide));
+        return accepted;
     }
 }

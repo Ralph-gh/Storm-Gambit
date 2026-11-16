@@ -7,6 +7,7 @@ public class ExplosiveTrapSpellUI : MonoBehaviour
     private SpellPromptPanelUI activePrompt;
 
     private bool hasClosed;
+    private bool awaitingServer;
 
     private TeamColor MySide =>
         (SpellRules.IsNet && NetPlayer.Local != null)
@@ -37,6 +38,7 @@ public class ExplosiveTrapSpellUI : MonoBehaviour
 
     private void Update()
     {
+        if (awaitingServer || hasClosed) return;
         // Desktop cancellation.
         if (Input.GetMouseButtonDown(1) ||
             Input.GetKeyDown(KeyCode.Escape))
@@ -107,22 +109,14 @@ public class ExplosiveTrapSpellUI : MonoBehaviour
                 return;
             }
 
-            GameState.Instance.PlaceExplosiveTrapServerRpc(
-                cell.x,
-                cell.y
-            );
-
-            if (TurnManager.Instance != null &&
-                TurnManager.Instance.IsPlayersTurn(MySide))
+            awaitingServer = true;
+            GameState.Instance.RequestSpell(NetworkSpellKind.Trap, accepted =>
             {
-                TurnManager.Instance.RegisterFreeSpellCast();
-            }
-
-            Debug.Log(
-                $"{MySide} requested explosive trap placement at {cell}."
-            );
-
-            CloseSuccess();
+                if (this == null) return;
+                awaitingServer = false;
+                if (accepted) CloseSuccess();
+                else activePrompt?.SetMessage("Trap rejected. Choose another square, or cancel.");
+            }, x: cell.x, y: cell.y);
             return;
         }
 
@@ -154,7 +148,7 @@ public class ExplosiveTrapSpellUI : MonoBehaviour
 
     public void CancelSpell()
     {
-        if (hasClosed)
+        if (hasClosed || awaitingServer)
             return;
 
         hasClosed = true;

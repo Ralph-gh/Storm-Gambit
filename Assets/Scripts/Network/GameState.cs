@@ -4,7 +4,7 @@ using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.UIElements;
 
-public class GameState : NetworkBehaviour
+public partial class GameState : NetworkBehaviour
 {
     public static GameState Instance { get; private set; }
     // =========================================================
@@ -130,32 +130,40 @@ public class GameState : NetworkBehaviour
     }
     public bool IsMyTurn(TeamColor mySide) => CurrentTurn.Value == mySide;
 
-    [Rpc(SendTo.Server,InvokePermission = RpcInvokePermission.Everyone)]
+    [Rpc(SendTo.Server, InvokePermission = RpcInvokePermission.Everyone)]
+    public void RequestMoveServerRpc(int pieceId, int targetX, int targetY, RpcParams rpc = default)
+    {
+        ulong sender = rpc.Receive.SenderClientId;
+        NetPlayer player = NetPlayer.FindByClient(sender);
+        bool accepted = CanAcceptAction(player) &&
+            TryExecuteNetworkMove(pieceId, targetX, targetY, sender);
+        MoveResultClientRpc(pieceId, accepted, TargetClient(sender));
+    }
 
-    public void RequestMoveServerRpc(int pieceId, int targetX, int targetY, RpcParams p = default)
+    private bool TryExecuteNetworkMove(int pieceId, int targetX, int targetY, ulong sender)
     {
         // Always ensure the server-side board/index are fresh before any legality checks
         ChessBoard.Instance.RebuildBoardAndIndexFromScene();
-        var sender = p.Receive.SenderClientId;
+
         // Do not allow another chess move while a promotion choice is pending.
         if (pendingPromotionPawnId >= 0)
         {
             Debug.Log("[PROMOTION] Move rejected: waiting for promotion choice.");
-            return;
+            return false;
         }
         var player = NetPlayer.FindByClient(sender);
         if (player == null || player.Side.Value != CurrentTurn.Value)
         {
             Debug.Log($"[SRPC] not your turn | sender={sender} side={player?.Side.Value} turn={CurrentTurn.Value}");
-            return;
+            return false;
         }
 
         var piece = ChessBoard.Instance.GetPieceById(pieceId);
 
-        if (piece == null)
+        if (piece == null || piece.team != player.Side.Value)
         {
             Debug.Log($"[SRPC] no piece id={pieceId}");
-            return;
+            return false;
         }
 
         // ==========================================
@@ -167,7 +175,7 @@ public class GameState : NetworkBehaviour
                 $"[SRPC] move rejected: {piece.pieceType}#{piece.Id} is stunned."
             );
 
-            return;
+            return false;
         }
         if (piece.IsFrozen)
         {
@@ -175,7 +183,7 @@ public class GameState : NetworkBehaviour
                 $"[SRPC] move rejected: {piece.pieceType}#{piece.Id} is frozen."
             );
 
-            return;
+            return false;
         }
         if (piece.IsDivinelyProtected)
         {
@@ -183,38 +191,12 @@ public class GameState : NetworkBehaviour
                 $"[SRPC] move rejected: {piece.pieceType}#{piece.Id} is divinely protected."
             );
 
-            return;
+            return false;
         }
 
         TeamColor next = (CurrentTurn.Value == TeamColor.White) ? TeamColor.Black : TeamColor.White;
-        //ChessBoard.Instance.EnsureBoardEntry(piece);  
-        if (next == TeamColor.Black)
-        {
-            // White just moved. If this is the very first move, set to 1.
-            if (MoveNumber.Value == 0) MoveNumber.Value = 1;
-        }
-        else // next == TeamColor.White
-        {
-            // Black just moved. A full move has completed; increment (PGN-style).
-            if (MoveNumber.Value > 0) MoveNumber.Value += 1;
-
-            // Every 10 full moves, on Whiteís turn, both players draw 1 spell
-            if (MoveNumber.Value > 0 && MoveNumber.Value % 10 == 0)
-            {
-                foreach (NetPlayer netPlayer in FindObjectsByType<NetPlayer>(FindObjectsInactive.Exclude, FindObjectsSortMode.None))
-                    netPlayer.AddSpellServer(1);
-                // Server (host) draws for itself locally
-                DrawSpellForBothPlayersLocal();
-
-                // Then notify remote clients to draw
-                DrawSpellForBothPlayersClientRpc();
-
-
-            }
-        }
-
         Vector2Int to = new Vector2Int(targetX, targetY);
-        if (!ChessBoard.Instance.IsInsideBoard(to)) { Debug.Log($"[SRPC] outside {to}"); return; }
+        if (!ChessBoard.Instance.IsInsideBoard(to)) { Debug.Log($"[SRPC] outside {to}"); return false; }
 
         bool IsCastleAttempt() =>
         piece.pieceType == PieceType.King &&
@@ -223,7 +205,7 @@ public class GameState : NetworkBehaviour
 
         if (IsCastleAttempt())
         {
-            // Mirror your King.IsValidMove tests to see whatís failing
+            // Mirror your King.IsValidMove tests to see what‚Äôs failing
             var king = ChessBoard.Instance.GetPieceAt(piece.currentCell);
             bool kingOk = (king != null && !king.hasMoved);
 
@@ -253,7 +235,7 @@ public class GameState : NetworkBehaviour
         var victim = ChessBoard.Instance.GetPieceAt(to);
         Debug.Log($"[SRPC] check {piece.pieceType}#{piece.Id} {piece.team}  {to} | victim={(victim ? victim.pieceType.ToString() : "null")}");
 
-        if (victim != null && victim.team == piece.team) { Debug.Log("[SRPC] own piece on target"); return; }
+        if (victim != null && victim.team == piece.team) { Debug.Log("[SRPC] own piece on target"); return false; }
 
         // Validate chess rules (pawn-diagonal depends on victim != null)
         bool legal = ChessBoard.Instance.IsLegalMove(piece, to);
@@ -263,7 +245,7 @@ public class GameState : NetworkBehaviour
                 Debug.Log($"[SRPC] illegal (pawn) to={to} victim={(victim ? victim.pieceType.ToString() : "null")} currentCell={piece.currentCell}");
             else
                 Debug.Log($"[SRPC] illegal ({piece.pieceType}) to={to} currentCell={piece.currentCell}");
-            return;
+            return false;
         }
         bool enPassantCapture = false;
         Vector2Int from = piece.currentCell;  // you'll log later; we need it now
@@ -289,7 +271,7 @@ public class GameState : NetworkBehaviour
             if (epVictim == null || epVictim.pieceType != PieceType.Pawn || epVictim.team == piece.team)
             {
                 Debug.Log("[SRPC] EP victim missing or invalid");
-                return;
+                return false;
             }
             if (epVictim.IsDivinelyProtected ||epVictim.IsFrozen)
             {
@@ -297,7 +279,7 @@ public class GameState : NetworkBehaviour
                     "[SRPC] EP blocked: victim protected/frozen"
                 );
 
-                return;
+                return false;
             }
 
             capturedId = epVictim.Id;
@@ -309,14 +291,14 @@ public class GameState : NetworkBehaviour
             if (victim.IsDivinelyProtected || victim.IsFrozen)
             {
                 Debug.Log("[SRPC] capture blocked: target divinely protected");
-                return;
+                return false;
             }
             capturedId = victim.Id;
             Debug.Log($"[SRPC] CAPTURE {victim.pieceType}#{victim.Id} at {to}");
             ChessBoard.Instance.CapturePiece(to);
         }
 
-        // For diagnostics: log board ìfromî and ìtoî
+        // For diagnostics: log board ‚Äúfrom‚Äù and ‚Äúto‚Äù
         //var from = piece.currentCell;
         Debug.Log($"[SRPC] MOVE {piece.pieceType}#{piece.Id} {from} {to}");
 
@@ -366,6 +348,8 @@ public class GameState : NetworkBehaviour
         // NETWORK PROMOTION
         // =========================================================
 
+        AdvanceMoveNumber(piece.team);
+
         bool needsPromotion =
             !explosiveTrapTriggered &&
             piece.pieceType == PieceType.Pawn &&
@@ -411,7 +395,7 @@ public class GameState : NetworkBehaviour
 
             // VERY IMPORTANT:
             // Do NOT change the turn yet.
-            return;
+            return true;
         }
         // Notify clients: king move + optional castle rook move
 
@@ -436,10 +420,11 @@ public class GameState : NetworkBehaviour
         SetEnPassantClientRpc(epX, epY, epPawnId);
 
         // Before giving the opponent the turn, check Storm checkmate.
-        if (StormEndgameEvaluator.TryResolveCheckmate(next)) return;
+        if (StormEndgameEvaluator.TryResolveCheckmate(next)) return true;
 
         CurrentTurn.Value = next;
-    }
+        return true;
+        }
 
     [ClientRpc]
     void ApplyExplosiveTrapMoveClientRpc(
@@ -614,18 +599,19 @@ public class GameState : NetworkBehaviour
         }
     }
 
-    [Rpc(SendTo.Server, InvokePermission = RpcInvokePermission.Everyone)]
-    public void ApplyFreezeServerRpc(int pieceId, RpcParams p = default)
+    private bool TryFreezeServer(int pieceId)
     {
         var piece = ChessBoard.Instance.GetPieceById(pieceId);
-        if (piece == null) return;
-
+        if (piece == null || ChessBoard.Instance.GetPieceAt(piece.currentCell) != piece) return false;
+        piece.ApplyFreeze(2);
         ApplyFreezeClientRpc(pieceId);
+        return true;
     }
 
     [ClientRpc]
     void ApplyFreezeClientRpc(int pieceId)
     {
+        if (IsServer) return;
         var piece = ChessBoard.Instance.GetPieceById(pieceId);
         if (piece == null)
         {
@@ -763,6 +749,7 @@ public class GameState : NetworkBehaviour
     {
         var senderClientId = p.Receive.SenderClientId;
         var netPlayer = NetPlayer.FindByClient(senderClientId);
+        if (!CanAcceptAction(netPlayer)) return;
 
         if (netPlayer == null)
             return;
@@ -788,6 +775,7 @@ public class GameState : NetworkBehaviour
     public override void OnNetworkSpawn()
     {
         base.OnNetworkSpawn();
+        ResetActionState();
 
 #if UNITY_SERVER || UNITY_EDITOR
         // Reset castling state on server/editor start.
@@ -831,6 +819,7 @@ public class GameState : NetworkBehaviour
        TeamColor oldValue,
        TeamColor newValue)
     {
+        if (IsServer) spellUsedThisTurn.Clear();
         if (TurnManager.Instance != null)
         {
             TurnManager.Instance.SyncTurn(newValue);
@@ -861,6 +850,7 @@ public class GameState : NetworkBehaviour
         CurrentTurn.OnValueChanged -= HandleCurrentTurnChanged;
         MoveNumber.OnValueChanged -= HandleMoveNumberChanged;
 
+        CancelPendingSpells();
         base.OnNetworkDespawn();
     }
     private System.Collections.IEnumerator BoardHeartbeat()
@@ -878,15 +868,9 @@ public class GameState : NetworkBehaviour
         }
     }
     // --- SPELL RPCs ---
-    [Rpc(SendTo.Server, InvokePermission = RpcInvokePermission.Everyone)]
-    public void PlaceExplosiveTrapServerRpc(
-         int x,
-         int y,
-         RpcParams p = default)
+    private bool TryPlaceTrapServer(NetPlayer player, int x, int y)
     {
-        var player = NetPlayer.FindByClient(p.Receive.SenderClientId);
-        if (player == null) return;
-        if (player.Side.Value != CurrentTurn.Value) return;
+
 
         Vector2Int cell = new Vector2Int(x, y);
         TeamColor owner = player.Side.Value;
@@ -894,10 +878,11 @@ public class GameState : NetworkBehaviour
         if (!ChessBoard.Instance.TryPlaceExplosiveTrap(cell, owner))
         {
             Debug.Log($"[TRAP/SRPC] Rejected placement for {owner} at {cell}");
-            return;
+            return false;
         }
 
         PlaceExplosiveTrapClientRpc(owner, x, y);
+            return true;
     }
 
     [ClientRpc]
@@ -913,29 +898,25 @@ public class GameState : NetworkBehaviour
             "An explosive trap has been planted!");
     }
 
-    [Rpc(SendTo.Server, InvokePermission = RpcInvokePermission.Everyone)]
-    public void TeleportPieceServerRpc(
-    int pieceId,
-    int x,
-    int y,
-    RpcParams p = default)
+    private bool TryTeleportServer(NetPlayer player, int pieceId, int x, int y)
     {
         var piece = ChessBoard.Instance.GetPieceById(pieceId);
 
-        if (piece == null)
+        if (piece == null || piece.team != player.Side.Value ||
+            ChessBoard.Instance.GetPieceAt(piece.currentCell) != piece)
         {
             Debug.Log($"[SRPC] Teleport: no piece {pieceId}");
-            return;
+            return false;
         }
 
         Vector2Int to = new Vector2Int(x, y);
 
         if (!ChessBoard.Instance.IsInsideBoard(to))
-            return;
+            return false;
 
         // Teleport destination must still be empty.
         if (ChessBoard.Instance.GetPieceAt(to) != null)
-            return;
+            return false;
 
         Vector2Int from = piece.currentCell;
 
@@ -1000,7 +981,7 @@ public class GameState : NetworkBehaviour
                 CleanupExplodedMoverServerAfterVFX(piece)
             );
 
-            return;
+            return true;
         }
 
         // =========================================================
@@ -1024,6 +1005,7 @@ public class GameState : NetworkBehaviour
             x,
             y
         );
+            return true;
     }
 
     [ClientRpc]
@@ -1034,48 +1016,36 @@ public class GameState : NetworkBehaviour
         if (piece == null) return;
 
         var to = new Vector2Int(x, y);
-        ChessBoard.Instance.MovePieceLocal(piece, to);
+        if (piece.currentCell != to) ChessBoard.Instance.MovePieceLocal(piece, to);
         piece.SetPosition(to, BoardInitializer.Instance.GetWorldPosition(to));
         piece.hasMoved = true;
         piece.ApplyStunOneTurn();//stun piece for one turn to avoid being overpowered
     }
 
     // Apply Divine Protection on all clients for the selected piece
-    [Rpc(SendTo.Server, InvokePermission = RpcInvokePermission.Everyone)]
-    public void ApplyDivineProtectionServerRpc(int pieceId, RpcParams p = default)
+    private bool TryProtectionServer(NetPlayer player, int pieceId)
     {
         var piece = ChessBoard.Instance.GetPieceById(pieceId);
-        if (piece == null) return;
-
+        if (piece == null || piece.team != player.Side.Value ||
+            ChessBoard.Instance.GetPieceAt(piece.currentCell) != piece) return false;
+        piece.ApplyDivineProtectionOneTurn();
         ApplyDivineProtectionClientRpc(pieceId);
+        return true;
     }
 
     [ClientRpc]
     void ApplyDivineProtectionClientRpc(int pieceId)
     {
+        if (IsServer) return;
         var piece = ChessBoard.Instance.GetPieceById(pieceId);
         if (piece != null) piece.ApplyDivineProtectionOneTurn(); // spawns sphere & hooks turn listener
     }
 
     // Resurrect by type/team at a server-chosen spawn square
-    [Rpc(SendTo.Server, InvokePermission = RpcInvokePermission.Everyone)]
-    public void ResurrectServerRpc(TeamColor team, PieceType pieceType, int spawnX, int spawnY, RpcParams p = default)
+    private bool TryResurrectServer(NetPlayer player, PieceType pieceType, int spawnX, int spawnY)
     {
+        TeamColor team = player.Side.Value;
         Vector2Int requested = new Vector2Int(spawnX, spawnY);
-        NetPlayer player = NetPlayer.FindByClient(
-    p.Receive.SenderClientId
-);
-
-        if (player == null ||
-            player.Side.Value != CurrentTurn.Value ||
-            player.Side.Value != team)
-        {
-            Debug.LogWarning(
-                "[RESURRECTION] Rejected: invalid player or turn."
-            );
-            return;
-        }
-
         var captured =
             ChessBoard.Instance.graveyard.GetCapturedByTeam(team);
 
@@ -1087,7 +1057,7 @@ public class GameState : NetworkBehaviour
             Debug.LogWarning(
                 "[RESURRECTION] Rejected: matching captured piece not found."
             );
-            return;
+            return false;
         }
 
         if (!ChessBoard.Instance.IsInsideBoard(requested))
@@ -1095,7 +1065,7 @@ public class GameState : NetworkBehaviour
             Debug.LogWarning(
                 "[RESURRECTION] Invalid original square."
             );
-            return;
+            return false;
         }
 
         // Decide the final spawn on the SERVER
@@ -1103,16 +1073,16 @@ public class GameState : NetworkBehaviour
             ? requested
             : ChessBoard.Instance.FindNearestAvailableSquare(requested);
 
-        if (!ChessBoard.Instance.IsInsideBoard(spawn)) return;
+        if (!ChessBoard.Instance.IsInsideBoard(spawn)) return false;
 
         // (Optional tidy) This second nearest-check is redundant because 'spawn'
         // is either empty or returned by FindNearestAvailableSquare already.
         if (ChessBoard.Instance.GetPieceAt(spawn) != null)
             spawn = ChessBoard.Instance.FindNearestAvailableSquare(spawn);
-        if (spawn.x == -1) return; // no space; abort
+        if (spawn.x == -1) return false; // no space; abort
 
         var prefab = BoardInitializer.Instance.GetPrefab(team, pieceType);
-        if (prefab == null) { Debug.LogWarning($"No prefab for {team} {pieceType}"); return; }
+        if (prefab == null) { Debug.LogWarning($"No prefab for {team} {pieceType}"); return false; }
 
         var go = Instantiate(prefab, BoardInitializer.Instance.GetWorldPosition(spawn), Quaternion.identity);
         var newPiece = go.GetComponent<ChessPiece>();
@@ -1144,6 +1114,7 @@ public class GameState : NetworkBehaviour
 
         // Send the ACTUAL server-chosen cell to clients
         ResurrectClientRpc(team,pieceType,spawn.x,spawn.y,newPiece.Id,requested.x,requested.y );
+            return true;
     }
 
     [ClientRpc]
@@ -1220,43 +1191,21 @@ public class GameState : NetworkBehaviour
 
         ChessBoard.Instance.MovePieceLocal(rook, new Vector2Int(toX, toY));
     }
-    [Rpc(
-    SendTo.Server,
-    InvokePermission = RpcInvokePermission.Everyone
-)]
-    public void LightningDestroyPawnRpc(
-    int pawnId,
-    RpcParams rpcParams = default)
+    private bool TryLightningServer(int pawnId)
     {
-        ulong sender =
-            rpcParams.Receive.SenderClientId;
-
-        NetPlayer player =
-            NetPlayer.FindByClient(sender);
-
-        if (player == null ||
-            player.Side.Value != CurrentTurn.Value)
-        {
-            Debug.Log(
-                "[LIGHTNING/SERVER] Rejected: not player's turn."
-            );
-
-            return;
-        }
-
         ChessBoard.Instance
             .RebuildBoardAndIndexFromScene();
 
         ChessPiece pawn =
             ChessBoard.Instance.GetPieceById(pawnId);
 
-        if (pawn == null)
+        if (pawn == null || ChessBoard.Instance.GetPieceAt(pawn.currentCell) != pawn)
         {
             Debug.Log(
                 $"[LIGHTNING/SERVER] Pawn {pawnId} not found."
             );
 
-            return;
+            return false;
         }
 
         if (pawn.pieceType != PieceType.Pawn)
@@ -1266,7 +1215,7 @@ public class GameState : NetworkBehaviour
                 $"{pawn.pieceType}#{pawn.Id} is not a pawn."
             );
 
-            return;
+            return false;
         }
 
         if (pawn.IsFrozen ||
@@ -1277,14 +1226,14 @@ public class GameState : NetworkBehaviour
                 "is protected from destruction."
             );
 
-            return;
+            return false;
         }
 
         Vector2Int cell = pawn.currentCell;
 
         Debug.Log(
             $"[LIGHTNING/SERVER] " +
-            $"{player.Side.Value} destroyed " +
+            $"{CurrentTurn.Value} destroyed " +
             $"{pawn.team} Pawn#{pawn.Id} at {cell}."
         );
 
@@ -1300,9 +1249,10 @@ public class GameState : NetworkBehaviour
         StartCoroutine(
             CleanupLightningPawnServerAfterVFX(pawn)
         );
+            return true;
     }
+
     [ClientRpc]
-    [Rpc(SendTo.ClientsAndHost,InvokePermission = RpcInvokePermission.Server)]
     private void LightningDestroyPawnClientRpc(
     int pawnId,
     int x,

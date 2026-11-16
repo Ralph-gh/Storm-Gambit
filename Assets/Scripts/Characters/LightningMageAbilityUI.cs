@@ -149,12 +149,16 @@ public class LightningMageAbilityUI : MonoBehaviour
                 return;
             }
 
-            GameState.Instance.LightningDestroyPawnRpc(pawn.Id);
-
-            // Same mage behaviour as Portal/Frost:
-            // successful target selection spends the ability,
-            // but DOES NOT consume the normal free spell.
-            CloseSuccess();
+            GameState.Instance.RequestSpell(NetworkSpellKind.Lightning, accepted =>
+            {
+                if (this == null) return;
+                if (accepted) CloseSuccess();
+                else
+                {
+                    resolving = false;
+                    activePrompt?.SetMessage("Lightning rejected. Select a valid pawn, or cancel.");
+                }
+            }, pawn.Id, mageAbility: true);
 
             return;
         }

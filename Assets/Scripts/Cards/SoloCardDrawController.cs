@@ -36,6 +36,11 @@ public class SoloCardDrawController : MonoBehaviour
 
     private void HandleTurnChanged(TeamColor newTurn)
     {
+        if (SpellRules.IsNet || ChessBoard.Instance == null || ChessBoard.Instance.gameOver)
+        {
+            previousTurn = newTurn;
+            return;
+        }
         if (!initialized)
         {
             previousTurn = newTurn;
@@ -54,7 +59,7 @@ public class SoloCardDrawController : MonoBehaviour
             );
 
             if (fullMoveNumber > 0 &&
-                fullMoveNumber % movesPerCardDraw == 0)
+                movesPerCardDraw > 0 && fullMoveNumber % movesPerCardDraw == 0)
             {
                 if (playerCardDrawer != null)
                 {

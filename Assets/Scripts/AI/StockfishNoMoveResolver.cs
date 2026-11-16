@@ -272,6 +272,15 @@ public static class StockfishNoMoveResolver
     public static bool HasAnyValidEscape(
         TeamColor aiTeam)
     {
+        return TryGetValidEscape(aiTeam, out _, out _);
+    }
+
+    public static bool TryGetValidEscape(TeamColor aiTeam,
+        out ChessPiece movablePiece, out Vector2Int targetCell)
+    {
+        movablePiece = null;
+        targetCell = default;
+        if (ChessBoard.Instance == null) return false;
         for (int x = 0; x < 8; x++)
         {
             for (int y = 0; y < 8; y++)
@@ -345,6 +354,17 @@ public static class StockfishNoMoveResolver
 
                         if (result.IsLegal)
                         {
+                            // An en-passant victim can also be protected by Storm magic.
+                            if (piece.pieceType == PieceType.Pawn && target == null &&
+                                destination.x != piece.currentCell.x)
+                            {
+                                ChessPiece victim = ChessBoard.Instance.GetPieceAt(
+                                    new Vector2Int(destination.x, piece.currentCell.y));
+                                if (victim != null && (victim.IsFrozen || victim.IsDivinelyProtected))
+                                    continue;
+                            }
+                            movablePiece = piece;
+                            targetCell = destination;
                             Debug.Log(
                                 $"[NO MOVE] AI escape exists: " +
                                 $"{piece.pieceType} " +
@@ -381,7 +401,7 @@ public static class StockfishNoMoveResolver
                 : "Black Wins!";
 
         Debug.Log(
-            $"Game Over — {winnerText} ({reason})"
+            $"Game Over â€” {winnerText} ({reason})"
         );
 
         ShowSoloResult(winnerText);
@@ -407,7 +427,7 @@ public static class StockfishNoMoveResolver
         ChessBoard.Instance.gameOver = true;
 
         Debug.Log(
-            $"Game Over — Draw ({reason})"
+            $"Game Over â€” Draw ({reason})"
         );
 
         ShowSoloResult("Draw!");

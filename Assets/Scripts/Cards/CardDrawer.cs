@@ -5,6 +5,7 @@ public class CardDrawer : MonoBehaviour
 {
     public static CardDrawer Instance { get; private set; }
     public int CurrentSpellCount { get; private set; }
+    public bool HandInitialized { get; private set; }
     [Header("Card Data")]
     public List<CardData> cardPool;         // Assign ScriptableObjects here
 
@@ -25,6 +26,12 @@ public class CardDrawer : MonoBehaviour
     {
         ConfigureCardPool();
         DrawCards(startingCardCount);
+        HandInitialized = true;
+        SyncSpellCountToNetwork();
+    }
+    private void Update()
+    {
+        // NetPlayer and GameState may spawn after this local hand.
         SyncSpellCountToNetwork();
     }
     private void Awake()
@@ -43,6 +50,8 @@ public class CardDrawer : MonoBehaviour
                 activeCardPool[Random.Range(0, activeCardPool.Count)];
             GameObject cardObj = Instantiate(cardPrefab, handPanel);
             cardObj.GetComponent<CardUI>().LoadCard(drawn);
+            if (drawn.cardtype != CardType.Character)
+                CurrentSpellCount++;
         }
 
     }
@@ -81,8 +90,6 @@ public class CardDrawer : MonoBehaviour
         CurrentSpellCount++;
 
         Debug.Log($"[CARDS] Drew spell card: {drawn.cardName}");
-        CurrentSpellCount++;
-        SyncSpellCountToNetwork();
     }
     private void ConfigureCardPool()
     {
@@ -105,14 +112,14 @@ public class CardDrawer : MonoBehaviour
     public void NotifySpellConsumed()
     {
         CurrentSpellCount = Mathf.Max(0, CurrentSpellCount - 1);
-        SyncSpellCountToNetwork();
 
         Debug.Log($"[MAGIC] Local spell count = {CurrentSpellCount}");
     }
 
     public void SyncSpellCountToNetwork()
     {
-        if (SpellRules.IsNet && NetPlayer.Local != null)
-            NetPlayer.Local.SetSpellCountServerRpc(CurrentSpellCount);
+        if (HandInitialized && SpellRules.IsNet && NetPlayer.Local != null &&
+            GameState.Instance != null && GameState.Instance.IsSpawned)
+            GameState.Instance.InitializeLocalHand(this);
     }
 }

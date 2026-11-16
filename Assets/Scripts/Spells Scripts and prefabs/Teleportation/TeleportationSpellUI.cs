@@ -6,6 +6,7 @@ public class TeleportationSpellUI : MonoBehaviour
     private ChessPiece selectedPiece = null;
     private CardUI sourceCard;
     private bool hasClosed;
+    private bool awaitingServer;
     private SpellPromptPanelUI activePrompt;
     private bool isMageAbility = false;
 
@@ -51,6 +52,7 @@ public class TeleportationSpellUI : MonoBehaviour
 
     void Update()
     {
+        if (awaitingServer || hasClosed) return;
         // Cancel with right-click or Esc
         if (Input.GetMouseButtonDown(1) || Input.GetKeyDown(KeyCode.Escape))
         {
@@ -58,8 +60,8 @@ public class TeleportationSpellUI : MonoBehaviour
             return;
         }
 
-        // Block if it’s not my turn or free spell already used
-        if (!SpellRules.CanCastNow(MySide)) return;
+        // Block if itâ€™s not my turn or free spell already used
+        if (!(isMageAbility ? SpellRules.IsTurn(MySide) : SpellRules.CanCastNow(MySide))) return;
 
         if (Input.GetMouseButtonDown(0))
         {
@@ -113,22 +115,15 @@ public class TeleportationSpellUI : MonoBehaviour
         // Networked path: ask server; clients will sync via RPC
         if (Unity.Netcode.NetworkManager.Singleton && Unity.Netcode.NetworkManager.Singleton.IsListening)
         {
-            GameState.Instance.TeleportPieceServerRpc(
-                piece.Id,
-                targetCell.x,
-                targetCell.y
-            );
-
-            if (!isMageAbility &&
-                TurnManager.Instance != null &&
-                TurnManager.Instance.IsPlayersTurn(MySide))
+            if (GameState.Instance == null) return;
+            awaitingServer = true;
+            GameState.Instance.RequestSpell(NetworkSpellKind.Teleport, accepted =>
             {
-                TurnManager.Instance.RegisterFreeSpellCast();
-            }
-
-            // Teleport request accepted from UI side:
-            // close prompt and consume/deactivate appropriately.
-            CloseSuccess();
+                if (this == null) return;
+                awaitingServer = false;
+                if (accepted) CloseSuccess();
+                else activePrompt?.SetMessage("Teleport rejected. Select a valid piece and square, or cancel.");
+            }, piece.Id, targetCell.x, targetCell.y, isMageAbility);
 
             return;
         }
@@ -189,7 +184,7 @@ public class TeleportationSpellUI : MonoBehaviour
     }
     public void CancelSpell()
     {
-        if (hasClosed)
+        if (hasClosed || awaitingServer)
             return;
 
         hasClosed = true;

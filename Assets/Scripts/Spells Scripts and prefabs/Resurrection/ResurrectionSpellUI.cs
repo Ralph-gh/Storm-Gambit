@@ -13,6 +13,7 @@ public class ResurrectionSpellUI : MonoBehaviour
 
     private CardUI sourceCard;
     private bool hasClosed;
+    private bool awaitingServer;
     void OnEnable() => GenerateButtons();
 
     void GenerateButtons()
@@ -40,15 +41,18 @@ public class ResurrectionSpellUI : MonoBehaviour
 
     public void Resurrect(CapturedPieceData data)
     {
+        if (hasClosed || awaitingServer || !SpellRules.CanCastNow(data.team)) return;
         if (NetworkManager.Singleton && NetworkManager.Singleton.IsListening)
         {
-            GameState.Instance.ResurrectServerRpc(
-                data.team,
-                data.pieceType,
-                data.originalPosition.x,
-                data.originalPosition.y
-            );
-            CloseSuccess(); // close UI and destroy card upon success
+            if (GameState.Instance == null) return;
+            awaitingServer = true;
+            GameState.Instance.RequestSpell(NetworkSpellKind.Resurrection, accepted =>
+            {
+                if (this == null) return;
+                awaitingServer = false;
+                if (accepted) CloseSuccess();
+                else Debug.Log("Resurrection rejected; the card is still available.");
+            }, x: data.originalPosition.x, y: data.originalPosition.y, pieceType: data.pieceType);
             return;
         }
         Vector2Int spawn = data.originalPosition;
@@ -122,7 +126,7 @@ public class ResurrectionSpellUI : MonoBehaviour
 
     public void CancelSpell()
     {
-        if (hasClosed) return;
+        if (hasClosed || awaitingServer) return;
         hasClosed = true;
         sourceCard?.CancelPendingSpellCast();
         Destroy(gameObject);

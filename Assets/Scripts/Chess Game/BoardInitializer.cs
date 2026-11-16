@@ -74,6 +74,13 @@ public class BoardInitializer : NetworkBehaviour
         SetupPrefabLookup();
         SetupTypeLookups();
         InitializeBoard();
+
+        // Orient the camera and all starting pieces together once the board exists.
+        if (!SpellRules.IsNet && SoloSession.IsConfigured &&
+            SoloSession.Mode == SoloGameMode.Campaign)
+        {
+            BoardFlipController.Instance?.SetFlipped(SoloSession.PlayerSide == TeamColor.Black);
+        }
     }
 
     void SetupPrefabLookup()

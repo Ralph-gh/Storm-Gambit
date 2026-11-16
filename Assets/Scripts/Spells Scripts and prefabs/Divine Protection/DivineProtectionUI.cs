@@ -5,6 +5,7 @@ public class DivineProtectionSpellUI : MonoBehaviour
 {
     private CardUI sourceCard;
     private bool hasClosed;
+    private bool awaitingServer;
 
     [Header("UI")]
     [SerializeField] private GameObject legacyDivineProtectionPanel;
@@ -38,12 +39,15 @@ public class DivineProtectionSpellUI : MonoBehaviour
     }
     void Update()
     {
-
+        if (awaitingServer || hasClosed) return;
         if (Input.GetKeyDown(KeyCode.Escape))
         {
             CancelSpell();
             return;
         }
+        TeamColor side = SpellRules.IsNet && NetPlayer.Local != null
+            ? NetPlayer.Local.Side.Value : TurnManager.Instance.currentTurn;
+        if (!SpellRules.CanCastNow(side)) return;
         if (Input.GetMouseButtonDown(0))
         {
             Vector3 mouseWorld = Camera.main.ScreenToWorldPoint(Input.mousePosition);
@@ -54,10 +58,21 @@ public class DivineProtectionSpellUI : MonoBehaviour
             ChessPiece piece = ChessBoard.Instance.GetPieceAt(cell);
 
             // Only allow selecting your own piece on your turn
-            if (piece != null && piece.team == TurnManager.Instance.currentTurn)
+            if (piece != null && piece.team == side)
             {
                 if (Unity.Netcode.NetworkManager.Singleton && Unity.Netcode.NetworkManager.Singleton.IsListening)
-                    GameState.Instance.ApplyDivineProtectionServerRpc(piece.Id);
+                {
+                    if (GameState.Instance == null) return;
+                    awaitingServer = true;
+                    GameState.Instance.RequestSpell(NetworkSpellKind.Protection, accepted =>
+                    {
+                        if (this == null) return;
+                        awaitingServer = false;
+                        if (accepted) CloseSuccess();
+                        else activePrompt?.SetMessage("Protection rejected. Select a valid piece, or cancel.");
+                    }, piece.Id);
+                    return;
+                }
                 else
                     piece.ApplyDivineProtectionOneTurn(); // offline
                 //TurnManager.Instance.NextTurn();       commented to no longer end turn
@@ -85,7 +100,7 @@ public class DivineProtectionSpellUI : MonoBehaviour
     }
     public void CancelSpell()
     {
-        if (hasClosed) return;
+        if (hasClosed || awaitingServer) return;
         hasClosed = true;
 
         if (activePrompt != null)

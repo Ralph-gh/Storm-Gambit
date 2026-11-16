@@ -17,8 +17,9 @@ public class CardUI : MonoBehaviour
     private bool isCastingSpell;
     private GameObject activeSpellUI;
     private bool isSpellPending;
+    private bool consumed;
 
-    // --- Small helpers so we don’t repeat logic everywhere ---
+    // --- Small helpers so we donâ€™t repeat logic everywhere ---
 
     private static bool IsNetActive =>
         Unity.Netcode.NetworkManager.Singleton && Unity.Netcode.NetworkManager.Singleton.IsListening;
@@ -35,12 +36,15 @@ public class CardUI : MonoBehaviour
 
     public void ConsumeCardAfterSuccessfulCast()
     {
+        if (consumed) return;
+        consumed = true;
         isCastingSpell = false;
         isSpellPending = false;
         activeSpellUI = null;
 
         Debug.Log("[CARD] Spell succeeded - consuming card.");
 
+        CardDrawer.Instance?.NotifySpellConsumed();
         Destroy(gameObject);
     }
     public void SetSpentVisual(bool spent)
@@ -127,7 +131,7 @@ public class CardUI : MonoBehaviour
         bool isMyTurn = ResolveIsMyTurn(mySide);
         bool freeSpellAvailable = FreeSpellAvailable(isMyTurn);
 
-        // Resurrection’s target availability is rechecked in RefreshInteractable()
+        // Resurrectionâ€™s target availability is rechecked in RefreshInteractable()
         cardButton.interactable = freeSpellAvailable;
     }
 
@@ -308,8 +312,7 @@ public class CardUI : MonoBehaviour
         }        // Legacy UIs such as the current Resurrection UI do not yet send a
                  // success/cancel callback, so preserve their old immediate-consume behavior.
         //Debug.Log("[CARD] Spell successfully consumed.");
-        CardDrawer.Instance?.NotifySpellConsumed();//notify card consumed before counting down 1 in hand
-        Destroy(gameObject);
+        ConsumeCardAfterSuccessfulCast();
     }
 
     private void BeginPendingSpell()

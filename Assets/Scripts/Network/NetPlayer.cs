@@ -3,6 +3,7 @@ using UnityEngine;
 using System.Collections;
 public class NetPlayer : NetworkBehaviour
 {
+    public NetworkSpellKind SelectedMageSpell { get; set; }
     public static NetPlayer Local; // convenience
     public NetworkVariable<TeamColor> Side = new NetworkVariable<TeamColor>();
     public NetworkVariable<int> SpellCount = new NetworkVariable<int>(
@@ -44,7 +45,9 @@ public class NetPlayer : NetworkBehaviour
         }
     }
 
-    public bool CanAct() => IsOwner && GameState.Instance && GameState.Instance.IsMyTurn(Side.Value);
+    public bool CanAct() => IsOwner && GameState.Instance && GameState.Instance.IsSpawned &&
+        ChessBoard.Instance != null && !ChessBoard.Instance.gameOver &&
+        GameState.Instance.IsMyTurn(Side.Value);
 
     // Called by your input/UI instead of moving locally
     public void TryRequestMove(int pieceId, Vector2Int to)
@@ -114,15 +117,10 @@ public class NetPlayer : NetworkBehaviour
         base.OnNetworkDespawn();
     }
     [ServerRpc]
-    public void SetSpellCountServerRpc(int count)
+    public void SetMageAbilityAvailableServerRpc(bool available, int kind = -1)
     {
-        SpellCount.Value = Mathf.Max(0, count);
-    }
-
-    [ServerRpc]
-    public void SetMageAbilityAvailableServerRpc(bool available)
-    {
-        MageAbilityAvailable.Value = available;
+        // Selection initializes the resource once. Only accepted server actions spend it.
+        GameState.Instance?.InitializeMage(this, available, kind);
     }
 
     public void AddSpellServer(int amount)

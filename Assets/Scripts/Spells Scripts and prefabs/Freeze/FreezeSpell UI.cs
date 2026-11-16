@@ -12,18 +12,21 @@ public class FreezeSpellUI : MonoBehaviour
     private System.Action mageAbilitySuccess;
     private System.Action mageAbilityCancel;
     private CardUI sourceCard;
+    private bool awaitingServer;
+    private bool hasClosed;
 
     [Header("UI")]
     [SerializeField] private GameObject legacyFreezePanel;
 
     void Update()
     {
+        if (awaitingServer || hasClosed) return;
         if (Input.GetMouseButtonDown(1) || Input.GetKeyDown(KeyCode.Escape))
         {
             CancelSpell();
             return;
         }
-        if (!SpellRules.CanCastNow(MySide)) return;
+        if (!(isMageAbility ? SpellRules.IsTurn(MySide) : SpellRules.CanCastNow(MySide))) return;
 
         if (Input.GetMouseButtonDown(0))
         {
@@ -65,13 +68,16 @@ public class FreezeSpellUI : MonoBehaviour
         if (Unity.Netcode.NetworkManager.Singleton &&
             Unity.Netcode.NetworkManager.Singleton.IsListening)
         {
-            GameState.Instance.ApplyFreezeServerRpc(piece.Id);
-
-            if (!isMageAbility &&
-                TurnManager.Instance.IsPlayersTurn(MySide))
+            if (GameState.Instance == null) return;
+            awaitingServer = true;
+            GameState.Instance.RequestSpell(NetworkSpellKind.Freeze, accepted =>
             {
-                TurnManager.Instance.RegisterFreeSpellCast();
-            }
+                if (this == null) return;
+                awaitingServer = false;
+                if (accepted) CloseSuccess();
+                else activePrompt?.SetMessage("Freeze rejected. Select a valid piece, or cancel.");
+            }, piece.Id, mageAbility: isMageAbility);
+            return;
         }
         else
         {
@@ -95,6 +101,13 @@ public class FreezeSpellUI : MonoBehaviour
             }
         }
 
+        CloseSuccess();
+    }
+
+    private void CloseSuccess()
+    {
+        if (hasClosed) return;
+        hasClosed = true;
         if (activePrompt != null)
         {
             activePrompt.Close();
@@ -114,6 +127,8 @@ public class FreezeSpellUI : MonoBehaviour
     }
     public void CancelSpell()
     {
+        if (hasClosed || awaitingServer) return;
+        hasClosed = true;
         if (activePrompt != null)
         {
             activePrompt.Close();
@@ -134,6 +149,13 @@ public class FreezeSpellUI : MonoBehaviour
     public void BindSourceCard(CardUI card)
     {
         sourceCard = card;
+    }
+    private void OnDestroy()
+    {
+        if (hasClosed) return;
+        activePrompt?.Close();
+        if (isMageAbility) mageAbilityCancel?.Invoke();
+        else sourceCard?.CancelPendingSpellCast();
     }
     Vector2Int WorldToCell(Vector3 world)
     {

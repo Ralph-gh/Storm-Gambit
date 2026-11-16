@@ -27,8 +27,12 @@ public class CharacterPanelUI : MonoBehaviour
         currentCharacter = character;
         mageAbilityAvailable = true;
 
+        int kind = character.cardName == "Portal Mage" ? (int)NetworkSpellKind.Teleport :
+            character.cardName == "Frost Mage" ? (int)NetworkSpellKind.Freeze :
+            character.cardName == "Lightning Mage" ? (int)NetworkSpellKind.Lightning : -1;
+        mageAbilityAvailable = kind >= 0;
         if (SpellRules.IsNet && NetPlayer.Local != null)
-            NetPlayer.Local.SetMageAbilityAvailableServerRpc(true);
+            NetPlayer.Local.SetMageAbilityAvailableServerRpc(mageAbilityAvailable, kind);
         var go = Instantiate(cardPrefab, slot);
         active = go.GetComponent<CardUI>();
 
@@ -76,9 +80,6 @@ public class CharacterPanelUI : MonoBehaviour
     private void HandleAbilityUsed()
     {
         mageAbilityAvailable = false;
-
-        if (SpellRules.IsNet && NetPlayer.Local != null)
-            NetPlayer.Local.SetMageAbilityAvailableServerRpc(false);
 
         if (active != null)
         {

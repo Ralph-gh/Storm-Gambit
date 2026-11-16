@@ -1,0 +1,29 @@
+.utmp is not a valid directory name. Please make sure there are no unallowed characters in the name.
+.utmp is not a valid directory name. Please make sure there are no unallowed characters in the name.
+[Licensing::Module] Trying to connect to existing licensing client channel...
+[Licensing::IpcConnector] Successfully connected to: "LicenseClient-Ralph Ghnatios" at "2026-11-16T18:52:43.2809392Z"
+Built from '6000.3/staging' branch; Version is '6000.3.24f1 (4e7b9b5b6244) revision 5143451'; Using compiler version '194234433'; Build Type 'Release'
+OS: 'Windows 11  (10.0.26200) Core' Language: 'en' Physical Memory: 32276 MB
+BatchMode: 1, IsHumanControllingUs: 0, StartBugReporterOnCrash: 0, Is64bit: 1
+System  architecture: x64
+Process architecture: x64
+Date: 2026-11-16T18:52:43Z
+
+COMMAND LINE ARGUMENTS:
+C:\Program Files\Unity\Hub\Editor\6000.3.24f1\Editor\Unity.exe
+-batchmode
+-nographics
+-projectPath
+C:\Users\Ralph Ghnatios\Storm Gambit
+-runTests
+-testPlatform
+EditMode
+-testFilter
+LobbyRegressionTests
+-testResults
+C:\Users\Ralph Ghnatios\Storm Gambit\.utmp\lobby-tests.xml
+-logFile
+C:\Users\Ralph Ghnatios\Storm Gambit\.utmp\lobby-tests.log
+Successfully changed project path to: C:\Users\Ralph Ghnatios\Storm Gambit
+C:/Users/Ralph Ghnatios/Storm Gambit
+Exiting without the bug reporter. Application will terminate with return code 1

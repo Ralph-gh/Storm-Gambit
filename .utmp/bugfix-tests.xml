@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="utf-8"?>
+<test-run id="2" testcasecount="7" result="Passed" total="7" passed="7" failed="0" inconclusive="0" skipped="0" asserts="0" engine-version="3.5.0.0" clr-version="4.0.30319.42000" start-time="2026-11-14 03:02:27Z" end-time="2026-11-14 03:02:27Z" duration="0.7791442">
+  <test-suite type="TestSuite" id="1000" name="Storm Gambit" fullname="Storm Gambit" runstate="Runnable" testcasecount="7" result="Passed" start-time="2026-11-14 03:02:27Z" end-time="2026-11-14 03:02:27Z" duration="0.779144" total="7" passed="7" failed="0" inconclusive="0" skipped="0" asserts="0">
+    <properties>
+      <property name="platform" value="EditMode" />
+    </properties>
+    <test-suite type="Assembly" id="1009" name="Assembly-CSharp-Editor.dll" fullname="C:/Users/Ralph Ghnatios/Storm Gambit/Library/ScriptAssemblies/Assembly-CSharp-Editor.dll" runstate="Runnable" testcasecount="7" result="Passed" start-time="2026-11-14 03:02:27Z" end-time="2026-11-14 03:02:27Z" duration="0.707145" total="7" passed="7" failed="0" inconclusive="0" skipped="0" asserts="0">
+      <properties>
+        <property name="_PID" value="49844" />
+        <property name="_APPDOMAIN" value="Unity Child Domain" />
+        <property name="platform" value="EditMode" />
+        <property name="EditorOnly" value="True" />
+      </properties>
+      <test-suite type="TestFixture" id="1001" name="BugFixRegressionTests" fullname="BugFixRegressionTests" classname="BugFixRegressionTests" runstate="Runnable" testcasecount="7" result="Passed" start-time="2026-11-14 03:02:27Z" end-time="2026-11-14 03:02:27Z" duration="0.704788" total="7" passed="7" failed="0" inconclusive="0" skipped="0" asserts="0">
+        <properties />
+        <test-case id="1008" name="AIFallbackSkipsFrozenPiecesAndCompletesItsTurn" fullname="BugFixRegressionTests.AIFallbackSkipsFrozenPiecesAndCompletesItsTurn" methodname="AIFallbackSkipsFrozenPiecesAndCompletesItsTurn" classname="BugFixRegressionTests" runstate="Runnable" seed="836459734" result="Passed" start-time="2026-11-14 03:01:54Z" end-time="2026-11-14 03:01:58Z" duration="4.033838" asserts="0">
+          <properties>
+            <property name="_JOINTYPE" value="UnityCombinatorial" />
+          </properties>
+          <output><![CDATA[[SOLO] Campaign configured | Player=White | AI=Black | Opponent=Stockfish
+[NO MOVE] Resolving Stockfish no-move state. AI=Black, Human=White
+[NO MOVE] AI escape exists: Rook (1, 6) -> (1, 0)
+[NO MOVE] Stockfish returned no move, but Storm Gambit found at least one valid AI move. Treating this as an engine-position mismatch.
+[NO MOVE] AI escape exists: Rook (1, 6) -> (1, 0)
+]]></output>
+        </test-case>
+        <test-case id="1003" name="CheckmateWaitsForTheActualLastSpellToBeConsumed" fullname="BugFixRegressionTests.CheckmateWaitsForTheActualLastSpellToBeConsumed" methodname="CheckmateWaitsForTheActualLastSpellToBeConsumed" classname="BugFixRegressionTests" runstate="Runnable" seed="712771309" result="Passed" start-time="2026-11-14 03:01:58Z" end-time="2026-11-14 03:02:02Z" duration="4.339145" asserts="0">
+          <properties>
+            <property name="_JOINTYPE" value="UnityCombinatorial" />
+          </properties>
+          <output><![CDATA[[CARDS] Using default deck.
+[CHECKMATE] White has no classical escape. Spells=True, MageAbility=False
+[CHECKMATE] White survives because magic is still available.
+[CARD] Spell succeeded - consuming card.
+[MAGIC] Local spell count = 1
+[CHECKMATE] White has no classical escape. Spells=True, MageAbility=False
+[CHECKMATE] White survives because magic is still available.
+[CARD] Spell succeeded - consuming card.
+[MAGIC] Local spell count = 0
+[CHECKMATE] White has no classical escape. Spells=False, MageAbility=False
+Game Over — Black Wins! (Checkmate — no magic remaining)
+]]></output>
+        </test-case>
+        <test-case id="1002" name="HandCountsStartingCardsDrawsCancellationAndSuccessExactlyOnce" fullname="BugFixRegressionTests.HandCountsStartingCardsDrawsCancellationAndSuccessExactlyOnce" methodname="HandCountsStartingCardsDrawsCancellationAndSuccessExactlyOnce" classname="BugFixRegressionTests" runstate="Runnable" seed="368388021" result="Passed" start-time="2026-11-14 03:02:02Z" end-time="2026-11-14 03:02:07Z" duration="4.429774" asserts="0">
+          <properties>
+            <property name="_JOINTYPE" value="UnityCombinatorial" />
+          </properties>
+          <output><![CDATA[[CARDS] Using default deck.
+[CARDS] Drew spell card: Test spell
+[CARD] Spell cancelled - card restored.
+[CARD] Spell succeeded - consuming card.
+[MAGIC] Local spell count = 2
+]]></output>
+        </test-case>
+        <test-case id="1006" name="NewMatchCanInitializeResourcesWithoutAllowingRepeatRefills" fullname="BugFixRegressionTests.NewMatchCanInitializeResourcesWithoutAllowingRepeatRefills" methodname="NewMatchCanInitializeResourcesWithoutAllowingRepeatRefills" classname="BugFixRegressionTests" runstate="Runnable" seed="901337409" result="Passed" start-time="2026-11-14 03:02:07Z" end-time="2026-11-14 03:02:12Z" duration="5.097629" asserts="0">
+          <properties>
+            <property name="_JOINTYPE" value="UnityCombinatorial" />
+          </properties>
+          <output><![CDATA[[CARDS] Using default deck.
+[CARDS] Using default deck.
+]]></output>
+        </test-case>
+        <test-case id="1004" name="RejectedMovesDoNotAwardCardsAndRestorePendingPiece" fullname="BugFixRegressionTests.RejectedMovesDoNotAwardCardsAndRestorePendingPiece" methodname="RejectedMovesDoNotAwardCardsAndRestorePendingPiece" classname="BugFixRegressionTests" runstate="Runnable" seed="285904694" result="Passed" start-time="2026-11-14 03:02:12Z" end-time="2026-11-14 03:02:16Z" duration="4.674919" asserts="0">
+          <properties>
+            <property name="_JOINTYPE" value="UnityCombinatorial" />
+          </properties>
+          <output><![CDATA[[CARDS] Using default deck.
+[SRPC] outside (99, 99)
+[SRPC] no piece id=11
+[SRPC] check Pawn#10 Black  (0, 5) | victim=null
+[SRPC] MOVE Pawn#10 (0, 6) (0, 5)
+[RPC/HOST] mover=10 from=(0, 6) to=(0, 5) captured=-1
+[CARDS] Drew spell card: Test spell
+[CHECK] White king was not found.
+]]></output>
+        </test-case>
+        <test-case id="1005" name="ServerAcceptsResourcesOnceAndRejectsWrongTargetsAndRepeatSpells" fullname="BugFixRegressionTests.ServerAcceptsResourcesOnceAndRejectsWrongTargetsAndRepeatSpells" methodname="ServerAcceptsResourcesOnceAndRejectsWrongTargetsAndRepeatSpells" classname="BugFixRegressionTests" runstate="Runnable" seed="1849109406" result="Passed" start-time="2026-11-14 03:02:16Z" end-time="2026-11-14 03:02:22Z" duration="5.707866" asserts="0">
+          <properties>
+            <property name="_JOINTYPE" value="UnityCombinatorial" />
+          </properties>
+          <output><![CDATA[[CARDS] Using default deck.
+[CARD] Spell cancelled - card restored.
+]]></output>
+        </test-case>
+        <test-case id="1007" name="SoloDrawControllerIgnoresNetworkTurnsAndStillDrawsOffline" fullname="BugFixRegressionTests.SoloDrawControllerIgnoresNetworkTurnsAndStillDrawsOffline" methodname="SoloDrawControllerIgnoresNetworkTurnsAndStillDrawsOffline" classname="BugFixRegressionTests" runstate="Runnable" seed="263845681" result="Passed" start-time="2026-11-14 03:02:22Z" end-time="2026-11-14 03:02:27Z" duration="5.215134" asserts="0">
+          <properties>
+            <property name="_JOINTYPE" value="UnityCombinatorial" />
+            <property name="retryIteration" value="0" />
+            <property name="repeatIteration" value="0" />
+          </properties>
+          <output><![CDATA[[CARDS] Using default deck.
+[SOLO CARDS] Solo card drawing initialized.
+[SOLO CARDS] Full move 2
+[CARDS] Drew spell card: Test spell
+[SOLO CARDS] Player drew a spell card.
+Saving results to: C:/Users/Ralph Ghnatios/AppData/LocalLow/RGaming/Storm Gambit\TestResults.xml
+]]></output>
+        </test-case>
+      </test-suite>
+    </test-suite>
+  </test-suite>
+</test-run>
