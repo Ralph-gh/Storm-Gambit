@@ -1,11 +1,8 @@
 using System;
 using System.Threading;
-using System.Threading.Tasks;
 using UnityEngine;
 using Unity.Netcode;
 using Unity.Netcode.Transports.UTP;
-using Unity.Networking.Transport.Relay;
-using Unity.Services.Relay;
 using TMPro;
 
 public class RelayUI : MonoBehaviour
@@ -46,29 +43,21 @@ public class RelayUI : MonoBehaviour
         try
         {
             StatusChanged?.Invoke("Connecting to online services...");
-            await AwaitOperation(UGSBootstrap.EnsureReadyAsync(), operation.Token);
-            var utp = nm.GetComponent<UnityTransport>();
+            await RelayConnection.WaitAsync(UGSBootstrap.EnsureReadyAsync(), operation.Token);
+
             if (host)
             {
                 StatusChanged?.Invoke("Creating host...");
-                var allocation = await AwaitOperation(
-                    RelayService.Instance.CreateAllocationAsync(maxClients), operation.Token);
-                string joinCode = await AwaitOperation(
-                    RelayService.Instance.GetJoinCodeAsync(allocation.AllocationId), operation.Token);
-                utp.SetRelayServerData(new RelayServerData(allocation, "dtls"));
                 startingNetwork = true;
-                if (!nm.StartHost()) throw new InvalidOperationException("Host could not start.");
+                string joinCode = await RelayConnection.HostAsync(maxClients, operation.Token);
                 if (joinCodeLabel) joinCodeLabel.text = $"Code: {joinCode}";
                 StatusChanged?.Invoke("Host ready. Waiting for opponent (1/2)...");
             }
             else
             {
                 StatusChanged?.Invoke("Joining host...");
-                var allocation = await AwaitOperation(
-                    RelayService.Instance.JoinAllocationAsync(code), operation.Token);
-                utp.SetRelayServerData(new RelayServerData(allocation, "dtls"));
                 startingNetwork = true;
-                if (!nm.StartClient()) throw new InvalidOperationException("Client could not start.");
+                await RelayConnection.JoinAsync(code, operation.Token);
                 StatusChanged?.Invoke("Connecting to host...");
             }
         }
@@ -90,21 +79,6 @@ public class RelayUI : MonoBehaviour
             if (pendingOperation == operation) pendingOperation = null;
             operation.Dispose();
         }
-    }
-
-    private static async Task AwaitOperation(Task task, CancellationToken token)
-    {
-        // Relay requests cannot be canceled; never start NGO after leaving the lobby.
-        var canceled = Task.Delay(Timeout.Infinite, token);
-        await Task.WhenAny(task, canceled);
-        token.ThrowIfCancellationRequested();
-        await task;
-    }
-
-    private static async Task<T> AwaitOperation<T>(Task<T> task, CancellationToken token)
-    {
-        await AwaitOperation((Task)task, token);
-        return await task;
     }
 
     private void OnDisable() => pendingOperation?.Cancel();

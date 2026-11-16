@@ -1,10 +1,13 @@
 using Unity.Netcode;
 using UnityEngine;
+using Unity.Collections;
 using System.Collections;
 public class NetPlayer : NetworkBehaviour
 {
     public NetworkSpellKind SelectedMageSpell { get; set; }
     public static NetPlayer Local; // convenience
+    public NetworkVariable<FixedString128Bytes> PlayerName = new NetworkVariable<FixedString128Bytes>(
+        default, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Owner);
     public NetworkVariable<TeamColor> Side = new NetworkVariable<TeamColor>();
     public NetworkVariable<int> SpellCount = new NetworkVariable<int>(
     3,
@@ -25,6 +28,9 @@ public class NetPlayer : NetworkBehaviour
         if (IsOwner)
         {
             Local = this;
+            string displayName = LobbyIdentity.PlayerName;
+            PlayerName.Value = new FixedString128Bytes(
+                string.IsNullOrEmpty(displayName) ? "Player" : displayName);
             CardDrawer.Instance?.SyncSpellCountToNetwork();
 
             // NEW: react when this player receives its side

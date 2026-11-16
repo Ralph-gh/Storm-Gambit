@@ -2,6 +2,7 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using Unity.Netcode;
 using TMPro;
+using System;
 
 public class LobbySceneController : MonoBehaviour
 {
@@ -16,6 +17,7 @@ public class LobbySceneController : MonoBehaviour
     private NetworkManager subscribedManager;
     private float connectionDeadline;
     private bool loadingGame;
+    public event Action<string> StatusChanged;
 
     private void OnEnable()
     {
@@ -102,8 +104,9 @@ public class LobbySceneController : MonoBehaviour
         return !subscribedManager.IsListening && !subscribedManager.ShutdownInProgress;
     }
 
-    public void BackToMainMenu()
+    public async void BackToMainMenu()
     {
+        if (LobbyMatchmaking.Instance != null) await LobbyMatchmaking.Instance.LeaveAsync();
         if (NetworkManager.Singleton != null && NetworkManager.Singleton.IsListening)
         {
             NetworkManager.Singleton.Shutdown();
@@ -159,5 +162,6 @@ public class LobbySceneController : MonoBehaviour
             statusText.text = message;
 
         Debug.Log("[Lobby] " + message);
+        StatusChanged?.Invoke(message);
     }
 }

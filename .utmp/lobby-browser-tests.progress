@@ -1,0 +1,21 @@
+Starting lobby browser tests.
+LobbyBrowserTests.BrowserDistinguishesEmptyErrorAndPopulatedStates: Passed
+LobbyBrowserTests.CommonJoinFailuresHaveSpecificFeedback: Passed
+LobbyBrowserTests.InvalidNamesAreRejected(""): Passed
+LobbyBrowserTests.InvalidNamesAreRejected("x"): Passed
+LobbyBrowserTests.InvalidNamesAreRejected("Name\nsecond line"): Passed
+LobbyBrowserTests.InvalidNamesAreRejected("<b>Name</b>"): Passed
+LobbyBrowserTests.InvalidNamesAreRejected("Name longer than twenty four characters"): Passed
+LobbyBrowserTests.InvalidNamesAreRejected: Passed
+LobbyBrowserTests.LobbySceneContainsWiredMobileUi: Passed
+LobbyBrowserTests.NameEditorKeepsTheSavedNameWhenValidationFails: Passed
+LobbyBrowserTests.NamesAreTrimmed("  Storm Mage  ","Storm Mage"): Passed
+LobbyBrowserTests.NamesAreTrimmed("Ralph","Ralph"): Passed
+LobbyBrowserTests.NamesAreTrimmed: Passed
+LobbyBrowserTests.OpenGamesDoNotCarryAPassword: Passed
+LobbyBrowserTests.PasswordUsesServiceValidationAndRelayIsNotPublic: Passed
+LobbyBrowserTests.ProtectedRowShowsHostAndJoinsTheSelectedGame: Passed
+LobbyBrowserTests.TabSelectionHasAPersistentIndicator: Passed
+LobbyBrowserTests: Passed
+C:/Users/Ralph Ghnatios/Storm Gambit/Library/ScriptAssemblies/Assembly-CSharp-Editor.dll: Passed
+Storm Gambit: Passed
