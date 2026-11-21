@@ -13,6 +13,7 @@ public static class LobbyUIBuilder
     private static readonly Color Ink = new Color32(239, 240, 234, 255);
     private static readonly Color Muted = new Color32(177, 193, 204, 255);
     private static readonly Color Gold = new Color32(226, 189, 119, 255);
+    public static readonly Color MenuTextGold = new Color(.8805031f, .72791845f, .06922176f, 1);
     private static TMP_FontAsset Font => TMP_Settings.defaultFontAsset;
 
     public static LobbyBrowserUI Build(LobbySceneController controller, Sprite background)
@@ -88,7 +89,7 @@ public static class LobbyUIBuilder
         Stretch(ui.statusText.rectTransform, 24, 24, 12, 12);
         ui.statusText.alignment = TextAlignmentOptions.MidlineLeft;
         ui.feedbackPanel.SetActive(false);
-        ui.backButton = Button("Back to menu", body, "MAIN MENU");
+        ui.backButton = Button("Back to menu", body, "BACK TO LOBBY");
         Bottom((RectTransform)ui.backButton.transform, 0, 112);
         BuildPasswordDialog(ui, canvasObject.transform);
         return ui;
@@ -277,7 +278,7 @@ public static class LobbyUIBuilder
         row.hostName.overflowMode = TextOverflowModes.Ellipsis;
         row.access = Text("Access and players", card.transform, "OPEN  ·  1/2", 28, Gold);
         Top(row.access.rectTransform, 162, 48, 24, 248);
-        row.joinButton = Button("Join", card.transform, "JOIN");
+        row.joinButton = Button("Join", card.transform, "JOIN", false);
         var buttonRect = (RectTransform)row.joinButton.transform;
         buttonRect.anchorMin = buttonRect.anchorMax = new Vector2(1, .5f);
         buttonRect.pivot = new Vector2(1, .5f);
@@ -313,9 +314,9 @@ public static class LobbyUIBuilder
         return input;
     }
 
-    private static UIButton Button(string name, Transform parent, string label)
+    private static UIButton Button(string name, Transform parent, string label, bool longButton = true)
     {
-        var frame = Resources.Load<Sprite>("LobbyButtonFrame");
+        var frame = Resources.Load<Sprite>(longButton ? "LobbyLongButtonFrame" : "LobbyButtonFrame");
         var button = SimpleButton(name, parent, label);
         var image = button.GetComponent<Image>();
         if (frame != null)
@@ -341,7 +342,7 @@ public static class LobbyUIBuilder
         colors.pressedColor = new Color(.72f, .72f, .72f, 1);
         colors.disabledColor = new Color(.5f, .5f, .5f, .7f);
         button.colors = colors;
-        var text = Text("Label", image.transform, label, 34, Gold, FontStyles.Bold);
+        var text = Text("Label", image.transform, label, 34, MenuTextGold, FontStyles.Bold);
         Stretch(text.rectTransform, 20, 20, 12, 12);
         text.alignment = TextAlignmentOptions.Center;
         text.textWrappingMode = TextWrappingModes.NoWrap;

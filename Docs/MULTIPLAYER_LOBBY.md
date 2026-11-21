@@ -1,6 +1,10 @@
 # Multiplayer game browser
 
-`Assets/Scenes/LobbyScene.unity` now contains an editable **Multiplayer Lobby UI** Canvas. The previous Relay-only Canvas is retained inactive. The existing MainMenu multiplayer button still loads the same scene.
+`Assets/Scenes/LobbyScene.unity` opens with **Lobby of the Storm - Original Menu**, a copy of the archived lobby's Canvas with its appearance preserved. Host and Join now open the existing **Multiplayer Lobby UI** hosting and browser screens. Back from either new screen cancels pending multiplayer work, leaves any waiting room, and returns to the original menu; its Back button returns to MainMenu. The archived Relay-only scene remains unchanged at `Assets/Scenes/Archive/LobbyScene_Legacy.unity` and excluded from the build. Only its Canvas was copied: the live scene keeps its existing controller, services and single NetworkManager.
+
+The new screens use `LobbyLongButtonFrame` for long actions, sourced from **Lobby Long Button v3 - No Pieces.png**, with the original menu's gold label color. The original menu's buttons and artwork are unchanged. `LobbyMenuNavigation` switches screens without loading the archived scene. Browser subscriptions detach while hidden and reattach on reopening.
+
+The live landing copy retains the old join-code panel/input and connection status objects as inactive references. The archived scene keeps those controls active for its original flow.
 
 ## Player flow
 
@@ -23,6 +27,8 @@
 ## Editing and verification
 
 The Canvas and its panels/fields/buttons can be edited directly in the scene. `Tools > Storm Gambit > Rebuild Multiplayer Lobby UI` regenerates the default layout and replaces edits to that Canvas; save the scene first. The template for game rows is inactive under the Browse games panel.
+
+`Tools > Storm Gambit > Integrate Original Lobby Menus` installs or repairs the navigation and new long buttons without rebuilding the existing browser layout. It refuses to edit a dirty LobbyScene or run in Play mode.
 
 `Tools > Storm Gambit > Validate Multiplayer Lobby` runs the browser regression checks. `Preview Multiplayer Lobby` renders local 1080×1920 screenshots into `.utmp/`. The checks cover input validation, password options, Relay-data visibility, scene references, masked password fields and selecting the correct room from a row.
 

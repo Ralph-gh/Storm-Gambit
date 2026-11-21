@@ -7,6 +7,7 @@ LobbyBrowserTests.InvalidNamesAreRejected("Name\nsecond line"): Passed
 LobbyBrowserTests.InvalidNamesAreRejected("<b>Name</b>"): Passed
 LobbyBrowserTests.InvalidNamesAreRejected("Name longer than twenty four characters"): Passed
 LobbyBrowserTests.InvalidNamesAreRejected: Passed
+LobbyBrowserTests.LegacyLobbyIsPreservedSeparatelyAndExcludedFromBuild: Passed
 LobbyBrowserTests.LobbySceneContainsWiredMobileUi: Passed
 LobbyBrowserTests.NameEditorKeepsTheSavedNameWhenValidationFails: Passed
 LobbyBrowserTests.NamesAreTrimmed("  Storm Mage  ","Storm Mage"): Passed

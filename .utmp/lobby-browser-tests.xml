@@ -1,109 +1,115 @@
 <?xml version="1.0" encoding="utf-8"?>
-<test-run id="2" testcasecount="15" result="Passed" total="15" passed="15" failed="0" inconclusive="0" skipped="0" asserts="0" engine-version="3.5.0.0" clr-version="4.0.30319.42000" start-time="2026-11-16 22:41:14Z" end-time="2026-11-16 22:41:14Z" duration="0.2385863">
-  <test-suite type="TestSuite" id="1000" name="Storm Gambit" fullname="Storm Gambit" runstate="Runnable" testcasecount="26" result="Passed" start-time="2026-11-16 22:41:14Z" end-time="2026-11-16 22:41:14Z" duration="0.238586" total="15" passed="15" failed="0" inconclusive="0" skipped="0" asserts="0">
+<test-run id="2" testcasecount="16" result="Passed" total="16" passed="16" failed="0" inconclusive="0" skipped="0" asserts="0" engine-version="3.5.0.0" clr-version="4.0.30319.42000" start-time="2026-11-16 23:05:48Z" end-time="2026-11-16 23:05:48Z" duration="0.5419878">
+  <test-suite type="TestSuite" id="1000" name="Storm Gambit" fullname="Storm Gambit" runstate="Runnable" testcasecount="27" result="Passed" start-time="2026-11-16 23:05:48Z" end-time="2026-11-16 23:05:48Z" duration="0.541988" total="16" passed="16" failed="0" inconclusive="0" skipped="0" asserts="0">
     <properties>
       <property name="platform" value="EditMode" />
     </properties>
-    <test-suite type="Assembly" id="1032" name="Assembly-CSharp-Editor.dll" fullname="C:/Users/Ralph Ghnatios/Storm Gambit/Library/ScriptAssemblies/Assembly-CSharp-Editor.dll" runstate="Runnable" testcasecount="26" result="Passed" start-time="2026-11-16 22:41:14Z" end-time="2026-11-16 22:41:14Z" duration="0.225158" total="15" passed="15" failed="0" inconclusive="0" skipped="0" asserts="0">
+    <test-suite type="Assembly" id="1033" name="Assembly-CSharp-Editor.dll" fullname="C:/Users/Ralph Ghnatios/Storm Gambit/Library/ScriptAssemblies/Assembly-CSharp-Editor.dll" runstate="Runnable" testcasecount="27" result="Passed" start-time="2026-11-16 23:05:48Z" end-time="2026-11-16 23:05:48Z" duration="0.441673" total="16" passed="16" failed="0" inconclusive="0" skipped="0" asserts="0">
       <properties>
         <property name="_PID" value="31512" />
         <property name="_APPDOMAIN" value="Unity Child Domain" />
         <property name="platform" value="EditMode" />
         <property name="EditorOnly" value="True" />
       </properties>
-      <test-suite type="TestFixture" id="1009" name="LobbyBrowserTests" fullname="LobbyBrowserTests" classname="LobbyBrowserTests" runstate="Runnable" testcasecount="15" result="Passed" start-time="2026-11-16 22:41:14Z" end-time="2026-11-16 22:41:14Z" duration="0.223043" total="15" passed="15" failed="0" inconclusive="0" skipped="0" asserts="0">
+      <test-suite type="TestFixture" id="1009" name="LobbyBrowserTests" fullname="LobbyBrowserTests" classname="LobbyBrowserTests" runstate="Runnable" testcasecount="16" result="Passed" start-time="2026-11-16 23:05:48Z" end-time="2026-11-16 23:05:48Z" duration="0.347946" total="16" passed="16" failed="0" inconclusive="0" skipped="0" asserts="0">
         <properties />
-        <test-case id="1011" name="BrowserDistinguishesEmptyErrorAndPopulatedStates" fullname="LobbyBrowserTests.BrowserDistinguishesEmptyErrorAndPopulatedStates" methodname="BrowserDistinguishesEmptyErrorAndPopulatedStates" classname="LobbyBrowserTests" runstate="Runnable" seed="1047185124" result="Passed" start-time="2026-11-16 22:41:14Z" end-time="2026-11-16 22:41:14Z" duration="0.069517" asserts="0">
+        <test-case id="1012" name="BrowserDistinguishesEmptyErrorAndPopulatedStates" fullname="LobbyBrowserTests.BrowserDistinguishesEmptyErrorAndPopulatedStates" methodname="BrowserDistinguishesEmptyErrorAndPopulatedStates" classname="LobbyBrowserTests" runstate="Runnable" seed="135870151" result="Passed" start-time="2026-11-16 23:05:48Z" end-time="2026-11-16 23:05:48Z" duration="0.058714" asserts="0">
           <properties>
             <property name="retryIteration" value="0" />
             <property name="repeatIteration" value="0" />
           </properties>
         </test-case>
-        <test-case id="1024" name="CommonJoinFailuresHaveSpecificFeedback" fullname="LobbyBrowserTests.CommonJoinFailuresHaveSpecificFeedback" methodname="CommonJoinFailuresHaveSpecificFeedback" classname="LobbyBrowserTests" runstate="Runnable" seed="118730816" result="Passed" start-time="2026-11-16 22:41:14Z" end-time="2026-11-16 22:41:14Z" duration="0.001964" asserts="0">
+        <test-case id="1025" name="CommonJoinFailuresHaveSpecificFeedback" fullname="LobbyBrowserTests.CommonJoinFailuresHaveSpecificFeedback" methodname="CommonJoinFailuresHaveSpecificFeedback" classname="LobbyBrowserTests" runstate="Runnable" seed="1080871136" result="Passed" start-time="2026-11-16 23:05:48Z" end-time="2026-11-16 23:05:48Z" duration="0.002066" asserts="0">
           <properties>
             <property name="retryIteration" value="0" />
             <property name="repeatIteration" value="0" />
           </properties>
         </test-case>
-        <test-suite type="ParameterizedMethod" id="1021" name="InvalidNamesAreRejected" fullname="LobbyBrowserTests.InvalidNamesAreRejected" classname="LobbyBrowserTests" runstate="Runnable" testcasecount="5" result="Passed" start-time="2026-11-16 22:41:14Z" end-time="2026-11-16 22:41:14Z" duration="0.019774" total="5" passed="5" failed="0" inconclusive="0" skipped="0" asserts="0">
+        <test-suite type="ParameterizedMethod" id="1022" name="InvalidNamesAreRejected" fullname="LobbyBrowserTests.InvalidNamesAreRejected" classname="LobbyBrowserTests" runstate="Runnable" testcasecount="5" result="Passed" start-time="2026-11-16 23:05:48Z" end-time="2026-11-16 23:05:48Z" duration="0.039717" total="5" passed="5" failed="0" inconclusive="0" skipped="0" asserts="0">
           <properties />
-          <test-case id="1016" name="InvalidNamesAreRejected(&quot;&quot;)" fullname="LobbyBrowserTests.InvalidNamesAreRejected(&quot;&quot;)" methodname="InvalidNamesAreRejected" classname="LobbyBrowserTests" runstate="Runnable" seed="483729111" result="Passed" start-time="2026-11-16 22:41:14Z" end-time="2026-11-16 22:41:14Z" duration="0.006838" asserts="0">
+          <test-case id="1017" name="InvalidNamesAreRejected(&quot;&quot;)" fullname="LobbyBrowserTests.InvalidNamesAreRejected(&quot;&quot;)" methodname="InvalidNamesAreRejected" classname="LobbyBrowserTests" runstate="Runnable" seed="1659724453" result="Passed" start-time="2026-11-16 23:05:48Z" end-time="2026-11-16 23:05:48Z" duration="0.005818" asserts="0">
             <properties>
               <property name="retryIteration" value="0" />
               <property name="repeatIteration" value="0" />
             </properties>
           </test-case>
-          <test-case id="1017" name="InvalidNamesAreRejected(&quot;x&quot;)" fullname="LobbyBrowserTests.InvalidNamesAreRejected(&quot;x&quot;)" methodname="InvalidNamesAreRejected" classname="LobbyBrowserTests" runstate="Runnable" seed="2121302529" result="Passed" start-time="2026-11-16 22:41:14Z" end-time="2026-11-16 22:41:14Z" duration="0.000112" asserts="0">
+          <test-case id="1018" name="InvalidNamesAreRejected(&quot;x&quot;)" fullname="LobbyBrowserTests.InvalidNamesAreRejected(&quot;x&quot;)" methodname="InvalidNamesAreRejected" classname="LobbyBrowserTests" runstate="Runnable" seed="663075070" result="Passed" start-time="2026-11-16 23:05:48Z" end-time="2026-11-16 23:05:48Z" duration="0.000152" asserts="0">
             <properties>
               <property name="retryIteration" value="0" />
               <property name="repeatIteration" value="0" />
             </properties>
           </test-case>
-          <test-case id="1018" name="InvalidNamesAreRejected(&quot;Name\nsecond line&quot;)" fullname="LobbyBrowserTests.InvalidNamesAreRejected(&quot;Name\nsecond line&quot;)" methodname="InvalidNamesAreRejected" classname="LobbyBrowserTests" runstate="Runnable" seed="871945236" result="Passed" start-time="2026-11-16 22:41:14Z" end-time="2026-11-16 22:41:14Z" duration="0.000183" asserts="0">
+          <test-case id="1019" name="InvalidNamesAreRejected(&quot;Name\nsecond line&quot;)" fullname="LobbyBrowserTests.InvalidNamesAreRejected(&quot;Name\nsecond line&quot;)" methodname="InvalidNamesAreRejected" classname="LobbyBrowserTests" runstate="Runnable" seed="1109058389" result="Passed" start-time="2026-11-16 23:05:48Z" end-time="2026-11-16 23:05:48Z" duration="0.000224" asserts="0">
             <properties>
               <property name="retryIteration" value="0" />
               <property name="repeatIteration" value="0" />
             </properties>
           </test-case>
-          <test-case id="1019" name="InvalidNamesAreRejected(&quot;&lt;b&gt;Name&lt;/b&gt;&quot;)" fullname="LobbyBrowserTests.InvalidNamesAreRejected(&quot;&lt;b&gt;Name&lt;/b&gt;&quot;)" methodname="InvalidNamesAreRejected" classname="LobbyBrowserTests" runstate="Runnable" seed="1883438200" result="Passed" start-time="2026-11-16 22:41:14Z" end-time="2026-11-16 22:41:14Z" duration="0.000092" asserts="0">
+          <test-case id="1020" name="InvalidNamesAreRejected(&quot;&lt;b&gt;Name&lt;/b&gt;&quot;)" fullname="LobbyBrowserTests.InvalidNamesAreRejected(&quot;&lt;b&gt;Name&lt;/b&gt;&quot;)" methodname="InvalidNamesAreRejected" classname="LobbyBrowserTests" runstate="Runnable" seed="1957014181" result="Passed" start-time="2026-11-16 23:05:48Z" end-time="2026-11-16 23:05:48Z" duration="0.000098" asserts="0">
             <properties>
               <property name="retryIteration" value="0" />
               <property name="repeatIteration" value="0" />
             </properties>
           </test-case>
-          <test-case id="1020" name="InvalidNamesAreRejected(&quot;Name longer than twenty four characters&quot;)" fullname="LobbyBrowserTests.InvalidNamesAreRejected(&quot;Name longer than twenty four characters&quot;)" methodname="InvalidNamesAreRejected" classname="LobbyBrowserTests" runstate="Runnable" seed="637469461" result="Passed" start-time="2026-11-16 22:41:14Z" end-time="2026-11-16 22:41:14Z" duration="0.000070" asserts="0">
+          <test-case id="1021" name="InvalidNamesAreRejected(&quot;Name longer than twenty four characters&quot;)" fullname="LobbyBrowserTests.InvalidNamesAreRejected(&quot;Name longer than twenty four characters&quot;)" methodname="InvalidNamesAreRejected" classname="LobbyBrowserTests" runstate="Runnable" seed="1575589419" result="Passed" start-time="2026-11-16 23:05:48Z" end-time="2026-11-16 23:05:48Z" duration="0.000080" asserts="0">
             <properties>
               <property name="retryIteration" value="0" />
               <property name="repeatIteration" value="0" />
             </properties>
           </test-case>
         </test-suite>
-        <test-case id="1025" name="LobbySceneContainsWiredMobileUi" fullname="LobbyBrowserTests.LobbySceneContainsWiredMobileUi" methodname="LobbySceneContainsWiredMobileUi" classname="LobbyBrowserTests" runstate="Runnable" seed="1790050245" result="Passed" start-time="2026-11-16 22:41:14Z" end-time="2026-11-16 22:41:14Z" duration="0.020956" asserts="0">
+        <test-case id="1010" name="LegacyLobbyIsPreservedSeparatelyAndExcludedFromBuild" fullname="LobbyBrowserTests.LegacyLobbyIsPreservedSeparatelyAndExcludedFromBuild" methodname="LegacyLobbyIsPreservedSeparatelyAndExcludedFromBuild" classname="LobbyBrowserTests" runstate="Runnable" seed="652294171" result="Passed" start-time="2026-11-16 23:05:48Z" end-time="2026-11-16 23:05:48Z" duration="0.036026" asserts="0">
           <properties>
             <property name="retryIteration" value="0" />
             <property name="repeatIteration" value="0" />
           </properties>
         </test-case>
-        <test-case id="1010" name="NameEditorKeepsTheSavedNameWhenValidationFails" fullname="LobbyBrowserTests.NameEditorKeepsTheSavedNameWhenValidationFails" methodname="NameEditorKeepsTheSavedNameWhenValidationFails" classname="LobbyBrowserTests" runstate="Runnable" seed="1408749629" result="Passed" start-time="2026-11-16 22:41:14Z" end-time="2026-11-16 22:41:14Z" duration="0.023263" asserts="0">
+        <test-case id="1026" name="LobbySceneContainsWiredMobileUi" fullname="LobbyBrowserTests.LobbySceneContainsWiredMobileUi" methodname="LobbySceneContainsWiredMobileUi" classname="LobbyBrowserTests" runstate="Runnable" seed="188622675" result="Passed" start-time="2026-11-16 23:05:48Z" end-time="2026-11-16 23:05:48Z" duration="0.021961" asserts="0">
           <properties>
             <property name="retryIteration" value="0" />
             <property name="repeatIteration" value="0" />
           </properties>
         </test-case>
-        <test-suite type="ParameterizedMethod" id="1015" name="NamesAreTrimmed" fullname="LobbyBrowserTests.NamesAreTrimmed" classname="LobbyBrowserTests" runstate="Runnable" testcasecount="2" result="Passed" start-time="2026-11-16 22:41:14Z" end-time="2026-11-16 22:41:14Z" duration="0.008915" total="2" passed="2" failed="0" inconclusive="0" skipped="0" asserts="0">
+        <test-case id="1011" name="NameEditorKeepsTheSavedNameWhenValidationFails" fullname="LobbyBrowserTests.NameEditorKeepsTheSavedNameWhenValidationFails" methodname="NameEditorKeepsTheSavedNameWhenValidationFails" classname="LobbyBrowserTests" runstate="Runnable" seed="1549184593" result="Passed" start-time="2026-11-16 23:05:48Z" end-time="2026-11-16 23:05:48Z" duration="0.023396" asserts="0">
+          <properties>
+            <property name="retryIteration" value="0" />
+            <property name="repeatIteration" value="0" />
+          </properties>
+        </test-case>
+        <test-suite type="ParameterizedMethod" id="1016" name="NamesAreTrimmed" fullname="LobbyBrowserTests.NamesAreTrimmed" classname="LobbyBrowserTests" runstate="Runnable" testcasecount="2" result="Passed" start-time="2026-11-16 23:05:48Z" end-time="2026-11-16 23:05:48Z" duration="0.005670" total="2" passed="2" failed="0" inconclusive="0" skipped="0" asserts="0">
           <properties />
-          <test-case id="1013" name="NamesAreTrimmed(&quot;  Storm Mage  &quot;,&quot;Storm Mage&quot;)" fullname="LobbyBrowserTests.NamesAreTrimmed(&quot;  Storm Mage  &quot;,&quot;Storm Mage&quot;)" methodname="NamesAreTrimmed" classname="LobbyBrowserTests" runstate="Runnable" seed="971884966" result="Passed" start-time="2026-11-16 22:41:14Z" end-time="2026-11-16 22:41:14Z" duration="0.000406" asserts="0">
+          <test-case id="1014" name="NamesAreTrimmed(&quot;  Storm Mage  &quot;,&quot;Storm Mage&quot;)" fullname="LobbyBrowserTests.NamesAreTrimmed(&quot;  Storm Mage  &quot;,&quot;Storm Mage&quot;)" methodname="NamesAreTrimmed" classname="LobbyBrowserTests" runstate="Runnable" seed="705678946" result="Passed" start-time="2026-11-16 23:05:48Z" end-time="2026-11-16 23:05:48Z" duration="0.000607" asserts="0">
             <properties>
               <property name="retryIteration" value="0" />
               <property name="repeatIteration" value="0" />
             </properties>
           </test-case>
-          <test-case id="1014" name="NamesAreTrimmed(&quot;Ralph&quot;,&quot;Ralph&quot;)" fullname="LobbyBrowserTests.NamesAreTrimmed(&quot;Ralph&quot;,&quot;Ralph&quot;)" methodname="NamesAreTrimmed" classname="LobbyBrowserTests" runstate="Runnable" seed="1343668976" result="Passed" start-time="2026-11-16 22:41:14Z" end-time="2026-11-16 22:41:14Z" duration="0.000086" asserts="0">
+          <test-case id="1015" name="NamesAreTrimmed(&quot;Ralph&quot;,&quot;Ralph&quot;)" fullname="LobbyBrowserTests.NamesAreTrimmed(&quot;Ralph&quot;,&quot;Ralph&quot;)" methodname="NamesAreTrimmed" classname="LobbyBrowserTests" runstate="Runnable" seed="454531522" result="Passed" start-time="2026-11-16 23:05:48Z" end-time="2026-11-16 23:05:48Z" duration="0.000074" asserts="0">
             <properties>
               <property name="retryIteration" value="0" />
               <property name="repeatIteration" value="0" />
             </properties>
           </test-case>
         </test-suite>
-        <test-case id="1023" name="OpenGamesDoNotCarryAPassword" fullname="LobbyBrowserTests.OpenGamesDoNotCarryAPassword" methodname="OpenGamesDoNotCarryAPassword" classname="LobbyBrowserTests" runstate="Runnable" seed="556716917" result="Passed" start-time="2026-11-16 22:41:14Z" end-time="2026-11-16 22:41:14Z" duration="0.001267" asserts="0">
+        <test-case id="1024" name="OpenGamesDoNotCarryAPassword" fullname="LobbyBrowserTests.OpenGamesDoNotCarryAPassword" methodname="OpenGamesDoNotCarryAPassword" classname="LobbyBrowserTests" runstate="Runnable" seed="891481731" result="Passed" start-time="2026-11-16 23:05:48Z" end-time="2026-11-16 23:05:48Z" duration="0.001290" asserts="0">
           <properties>
             <property name="retryIteration" value="0" />
             <property name="repeatIteration" value="0" />
           </properties>
         </test-case>
-        <test-case id="1022" name="PasswordUsesServiceValidationAndRelayIsNotPublic" fullname="LobbyBrowserTests.PasswordUsesServiceValidationAndRelayIsNotPublic" methodname="PasswordUsesServiceValidationAndRelayIsNotPublic" classname="LobbyBrowserTests" runstate="Runnable" seed="823523444" result="Passed" start-time="2026-11-16 22:41:14Z" end-time="2026-11-16 22:41:14Z" duration="0.000885" asserts="0">
+        <test-case id="1023" name="PasswordUsesServiceValidationAndRelayIsNotPublic" fullname="LobbyBrowserTests.PasswordUsesServiceValidationAndRelayIsNotPublic" methodname="PasswordUsesServiceValidationAndRelayIsNotPublic" classname="LobbyBrowserTests" runstate="Runnable" seed="389387621" result="Passed" start-time="2026-11-16 23:05:48Z" end-time="2026-11-16 23:05:48Z" duration="0.000918" asserts="0">
           <properties>
             <property name="retryIteration" value="0" />
             <property name="repeatIteration" value="0" />
           </properties>
         </test-case>
-        <test-case id="1026" name="ProtectedRowShowsHostAndJoinsTheSelectedGame" fullname="LobbyBrowserTests.ProtectedRowShowsHostAndJoinsTheSelectedGame" methodname="ProtectedRowShowsHostAndJoinsTheSelectedGame" classname="LobbyBrowserTests" runstate="Runnable" seed="807081975" result="Passed" start-time="2026-11-16 22:41:14Z" end-time="2026-11-16 22:41:14Z" duration="0.022949" asserts="0">
+        <test-case id="1027" name="ProtectedRowShowsHostAndJoinsTheSelectedGame" fullname="LobbyBrowserTests.ProtectedRowShowsHostAndJoinsTheSelectedGame" methodname="ProtectedRowShowsHostAndJoinsTheSelectedGame" classname="LobbyBrowserTests" runstate="Runnable" seed="1562145328" result="Passed" start-time="2026-11-16 23:05:48Z" end-time="2026-11-16 23:05:48Z" duration="0.021738" asserts="0">
           <properties>
             <property name="retryIteration" value="0" />
             <property name="repeatIteration" value="0" />
           </properties>
         </test-case>
-        <test-case id="1012" name="TabSelectionHasAPersistentIndicator" fullname="LobbyBrowserTests.TabSelectionHasAPersistentIndicator" methodname="TabSelectionHasAPersistentIndicator" classname="LobbyBrowserTests" runstate="Runnable" seed="129275380" result="Passed" start-time="2026-11-16 22:41:14Z" end-time="2026-11-16 22:41:14Z" duration="0.035990" asserts="0">
+        <test-case id="1013" name="TabSelectionHasAPersistentIndicator" fullname="LobbyBrowserTests.TabSelectionHasAPersistentIndicator" methodname="TabSelectionHasAPersistentIndicator" classname="LobbyBrowserTests" runstate="Runnable" seed="301265380" result="Passed" start-time="2026-11-16 23:05:48Z" end-time="2026-11-16 23:05:48Z" duration="0.021343" asserts="0">
           <properties>
             <property name="retryIteration" value="0" />
             <property name="repeatIteration" value="0" />

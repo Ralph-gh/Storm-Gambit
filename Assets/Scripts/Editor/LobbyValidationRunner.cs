@@ -94,6 +94,13 @@ public static class LobbyValidationRunner
             camera.backgroundColor = Color.black;
             camera.orthographic = true;
             camera.transform.position = new Vector3(0, 0, -10);
+            var landing = browser.navigation.landing.GetComponent<Canvas>();
+            landing.renderMode = RenderMode.ScreenSpaceCamera;
+            landing.worldCamera = camera;
+            landing.planeDistance = 1;
+            Capture(camera, ".utmp/lobby-landing.png");
+            browser.navigation.landing.SetActive(false);
+            browser.gameObject.SetActive(true);
             var canvas = browser.GetComponent<Canvas>();
             canvas.renderMode = RenderMode.ScreenSpaceCamera;
             canvas.worldCamera = camera;

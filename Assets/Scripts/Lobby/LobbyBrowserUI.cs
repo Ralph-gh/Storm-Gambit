@@ -9,6 +9,7 @@ using UIButton = UnityEngine.UI.Button;
 public class LobbyBrowserUI : MonoBehaviour
 {
     public LobbySceneController controller;
+    [HideInInspector] public LobbyMenuNavigation navigation;
     public TMP_InputField playerNameInput;
     public TMP_InputField roomNameInput;
     public TMP_InputField hostPasswordInput;
@@ -30,6 +31,8 @@ public class LobbyBrowserUI : MonoBehaviour
     private bool hostingTab;
     private bool editingName;
     private bool bound;
+    private bool initialized;
+    private bool returning;
     private string localFeedback;
     private Lobby selectedGame;
     private IReadOnlyList<Lobby> renderedGames;
@@ -50,7 +53,7 @@ public class LobbyBrowserUI : MonoBehaviour
         playerNameInput.onSubmit.AddListener(_ => SavePlayerName());
         createButton.onClick.AddListener(CreateGame);
         leaveButton.onClick.AddListener(LeaveGame);
-        backButton.onClick.AddListener(controller.BackToMainMenu);
+        backButton.onClick.AddListener(ReturnToLobby);
         passwordJoinButton.onClick.AddListener(JoinSelectedGame);
         passwordCancelButton.onClick.AddListener(ClosePasswordDialog);
         passwordToggle.onValueChanged.AddListener(value =>
@@ -59,11 +62,23 @@ public class LobbyBrowserUI : MonoBehaviour
             if (!value) hostPasswordInput.text = "";
         });
         hostPasswordInput.interactable = passwordToggle.isOn;
+        initialized = true;
+        Bind();
+        Render();
+    }
+
+    private void OnEnable()
+    {
+        if (initialized) { Bind(); Render(); }
+    }
+
+    private void Bind()
+    {
+        if (bound) return;
         service.Changed += Render;
         controller.StatusChanged += ShowNetworkStatus;
         service.AttachBrowser();
         bound = true;
-        Render();
     }
 
     private void Update()
@@ -128,12 +143,37 @@ public class LobbyBrowserUI : MonoBehaviour
         playerNameLabel.text = playerNameInput.text;
     }
 
-    private void SelectTab(bool host)
+    public void SelectTab(bool host)
     {
         hostingTab = host;
         localFeedback = null;
         ClosePasswordDialog();
+        browsePanel.SetActive(!host);
+        hostPanel.SetActive(host);
+        waitingPanel.SetActive(false);
+        LobbyUIBuilder.SetTabSelected(browseTab, !host);
+        LobbyUIBuilder.SetTabSelected(hostTab, host);
         Render();
+    }
+
+    public async void ReturnToLobby()
+    {
+        if (returning) return;
+        if (navigation == null) { controller.BackToMainMenu(); return; }
+        returning = true;
+        backButton.interactable = false;
+        try
+        {
+            if (service != null) await service.LeaveAsync();
+            if (this == null) return;
+            ClosePasswordDialog();
+            localFeedback = null;
+            navigation.ShowLanding();
+        }
+        finally
+        {
+            if (this != null) { returning = false; backButton.interactable = true; }
+        }
     }
 
     private void RefreshGames()
