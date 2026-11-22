@@ -11,6 +11,23 @@ public class VictoryPanelUI : MonoBehaviour
     [SerializeField] private GameObject panelRoot;
     [SerializeField] private GameObject resultsTabButton;
 
+    [Header("Result artwork")]
+    [SerializeField] private Image resultEmblem;
+    [SerializeField] private Sprite whiteKing;
+    [SerializeField] private Sprite blackKing;
+
+    public void SetResultArtwork(string result)
+    {
+        if (!resultEmblem) return;
+        resultEmblem.sprite = result switch
+        {
+            "White Wins!" => whiteKing,
+            "Black Wins!" => blackKing,
+            _ => null
+        };
+        resultEmblem.enabled = resultEmblem.sprite != null;
+    }
+
     [Header("Scene Navigation")]
     [SerializeField] private string mainMenuSceneName = "MainMenu";
 
@@ -34,7 +51,7 @@ public class VictoryPanelUI : MonoBehaviour
         if (restartOrRematchLabel != null)
         {
             restartOrRematchLabel.text =
-                IsNetworked ? "REMATCH" : "RESTART";
+                IsNetworked ? "Rematch" : "Restart";
         }
 
         if (restartOrRematchButton != null)

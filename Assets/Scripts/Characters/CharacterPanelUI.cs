@@ -42,6 +42,14 @@ public class CharacterPanelUI : MonoBehaviour
         // You WANT it clickable now
         active.SetInteractable(true);
 
+        if (SpellRules.IsNet || (SoloSession.IsConfigured &&
+            SoloSession.AIEnabled && SoloSession.Opponent == SoloOpponent.Stockfish))
+        {
+            if (!TryGetComponent<MageDuelHUD>(out var duel)) duel = gameObject.AddComponent<MageDuelHUD>();
+            duel.enabled = true;
+            duel.Bind(active, character, SpellRules.IsNet);
+        }
+
         gameObject.SetActive(true);
     }
 
@@ -91,6 +99,7 @@ public class CharacterPanelUI : MonoBehaviour
     }
     public void Clear()
     {
+        if (TryGetComponent<MageDuelHUD>(out var duel)) duel.enabled = false;
         if (active) Destroy(active.gameObject);
         active = null;
     }

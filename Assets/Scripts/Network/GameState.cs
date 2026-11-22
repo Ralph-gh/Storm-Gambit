@@ -1349,8 +1349,7 @@ public partial class GameState : NetworkBehaviour
         if (board == null) return;
 
         board.gameOver = true; // optional local freeze
-        if (board.victoryScreen) board.victoryScreen.SetActive(true);
-        if (board.victoryText) board.victoryText.text = winnerText;
+        board.DisplayResult(winnerText);
         if (board.audioSource && board.victoryClip)
             board.audioSource.PlayOneShot(board.victoryClip);
     }

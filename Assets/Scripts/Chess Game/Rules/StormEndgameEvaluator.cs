@@ -119,8 +119,7 @@ public static class StormEndgameEvaluator
     {
         ChessBoard board = ChessBoard.Instance;
 
-        if (board.victoryScreen != null) board.victoryScreen.SetActive(true);
-        if (board.victoryText != null) board.victoryText.text = winnerText;
+        board.DisplayResult(winnerText);
         if (board.audioSource != null && board.victoryClip != null) board.audioSource.PlayOneShot(board.victoryClip);
     }
 }

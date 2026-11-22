@@ -8,6 +8,8 @@ public class NetPlayer : NetworkBehaviour
     public static NetPlayer Local; // convenience
     public NetworkVariable<FixedString128Bytes> PlayerName = new NetworkVariable<FixedString128Bytes>(
         default, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Owner);
+    public NetworkVariable<FixedString128Bytes> MageCardName = new NetworkVariable<FixedString128Bytes>(
+        default, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Owner);
     public NetworkVariable<TeamColor> Side = new NetworkVariable<TeamColor>();
     public NetworkVariable<int> SpellCount = new NetworkVariable<int>(
     3,

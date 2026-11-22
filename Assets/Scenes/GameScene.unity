@@ -1980,6 +1980,17 @@ MonoBehaviour:
   boardSlot: {fileID: 1209428698}
   boardTilemap: {fileID: 1919141584}
   padding: 1.02
+--- !u!114 &1826334901 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 5722093380889003347, guid: 86bf95ebbd6438142805ca812ac19fb3, type: 3}
+  m_PrefabInstance: {fileID: 3018241106527298781}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f4688fdb7df04437aeb418b961361dc5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &615529229 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 4078047601637978137, guid: 86bf95ebbd6438142805ca812ac19fb3, type: 3}
@@ -6812,7 +6823,7 @@ MonoBehaviour:
   resurrectionAllowed: 0
   gameOver: 0
   victoryScreen: {fileID: 615529229}
-  victoryText: {fileID: 1745386238}
+  victoryText: {fileID: 1826334901}
   victoryClip: {fileID: 8300000, guid: 44162de702fa7674e833e5871db75901, type: 3}
   captureClip: {fileID: 8300000, guid: 2808625c177876e46ba55c52fc93f108, type: 3}
   audioSource: {fileID: 2129786012}
@@ -7689,26 +7700,6 @@ PrefabInstance:
     - target: {fileID: 5624209648799014320, guid: 86bf95ebbd6438142805ca812ac19fb3, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 6535463137884710237, guid: 86bf95ebbd6438142805ca812ac19fb3, type: 3}
-      propertyPath: m_SizeDelta.x
-      value: 750
-      objectReference: {fileID: 0}
-    - target: {fileID: 6535463137884710237, guid: 86bf95ebbd6438142805ca812ac19fb3, type: 3}
-      propertyPath: m_SizeDelta.y
-      value: 800
-      objectReference: {fileID: 0}
-    - target: {fileID: 6535463137884710237, guid: 86bf95ebbd6438142805ca812ac19fb3, type: 3}
-      propertyPath: m_LocalScale.x
-      value: 0.820513
-      objectReference: {fileID: 0}
-    - target: {fileID: 6535463137884710237, guid: 86bf95ebbd6438142805ca812ac19fb3, type: 3}
-      propertyPath: m_LocalScale.y
-      value: 0.820513
-      objectReference: {fileID: 0}
-    - target: {fileID: 6535463137884710237, guid: 86bf95ebbd6438142805ca812ac19fb3, type: 3}
-      propertyPath: m_LocalScale.z
-      value: 0.820513
       objectReference: {fileID: 0}
     - target: {fileID: 6535463137884710237, guid: 86bf95ebbd6438142805ca812ac19fb3, type: 3}
       propertyPath: m_LocalRotation.x

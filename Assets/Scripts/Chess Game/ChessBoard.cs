@@ -15,6 +15,15 @@ public class ChessBoard : NetworkBehaviour
     public bool gameOver = false;
     public GameObject victoryScreen;
     public TMPro.TextMeshProUGUI victoryText; // or UnityEngine.UI.Text
+    public void DisplayResult(string result)
+    {
+        if (victoryText) victoryText.text = result;
+        if (!victoryScreen) return;
+        if (victoryScreen.TryGetComponent<VictoryPanelUI>(out var panel))
+            panel.SetResultArtwork(result);
+        victoryScreen.SetActive(true);
+    }
+
     public AudioClip victoryClip;
     public AudioClip captureClip;
     public AudioSource audioSource;
@@ -450,8 +459,7 @@ public class ChessBoard : NetworkBehaviour
 
                 if (victoryScreen != null)                            //moved to network
                 {
-                    victoryScreen.SetActive(true);
-                    victoryText.text = winner;
+                    DisplayResult(winner);
                     if (victoryClip != null && audioSource != null)
                         audioSource.PlayOneShot(victoryClip);
                 }

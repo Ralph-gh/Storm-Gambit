@@ -442,11 +442,7 @@ public static class StockfishNoMoveResolver
         if (board == null)
             return;
 
-        if (board.victoryScreen != null)
-            board.victoryScreen.SetActive(true);
-
-        if (board.victoryText != null)
-            board.victoryText.text = message;
+        board.DisplayResult(message);
 
         if (board.audioSource != null &&
             board.victoryClip != null)
