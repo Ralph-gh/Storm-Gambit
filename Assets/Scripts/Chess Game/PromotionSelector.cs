@@ -163,7 +163,7 @@ public class PromotionSelector : MonoBehaviour
 
         ChessBoard.Instance.pawnToPromote = null;
 
-        TurnManager.Instance.NextTurn();
+        TurnManager.Instance.CompleteChessMove();
 
         gameObject.SetActive(false);
     }

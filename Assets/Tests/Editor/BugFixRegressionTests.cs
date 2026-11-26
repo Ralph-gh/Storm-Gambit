@@ -63,7 +63,7 @@ public class BugFixRegressionTests
         yield return new ExitPlayMode();
     }
 
-    private CardDrawer Hand(int count = 3)
+    private CardDrawer Hand(int count = 0)
     {
         CardData data = ScriptableObject.CreateInstance<CardData>();
         created.Add(data);
@@ -77,9 +77,51 @@ public class BugFixRegressionTests
         drawer.defaultCardPool = new List<CardData> { data };
         drawer.cardPrefab = prefab.gameObject;
         drawer.handPanel = New<Transform>("Hand panel");
-        drawer.startingCardCount = count;
+
         Call(drawer, "Start");
+        if (!SpellRules.IsNet)
+        {
+            for (int id = 1; id <= count; id++)
+            {
+                if (id > 1) drawer.DrawOneSpellCard();
+                drawer.Choose(id, 0);
+            }
+        }
         return drawer;
+    }
+
+    [Test]
+    public void OffersContainUpToThreeDistinctEligibleCards()
+    {
+        CardDrawer drawer = Hand();
+        CardData first = drawer.defaultCardPool[0];
+        drawer.defaultCardPool.Add(first);
+        drawer.defaultCardPool.Add(null);
+        var mage = ScriptableObject.CreateInstance<CardData>();
+        created.Add(mage);
+        mage.cardtype = CardType.Character;
+        drawer.defaultCardPool.Add(mage);
+        Assert.AreEqual(1, drawer.SampleOffer().Length);
+        for (int i = 0; i < 3; i++)
+        {
+            var extra = ScriptableObject.CreateInstance<CardData>();
+            created.Add(extra);
+            extra.cardtype = CardType.Spell;
+            drawer.defaultCardPool.Add(extra);
+        }
+        var unique = new HashSet<CardData>();
+        int[] offer = drawer.SampleOffer();
+        Assert.AreEqual(3, offer.Length);
+        foreach (int index in offer)
+        {
+            CardData card = drawer.defaultCardPool[index];
+            Assert.AreEqual(CardType.Spell, card.cardtype);
+            Assert.IsTrue(unique.Add(card));
+        }
+        Assert.AreEqual(0, drawer.CurrentSpellCount);
+        drawer.Choose(1, 0);
+        drawer.Choose(1, 0);
+        Assert.AreEqual(1, drawer.CurrentSpellCount);
     }
 
     private ChessPiece Piece(int id, TeamColor side, PieceType type, int x, int y)
@@ -121,6 +163,49 @@ public class BugFixRegressionTests
         Assert.IsFalse(rook.IsStunned);
     }
 
+    [UnityTest]
+    public IEnumerator MinorResurrectionOffersOnlyEligiblePiecesAndKeepsTheStun()
+    {
+        var data = AssetDatabase.LoadAssetAtPath<CardData>(
+            "Assets/ScriptableObjects/Cards/MinorResurrection.asset");
+        Assert.IsNotNull(data.fullCardSprite);
+        Assert.IsNotNull(data.spellUI);
+        var canvas = New<Canvas>("MainCanvas");
+        var handCard = New<CardUI>("Minor Resurrection");
+        handCard.cardButton = handCard.gameObject.AddComponent<UnityEngine.UI.Button>();
+        var captured = board.graveyard.GetCapturedByTeam(TeamColor.White);
+        foreach (PieceType type in new[] { PieceType.Rook, PieceType.Pawn, PieceType.Knight, PieceType.Bishop })
+        {
+            var template = New<ChessPiece>(type.ToString());
+            template.team = TeamColor.White;
+            template.pieceType = type;
+            template.startingCell = new Vector2Int(captured.Count, 0);
+            template.originalPrefab = template.gameObject;
+            captured.Add(new ChessBoard.CapturedPieceData(template));
+        }
+
+        handCard.LoadCard(data);
+        handCard.cardButton.onClick.Invoke();
+        var spell = canvas.GetComponentInChildren<ResurrectionSpellUI>();
+        Assert.IsNotNull(spell);
+        yield return null;
+        Assert.AreEqual(3, spell.whiteContainer.GetComponentsInChildren<ResurrectionButton>().Length);
+        spell.Resurrect(captured[0]);
+        Assert.AreEqual(4, captured.Count);
+        Assert.IsFalse(turns.HasCastFreeSpellThisTurn);
+        var knight = captured[2];
+        spell.Resurrect(knight);
+        var revived = board.GetPieceAt(knight.originalPosition);
+        Assert.IsNotNull(revived);
+        created.Add(revived.gameObject);
+        Assert.AreEqual(PieceType.Knight, revived.pieceType);
+        Assert.IsTrue(revived.IsStunned);
+        Assert.IsFalse(captured.Contains(knight));
+        Assert.IsTrue(turns.HasCastFreeSpellThisTurn);
+        yield return null;
+        Assert.IsTrue(handCard == null);
+    }
+
     private GameState Host(out NetPlayer player)
     {
         manager = New<NetworkManager>("Test network");
@@ -138,6 +223,12 @@ public class BugFixRegressionTests
         created.Add(playerObject);
         player = playerObject.GetComponent<NetPlayer>();
         playerObject.GetComponent<NetworkObject>().SpawnWithOwnership(NetworkManager.ServerClientId);
+        CardDrawer.Instance.SyncSpellCountToNetwork();
+        state.PickCardRpc(1, 0);
+        Assert.AreEqual(0, player.SpellCount.Value, "A player cannot pick before an offer exists.");
+        // Host-only fixture: exercise the same draw that begins when both clients are ready.
+        Call(state, "BeginDraw");
+        CardDrawer.Instance.Choose(1, 0);
         return state;
     }
 
@@ -147,6 +238,9 @@ public class BugFixRegressionTests
         CardDrawer drawer = Hand(2);
         Assert.AreEqual(2, drawer.CurrentSpellCount);
         drawer.DrawOneSpellCard();
+        Assert.AreEqual(2, drawer.CurrentSpellCount);
+        drawer.Choose(3, 0);
+        drawer.Choose(3, 0);
         Assert.AreEqual(3, drawer.CurrentSpellCount);
         CardUI card = drawer.handPanel.GetChild(0).GetComponent<CardUI>();
         card.CancelPendingSpellCast();
@@ -182,14 +276,22 @@ public class BugFixRegressionTests
         GameState state = Host(out NetPlayer player);
         player.Side.Value = TeamColor.Black;
         state.CurrentTurn.Value = TeamColor.Black;
-        state.MoveNumber.Value = 9;
+        state.MoveNumber.Value = 7;
+        var schedule = new CardDrawSchedule();
+        for (int i = 0; i < 6; i++)
+        {
+            schedule.Record(TeamColor.White);
+            schedule.Record(TeamColor.Black);
+        }
+        schedule.Record(TeamColor.White);
+        Set(state, "drawSchedule", schedule);
         ChessPiece pawn = Piece(10, TeamColor.Black, PieceType.Pawn, 0, 6);
         ChessPiece opponent = Piece(11, TeamColor.White, PieceType.Pawn, 0, 1);
         Set(pawn, "awaitingNetworkMove", true);
         pawn.transform.position = new Vector3(99, 99, 0);
         state.RequestMoveServerRpc(pawn.Id, 99, 99);
-        Assert.AreEqual(9, state.MoveNumber.Value);
-        Assert.AreEqual(3, drawer.CurrentSpellCount);
+        Assert.AreEqual(7, state.MoveNumber.Value);
+        Assert.AreEqual(1, drawer.CurrentSpellCount);
         Assert.AreEqual(initializer.GetWorldPosition(pawn.currentCell), pawn.transform.position);
         Assert.IsFalse((bool)typeof(ChessPiece).GetField("awaitingNetworkMove",
             BindingFlags.Instance | BindingFlags.NonPublic).GetValue(pawn));
@@ -198,13 +300,19 @@ public class BugFixRegressionTests
         Set(state, "pendingPromotionPawnId", pawn.Id);
         state.RequestMoveServerRpc(pawn.Id, 0, 5);
         Assert.AreEqual(new Vector2Int(0, 6), pawn.currentCell);
-        Assert.AreEqual(9, state.MoveNumber.Value);
+        Assert.AreEqual(7, state.MoveNumber.Value);
         Set(state, "pendingPromotionPawnId", -1);
         state.RequestMoveServerRpc(pawn.Id, 0, 5);
         Assert.AreEqual(new Vector2Int(0, 5), pawn.currentCell);
-        Assert.AreEqual(10, state.MoveNumber.Value);
-        Assert.AreEqual(4, drawer.CurrentSpellCount);
-        Assert.AreEqual(4, player.SpellCount.Value);
+        Assert.AreEqual(8, state.MoveNumber.Value);
+        Assert.IsTrue(CardDrawer.BlocksPlay);
+        state.PickCardRpc(1, 0);
+        state.PickCardRpc(2, 99);
+        Assert.AreEqual(1, player.SpellCount.Value);
+        drawer.Choose(2, 0);
+        state.PickCardRpc(2, 0);
+        Assert.AreEqual(2, drawer.CurrentSpellCount);
+        Assert.AreEqual(2, player.SpellCount.Value);
         yield return null;
     }
 
@@ -221,21 +329,21 @@ public class BugFixRegressionTests
         state.RequestSpell(NetworkSpellKind.Protection, result => accepted = result, enemy.Id);
         Assert.AreEqual(false, accepted);
         Assert.IsFalse(enemy.IsDivinelyProtected);
-        Assert.AreEqual(3, player.SpellCount.Value);
+        Assert.AreEqual(1, player.SpellCount.Value);
         state.RequestSpell(NetworkSpellKind.Protection, result => accepted = result, own.Id);
         Assert.AreEqual(true, accepted);
         Assert.IsTrue(own.IsDivinelyProtected);
-        Assert.AreEqual(2, player.SpellCount.Value);
+        Assert.AreEqual(0, player.SpellCount.Value);
         state.RequestSpell(NetworkSpellKind.Freeze, result => accepted = result, enemy.Id);
         Assert.AreEqual(false, accepted);
         Assert.IsFalse(enemy.IsFrozen);
-        Assert.AreEqual(2, player.SpellCount.Value);
+        Assert.AreEqual(0, player.SpellCount.Value);
         FreezeSpellUI freezeUI = New<FreezeSpellUI>("Rejected freeze UI");
         freezeUI.enabled = false;
         freezeUI.BindSourceCard(drawer.handPanel.GetChild(0).GetComponent<CardUI>());
         Call(freezeUI, "Freeze", enemy);
-        Assert.AreEqual(3, drawer.CurrentSpellCount, "A rejected UI request must retain its source card.");
-        Assert.AreEqual(3, drawer.handPanel.childCount);
+        Assert.AreEqual(1, drawer.CurrentSpellCount, "A rejected UI request must retain its source card.");
+        Assert.AreEqual(1, drawer.handPanel.childCount);
         player.SetMageAbilityAvailableServerRpc(true, (int)NetworkSpellKind.Freeze);
         state.RequestSpell(NetworkSpellKind.Lightning, result => accepted = result,
             enemy.Id, mageAbility: true);
@@ -246,15 +354,15 @@ public class BugFixRegressionTests
         Assert.AreEqual(true, accepted);
         Assert.IsTrue(enemy.IsFrozen);
         Assert.IsFalse(player.MageAbilityAvailable.Value);
-        Assert.AreEqual(2, player.SpellCount.Value);
+        Assert.AreEqual(0, player.SpellCount.Value);
         player.SetMageAbilityAvailableServerRpc(true, (int)NetworkSpellKind.Freeze);
         Assert.IsFalse(player.MageAbilityAvailable.Value);
         drawer.SyncSpellCountToNetwork();
-        Assert.AreEqual(2, player.SpellCount.Value, "Hand initialization must not overwrite server consumption.");
+        Assert.AreEqual(0, player.SpellCount.Value, "Hand initialization must not overwrite server consumption.");
         board.gameOver = true;
         state.RequestSpell(NetworkSpellKind.Trap, result => accepted = result, x: 2, y: 2);
         Assert.AreEqual(false, accepted);
-        Assert.AreEqual(2, player.SpellCount.Value);
+        Assert.AreEqual(0, player.SpellCount.Value);
         yield return null;
     }
 
@@ -263,14 +371,16 @@ public class BugFixRegressionTests
     {
         CardDrawer drawer = Hand();
         GameState state = Host(out NetPlayer player);
-        Assert.AreEqual(3, player.SpellCount.Value);
+        Assert.AreEqual(1, player.SpellCount.Value);
         player.SpellCount.Value = 1;
         drawer.SyncSpellCountToNetwork();
         Assert.AreEqual(1, player.SpellCount.Value);
         Call(state, "ResetActionState");
         Assert.AreEqual(0, player.SpellCount.Value);
-        CardDrawer newHand = Hand(2);
-        Assert.AreEqual(2, player.SpellCount.Value);
+        CardDrawer newHand = Hand();
+        Call(state, "BeginDraw");
+        newHand.Choose(2, 0);
+        Assert.AreEqual(1, player.SpellCount.Value);
         player.SpellCount.Value = 0;
         newHand.SyncSpellCountToNetwork();
         Assert.AreEqual(0, player.SpellCount.Value);
@@ -285,16 +395,19 @@ public class BugFixRegressionTests
         SoloCardDrawController controller = New<SoloCardDrawController>("Solo drawing");
         controller.enabled = false;
         Set(controller, "playerCardDrawer", drawer);
-        Set(controller, "movesPerCardDraw", 1);
         Call(controller, "Start");
-        Call(controller, "HandleTurnChanged", TeamColor.Black);
-        Call(controller, "HandleTurnChanged", TeamColor.White);
-        Assert.AreEqual(3, drawer.CurrentSpellCount);
+        for (int i = 0; i < 14; i++) turns.CompleteChessMove();
+        Assert.IsFalse(CardDrawer.BlocksPlay);
         manager.Shutdown();
         yield return null;
-        Call(controller, "HandleTurnChanged", TeamColor.Black);
-        Call(controller, "HandleTurnChanged", TeamColor.White);
-        Assert.AreEqual(4, drawer.CurrentSpellCount);
+        for (int i = 0; i < 14; i++) turns.NextTurn();
+        for (int i = 0; i < 13; i++) turns.CompleteChessMove();
+        Assert.IsFalse(CardDrawer.BlocksPlay);
+        turns.CompleteChessMove();
+        Assert.IsTrue(CardDrawer.BlocksPlay);
+        Assert.AreEqual(1, drawer.CurrentSpellCount);
+        drawer.Choose(2, 0);
+        Assert.AreEqual(2, drawer.CurrentSpellCount);
     }
 
     [UnityTest]

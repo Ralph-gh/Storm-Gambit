@@ -7,6 +7,14 @@ public class TurnManager : MonoBehaviour
 
     public TeamColor currentTurn = TeamColor.White;
     public int turnNumber = 1;
+    public event Action<TeamColor> ChessMoveCompleted;
+
+    public void CompleteChessMove()
+    {
+        ChessMoveCompleted?.Invoke(currentTurn);
+        EndTurn();
+    }
+
     public void NextTurn() => EndTurn();
 
     // Single UI event to subscribe to for refreshes

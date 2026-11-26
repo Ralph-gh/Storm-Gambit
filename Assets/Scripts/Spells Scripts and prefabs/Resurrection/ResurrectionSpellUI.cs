@@ -14,13 +14,13 @@ public class ResurrectionSpellUI : MonoBehaviour
     private CardUI sourceCard;
     private bool hasClosed;
     private bool awaitingServer;
-    void OnEnable() => GenerateButtons();
+    void Start() => GenerateButtons();
+
+    private bool IsMinor => sourceCard && sourceCard.cardData.spellType == SpellType.MinorResurrect;
+    private bool CanRevive(PieceType type) => !IsMinor || CardData.CanMinorResurrect(type);
 
     void GenerateButtons()
     {
-        TeamColor mySide = (SpellRules.IsNet && NetPlayer.Local != null)
-         ? NetPlayer.Local.Side.Value
-         : TurnManager.Instance.currentTurn;
         TeamColor currentTeam = TurnManager.Instance.currentTurn;
         if (NetworkManager.Singleton && NetworkManager.Singleton.IsListening && NetPlayer.Local != null)
         {
@@ -33,6 +33,7 @@ public class ResurrectionSpellUI : MonoBehaviour
 
         foreach (CapturedPieceData data in captured)
         {
+            if (!CanRevive(data.pieceType)) continue;
             GameObject buttonObj = Instantiate(buttonPrefab, container);
             ResurrectionButton resButton = buttonObj.GetComponent<ResurrectionButton>();
             resButton.Initialize(data, this);
@@ -41,12 +42,15 @@ public class ResurrectionSpellUI : MonoBehaviour
 
     public void Resurrect(CapturedPieceData data)
     {
-        if (hasClosed || awaitingServer || !SpellRules.CanCastNow(data.team)) return;
+        if (hasClosed || awaitingServer || data == null || !CanRevive(data.pieceType) ||
+            !SpellRules.CanCastNow(data.team) ||
+            !ChessBoard.Instance.graveyard.GetCapturedByTeam(data.team).Contains(data)) return;
         if (NetworkManager.Singleton && NetworkManager.Singleton.IsListening)
         {
             if (GameState.Instance == null) return;
             awaitingServer = true;
-            GameState.Instance.RequestSpell(NetworkSpellKind.Resurrection, accepted =>
+            var spellKind = IsMinor ? NetworkSpellKind.MinorResurrection : NetworkSpellKind.Resurrection;
+            GameState.Instance.RequestSpell(spellKind, accepted =>
             {
                 if (this == null) return;
                 awaitingServer = false;

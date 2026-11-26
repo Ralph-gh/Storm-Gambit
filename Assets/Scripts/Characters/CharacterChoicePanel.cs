@@ -13,6 +13,8 @@ public class CharacterChoicePanel : MonoBehaviour
     public Transform optionsContainer;        // Horizontal container for the 2 cards
     public CharacterPanelUI characterPanelHUD; // HUD panel that shows the chosen
 
+    public event System.Action MageChosen;
+
     void OnEnable()
     {
         Debug.Log("[CharChoice] Panel enabled");
@@ -114,6 +116,7 @@ public class CharacterChoicePanel : MonoBehaviour
 
         characterPanelHUD.Show(chosen);   // should instantiate HUD card
         gameObject.SetActive(false);      // hide the selection panel
+        MageChosen?.Invoke();
     }
 
     void Clear()

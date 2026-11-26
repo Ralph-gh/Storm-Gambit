@@ -19,6 +19,8 @@ public class MageAbilityController : MonoBehaviour
     private bool abilityInProgress = false;
     public bool TryActivateMageAbility(CardData mageCard)
     {
+        if (CardDrawer.BlocksPlay) return false;
+
         if (abilityUsed)
         {
             Debug.Log("[MageAbility] Ability already used.");

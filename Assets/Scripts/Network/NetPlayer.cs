@@ -12,7 +12,7 @@ public class NetPlayer : NetworkBehaviour
         default, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Owner);
     public NetworkVariable<TeamColor> Side = new NetworkVariable<TeamColor>();
     public NetworkVariable<int> SpellCount = new NetworkVariable<int>(
-    3,
+    0,
     NetworkVariableReadPermission.Owner,
     NetworkVariableWritePermission.Server
 );
@@ -27,6 +27,9 @@ public class NetPlayer : NetworkBehaviour
     private Coroutine autoFlipRoutine;
     public override void OnNetworkSpawn()
     {
+        // A player can spawn after GameState resets the match. Only accepted picks grant spells.
+        if (IsServer) SpellCount.Value = 0;
+
         if (IsOwner)
         {
             Local = this;
@@ -53,7 +56,7 @@ public class NetPlayer : NetworkBehaviour
         }
     }
 
-    public bool CanAct() => IsOwner && GameState.Instance && GameState.Instance.IsSpawned &&
+    public bool CanAct() => !CardDrawer.BlocksPlay && IsOwner && GameState.Instance && GameState.Instance.IsSpawned &&
         ChessBoard.Instance != null && !ChessBoard.Instance.gameOver &&
         GameState.Instance.IsMyTurn(Side.Value);
 

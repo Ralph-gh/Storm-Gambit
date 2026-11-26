@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using Unity.Netcode;
 using UnityEngine;
 
-public enum NetworkSpellKind { Teleport, Freeze, Protection, Resurrection, Trap, Lightning }
+public enum NetworkSpellKind { Teleport, Freeze, Protection, Resurrection, Trap, Lightning, MinorResurrection }
 
 public partial class GameState
 {
@@ -13,21 +13,6 @@ public partial class GameState
     private readonly Dictionary<int, Action<bool>> pendingSpells = new();
     private int nextSpellRequest;
     private bool localHandSent;
-
-    public void InitializeLocalHand(CardDrawer drawer)
-    {
-        if (localHandSent || !IsSpawned || NetPlayer.Local == null) return;
-        localHandSent = true;
-        InitializeHandRpc(drawer.CurrentSpellCount);
-    }
-
-    [Rpc(SendTo.Server, InvokePermission = RpcInvokePermission.Everyone)]
-    private void InitializeHandRpc(int count, RpcParams rpc = default)
-    {
-        NetPlayer player = NetPlayer.FindByClient(rpc.Receive.SenderClientId);
-        if (player != null && initializedHands.Add(player.OwnerClientId))
-            player.SpellCount.Value = Mathf.Max(0, count);
-    }
 
     public void InitializeMage(NetPlayer player, bool available, int kind)
     {
@@ -42,7 +27,7 @@ public partial class GameState
         kind == (int)NetworkSpellKind.Lightning;
 
     private bool CanAcceptAction(NetPlayer player) =>
-        IsServer && ChessBoard.Instance != null && !ChessBoard.Instance.gameOver &&
+        IsServer && !choosingCards && ChessBoard.Instance != null && !ChessBoard.Instance.gameOver &&
         pendingPromotionPawnId < 0 && player != null && player.Side.Value == CurrentTurn.Value;
 
     public void RequestSpell(NetworkSpellKind kind, Action<bool> completed,
@@ -85,6 +70,9 @@ public partial class GameState
                     accepted = TryProtectionServer(player, pieceId); break;
                 case NetworkSpellKind.Resurrection:
                     accepted = TryResurrectServer(player, pieceType, x, y); break;
+                case NetworkSpellKind.MinorResurrection:
+                    accepted = CardData.CanMinorResurrect(pieceType) &&
+                        TryResurrectServer(player, pieceType, x, y); break;
                 case NetworkSpellKind.Trap:
                     accepted = TryPlaceTrapServer(player, x, y); break;
                 case NetworkSpellKind.Lightning:
@@ -141,25 +129,13 @@ public partial class GameState
         else piece.RejectNetworkMove();
     }
 
-    private void AdvanceMoveNumber(TeamColor movingSide)
-    {
-        if (movingSide == TeamColor.White)
-        {
-            if (MoveNumber.Value == 0) MoveNumber.Value = 1;
-            return;
-        }
-        if (MoveNumber.Value > 0) MoveNumber.Value++;
-        if (MoveNumber.Value == 0 || MoveNumber.Value % 10 != 0) return;
-        foreach (NetPlayer player in FindObjectsByType<NetPlayer>(
-                     FindObjectsInactive.Exclude, FindObjectsSortMode.None))
-            player.AddSpellServer(1);
-        DrawSpellForBothPlayersLocal();
-        DrawSpellForBothPlayersClientRpc();
-    }
-
     private void ResetActionState()
     {
         localHandSent = false;
+        offers.Clear();
+        drawSchedule = new CardDrawSchedule();
+        choosingCards = true;
+        completingMove = false;
         initializedHands.Clear();
         initializedMages.Clear();
         spellUsedThisTurn.Clear();

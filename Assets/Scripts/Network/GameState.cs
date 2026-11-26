@@ -348,8 +348,6 @@ public partial class GameState : NetworkBehaviour
         // NETWORK PROMOTION
         // =========================================================
 
-        AdvanceMoveNumber(piece.team);
-
         bool needsPromotion =
             !explosiveTrapTriggered &&
             piece.pieceType == PieceType.Pawn &&
@@ -420,9 +418,7 @@ public partial class GameState : NetworkBehaviour
         SetEnPassantClientRpc(epX, epY, epPawnId);
 
         // Before giving the opponent the turn, check Storm checkmate.
-        if (StormEndgameEvaluator.TryResolveCheckmate(next)) return true;
-
-        CurrentTurn.Value = next;
+        CompleteNetworkMove(piece.team, next);
         return true;
         }
 
@@ -513,20 +509,6 @@ public partial class GameState : NetworkBehaviour
             ChessBoard.Instance.enPassantTarget = new Vector2Int(epX, epY);
             ChessBoard.Instance.enPassantPawnId = epPawnId;
         }
-    }
-    [ClientRpc]
-    void DrawSpellForBothPlayersClientRpc()
-    {
-        // Only remote clients run this (server/host already did it locally)
-        if (IsServer) return;
-        DrawSpellForBothPlayersLocal();
-    }
-
-    private void DrawSpellForBothPlayersLocal()
-    {
-        var drawers = FindObjectsByType<CardDrawer>(FindObjectsInactive.Exclude, FindObjectsSortMode.None);
-        foreach (var d in drawers)
-            d.DrawOneSpellCard();
     }
     private System.Collections.IEnumerator PlayExplosiveTrapSequenceClient(
     ChessPiece mover,
@@ -1049,10 +1031,8 @@ public partial class GameState : NetworkBehaviour
         var captured =
             ChessBoard.Instance.graveyard.GetCapturedByTeam(team);
 
-        if (captured == null ||
-            !captured.Exists(d =>
-                d.pieceType == pieceType &&
-                d.originalPosition == requested))
+        var entry = captured.Find(piece => piece.pieceType == pieceType && piece.originalPosition == requested);
+        if (entry == null)
         {
             Debug.LogWarning(
                 "[RESURRECTION] Rejected: matching captured piece not found."
@@ -1109,8 +1089,8 @@ public partial class GameState : NetworkBehaviour
         newPiece.ApplyStunOneTurn();
 
         // Update server graveyard + notify clients to update UI
-        ChessBoard.Instance.RemoveCapturedPieceByTypeAndTeam(pieceType, team);
-        RemoveFromGraveyardClientRpc(team, pieceType);
+        ChessBoard.Instance.RemoveCapturedPiece(entry);
+        RemoveFromGraveyardClientRpc(team, pieceType, requested.x, requested.y);
 
         // Send the ACTUAL server-chosen cell to clients
         ResurrectClientRpc(team,pieceType,spawn.x,spawn.y,newPiece.Id,requested.x,requested.y );
@@ -1170,12 +1150,15 @@ public partial class GameState : NetworkBehaviour
         p.ApplyStunOneTurn();
     }
     [ClientRpc]
-    void RemoveFromGraveyardClientRpc(TeamColor team, PieceType type)
+    void RemoveFromGraveyardClientRpc(TeamColor team, PieceType type, int originalX, int originalY)
     {
         // NEW: server/host already removed it above
         if (IsServer) return;
 
-        ChessBoard.Instance.RemoveCapturedPieceByTypeAndTeam(type, team);
+        var originalSquare = new Vector2Int(originalX, originalY);
+        var entry = ChessBoard.Instance.graveyard.GetCapturedByTeam(team)
+            .Find(piece => piece.pieceType == type && piece.originalPosition == originalSquare);
+        if (entry != null) ChessBoard.Instance.RemoveCapturedPiece(entry);
     }
 
     [ClientRpc]
@@ -1584,9 +1567,7 @@ public partial class GameState : NetworkBehaviour
 
         TeamColor next = team == TeamColor.White ? TeamColor.Black : TeamColor.White;
 
-        if (StormEndgameEvaluator.TryResolveCheckmate(next)) return;
-
-        CurrentTurn.Value = next;
+        CompleteNetworkMove(team, next);
     }
     [ClientRpc]
     private void PromotionResolvedClientRpc(

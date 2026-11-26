@@ -217,7 +217,7 @@ public class ChessBoard : NetworkBehaviour
         if (!gameOver &&
             TurnManager.Instance != null)
         {
-            TurnManager.Instance.NextTurn();
+            TurnManager.Instance.CompleteChessMove();
         }
 
         return true;

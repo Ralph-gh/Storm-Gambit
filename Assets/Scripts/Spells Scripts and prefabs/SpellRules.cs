@@ -8,6 +8,7 @@ public static class SpellRules
     // Is it currently this side's turn (local perspective)?
     public static bool IsTurn(TeamColor side)
     {
+        if (CardDrawer.BlocksPlay) return false;
         if (IsNet)
             return NetPlayer.Local && NetPlayer.Local.Side.Value == side && NetPlayer.Local.CanAct();
         return TurnManager.Instance && TurnManager.Instance.IsPlayersTurn(side);

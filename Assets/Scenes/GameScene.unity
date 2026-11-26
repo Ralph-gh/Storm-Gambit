@@ -1458,7 +1458,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SoloCardDrawController
   playerCardDrawer: {fileID: 738612889}
-  movesPerCardDraw: 7
 --- !u!4 &390141897
 Transform:
   m_ObjectHideFlags: 0
@@ -2551,19 +2550,18 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   cardPool:
   - {fileID: 11400000, guid: f874d798c78f9304abd73e89300cdf3c, type: 2}
-  - {fileID: 11400000, guid: 1c263c1cb7ac19b46adbfb744c121df7, type: 2}
+  - {fileID: 11400000, guid: 256bc8781b1f4f84a37a77613cd0db69, type: 2}
   - {fileID: 11400000, guid: 56ee48cdff62ebc4bad92c023ad7211c, type: 2}
   - {fileID: 11400000, guid: 05e9cd83c97665a458018dbae5341145, type: 2}
   cardPrefab: {fileID: 8266617551161481807, guid: 4fe99c99d28ad844e8761355c0a9e700, type: 3}
   handPanel: {fileID: 80146427}
-  startingCardCount: 2
   defaultCardPool:
-  - {fileID: 11400000, guid: 1c263c1cb7ac19b46adbfb744c121df7, type: 2}
+  - {fileID: 11400000, guid: 256bc8781b1f4f84a37a77613cd0db69, type: 2}
   - {fileID: 11400000, guid: f874d798c78f9304abd73e89300cdf3c, type: 2}
   - {fileID: 11400000, guid: 56ee48cdff62ebc4bad92c023ad7211c, type: 2}
   - {fileID: 11400000, guid: 05e9cd83c97665a458018dbae5341145, type: 2}
   stockfishCampaignPool:
-  - {fileID: 11400000, guid: 1c263c1cb7ac19b46adbfb744c121df7, type: 2}
+  - {fileID: 11400000, guid: 256bc8781b1f4f84a37a77613cd0db69, type: 2}
   - {fileID: 11400000, guid: f874d798c78f9304abd73e89300cdf3c, type: 2}
   - {fileID: 11400000, guid: 56ee48cdff62ebc4bad92c023ad7211c, type: 2}
 --- !u!4 &738612890
@@ -2760,11 +2758,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   cardPool:
   - {fileID: 11400000, guid: f874d798c78f9304abd73e89300cdf3c, type: 2}
-  - {fileID: 11400000, guid: 1c263c1cb7ac19b46adbfb744c121df7, type: 2}
+  - {fileID: 11400000, guid: 256bc8781b1f4f84a37a77613cd0db69, type: 2}
   - {fileID: 11400000, guid: 05e9cd83c97665a458018dbae5341145, type: 2}
   cardPrefab: {fileID: 8266617551161481807, guid: 4fe99c99d28ad844e8761355c0a9e700, type: 3}
   handPanel: {fileID: 990634019}
-  startingCardCount: 3
   defaultCardPool: []
   stockfishCampaignPool: []
 --- !u!4 &850396326

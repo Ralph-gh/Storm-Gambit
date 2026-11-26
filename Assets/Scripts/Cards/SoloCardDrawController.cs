@@ -2,82 +2,35 @@ using UnityEngine;
 
 public class SoloCardDrawController : MonoBehaviour
 {
-    [Header("References")]
     [SerializeField] private CardDrawer playerCardDrawer;
+    private readonly CardDrawSchedule schedule = new();
 
-    [Header("Draw Settings")]
-    [SerializeField] private int movesPerCardDraw = 10;
-
-    private int fullMoveNumber = 1;
-    private TeamColor previousTurn;
-    private bool initialized;
-
-    private void Start()
+    void Start() => TurnManager.Instance.ChessMoveCompleted += HandleMove;
+    void OnDestroy()
     {
-        if (TurnManager.Instance == null)
-        {
-            Debug.LogError("[SOLO CARDS] TurnManager not found.");
-            return;
-        }
-
-        previousTurn = TurnManager.Instance.currentTurn;
-        initialized = true;
-
-        TurnManager.Instance.OnTurnChanged += HandleTurnChanged;
-
-        Debug.Log("[SOLO CARDS] Solo card drawing initialized.");
+        if (TurnManager.Instance) TurnManager.Instance.ChessMoveCompleted -= HandleMove;
     }
 
-    private void OnDestroy()
+    private void HandleMove(TeamColor side)
     {
-        if (TurnManager.Instance != null)
-            TurnManager.Instance.OnTurnChanged -= HandleTurnChanged;
+        if (!SpellRules.IsNet && ChessBoard.Instance && !ChessBoard.Instance.gameOver &&
+            schedule.Record(side) && playerCardDrawer)
+            playerCardDrawer.DrawOneSpellCard();
     }
+}
 
-    private void HandleTurnChanged(TeamColor newTurn)
+public sealed class CardDrawSchedule
+{
+    private int whiteMoves;
+    private int blackMoves;
+    private int nextDraw = 7;
+
+    public bool Record(TeamColor side)
     {
-        if (SpellRules.IsNet || ChessBoard.Instance == null || ChessBoard.Instance.gameOver)
-        {
-            previousTurn = newTurn;
-            return;
-        }
-        if (!initialized)
-        {
-            previousTurn = newTurn;
-            initialized = true;
-            return;
-        }
-
-        // Black -> White means one complete chess move has finished.
-        if (previousTurn == TeamColor.Black &&
-            newTurn == TeamColor.White)
-        {
-            fullMoveNumber++;
-
-            Debug.Log(
-                $"[SOLO CARDS] Full move {fullMoveNumber}"
-            );
-
-            if (fullMoveNumber > 0 &&
-                movesPerCardDraw > 0 && fullMoveNumber % movesPerCardDraw == 0)
-            {
-                if (playerCardDrawer != null)
-                {
-                    playerCardDrawer.DrawOneSpellCard();
-
-                    Debug.Log(
-                        "[SOLO CARDS] Player drew a spell card."
-                    );
-                }
-                else
-                {
-                    Debug.LogError(
-                        "[SOLO CARDS] CardDrawer reference missing."
-                    );
-                }
-            }
-        }
-
-        previousTurn = newTurn;
+        if (side == TeamColor.White) whiteMoves++;
+        else blackMoves++;
+        if (System.Math.Min(whiteMoves, blackMoves) < nextDraw) return false;
+        nextDraw += 7;
+        return true;
     }
 }

@@ -98,8 +98,7 @@ public class CardUI : MonoBehaviour
             TurnManager.Instance.OnTurnChanged += HandleTurnChanged;
 
         // For Resurrection, also listen to graveyard changes
-        if (cardData != null && cardData.spellType == SpellType.Resurrect && ChessBoard.Instance != null)
-            ChessBoard.Instance.OnGraveyardChanged += UpdateResurrectInteractable;
+        SubscribeToGraveyard();
 
         RefreshInteractable();
     }
@@ -109,8 +108,7 @@ public class CardUI : MonoBehaviour
         if (TurnManager.Instance != null)
             TurnManager.Instance.OnTurnChanged -= HandleTurnChanged;
 
-        if (cardData != null && cardData.spellType == SpellType.Resurrect && ChessBoard.Instance != null)
-            ChessBoard.Instance.OnGraveyardChanged -= UpdateResurrectInteractable;
+        UnsubscribeFromGraveyard();
     }
 
     private void OnDestroy()
@@ -119,25 +117,19 @@ public class CardUI : MonoBehaviour
         if (TurnManager.Instance != null)
             TurnManager.Instance.OnTurnChanged -= HandleTurnChanged;
 
-        if (cardData != null && cardData.spellType == SpellType.Resurrect && ChessBoard.Instance != null)
-            ChessBoard.Instance.OnGraveyardChanged -= UpdateResurrectInteractable;
+        UnsubscribeFromGraveyard();
     }
 
     public void LoadCard(CardData data)
     {
         LoadCard(data, false, null);
-
-        TeamColor mySide = ResolveMySide();
-        bool isMyTurn = ResolveIsMyTurn(mySide);
-        bool freeSpellAvailable = FreeSpellAvailable(isMyTurn);
-
-        // Resurrection’s target availability is rechecked in RefreshInteractable()
-        cardButton.interactable = freeSpellAvailable;
     }
 
     public void LoadCard(CardData data, bool selectionMode, System.Action<CardData> onSelected)
     {
+        UnsubscribeFromGraveyard();
         cardData = data;
+        if (isActiveAndEnabled) SubscribeToGraveyard();
         isSelectionMode = selectionMode;
         onSelectedCallback = onSelected;
 
@@ -156,7 +148,6 @@ public class CardUI : MonoBehaviour
         else
             cardButton.onClick.AddListener(ActivateSpell);
 
-        // No graveyard listener here; OnEnable handles it (prevents duplicates)
         RefreshInteractable();
     }
 
@@ -183,15 +174,9 @@ public class CardUI : MonoBehaviour
         bool isMyTurn = ResolveIsMyTurn(mySide);
         bool freeSpellAvailable = FreeSpellAvailable(isMyTurn);
 
-        if (cardData.spellType == SpellType.Resurrect)
+        if (cardData.IsResurrection)
         {
-            bool hasTargets = false;
-            if (ChessBoard.Instance != null)
-            {
-                var captured = ChessBoard.Instance.graveyard.GetCapturedByTeam(mySide); // <-- mySide (not currentTurn)
-                hasTargets = (captured != null && captured.Count > 0);
-            }
-            SetInteractable(freeSpellAvailable && hasTargets);
+            SetInteractable(freeSpellAvailable && HasResurrectionTargets(mySide));
         }
         else
         {
@@ -200,11 +185,26 @@ public class CardUI : MonoBehaviour
         }
     }
 
+    private void SubscribeToGraveyard()
+    {
+        if (cardData != null && cardData.IsResurrection && ChessBoard.Instance != null)
+            ChessBoard.Instance.OnGraveyardChanged += UpdateResurrectInteractable;
+    }
+
+    private void UnsubscribeFromGraveyard()
+    {
+        if (cardData != null && cardData.IsResurrection && ChessBoard.Instance != null)
+            ChessBoard.Instance.OnGraveyardChanged -= UpdateResurrectInteractable;
+    }
+
+    private bool HasResurrectionTargets(TeamColor side) => ChessBoard.Instance &&
+        ChessBoard.Instance.graveyard.GetCapturedByTeam(side).Exists(piece => cardData.CanResurrect(piece.pieceType));
+
     private void UpdateResurrectInteractable() => RefreshInteractable();
 
     private void ActivateSpell()
     {
-        if (cardData == null || isSpellPending)
+        if (CardDrawer.BlocksPlay || cardData == null || isSpellPending)
             return;
 
         TeamColor mySide = ResolveMySide();
@@ -224,18 +224,10 @@ public class CardUI : MonoBehaviour
             return;
         }
 
-        if (cardData.spellType == SpellType.Resurrect &&
-            ChessBoard.Instance != null)
+        if (cardData.IsResurrection && !HasResurrectionTargets(mySide))
         {
-            var captured =
-                ChessBoard.Instance.graveyard.GetCapturedByTeam(mySide);
-
-            if (captured == null || captured.Count == 0)
-            {
-                Debug.Log("No captured pieces. Resurrection is unavailable.");
-                RefreshInteractable();
-                return;
-            }
+            RefreshInteractable();
+            return;
         }
 
         if (cardData.spellUI == null)

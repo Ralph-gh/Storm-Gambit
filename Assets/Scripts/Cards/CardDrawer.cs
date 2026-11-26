@@ -1,125 +1,181 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
+using Unity.Netcode;
 
 public class CardDrawer : MonoBehaviour
 {
     public static CardDrawer Instance { get; private set; }
+    public static event Action ChoiceFinished;
+    public static bool BlocksPlay => Instance && Instance.blocked;
+
     public int CurrentSpellCount { get; private set; }
     public bool HandInitialized { get; private set; }
-    [Header("Card Data")]
-    public List<CardData> cardPool;         // Assign ScriptableObjects here
-
-    [Header("UI References")]
-    public GameObject cardPrefab;           // Your Card UI prefab
-    public Transform handPanel;             // Your HandPanel (UI container)
-
-    [Header("Draw Settings")]
-    public int startingCardCount = 2;
-
-    [Header("Card Pools")]
+    public List<CardData> cardPool;
+    public GameObject cardPrefab;
+    public Transform handPanel;
     public List<CardData> defaultCardPool;
     public List<CardData> stockfishCampaignPool;
 
-    private List<CardData> activeCardPool;
+    private List<CardData> pool;
+    private CardChoicePanel panel;
+    private bool blocked = true;
+    private int[] choices = Array.Empty<int>();
+    private int offerId;
+    private bool submitted;
+    private NetworkManager session;
+    private CharacterChoicePanel magePicker;
+
+    void Awake() => Instance = this;
 
     void Start()
     {
-        ConfigureCardPool();
-        DrawCards(startingCardCount);
-        HandInitialized = true;
-        SyncSpellCountToNetwork();
-    }
-    private void Update()
-    {
-        // NetPlayer and GameState may spawn after this local hand.
-        SyncSpellCountToNetwork();
-    }
-    private void Awake()
-    {
-        Instance = this;
-    }
-
-    void DrawCards(int count)
-    {
-        for (int i = 0; i < count; i++)
-        {
-            if (activeCardPool == null || activeCardPool.Count == 0)
-                return;
-
-            CardData drawn =
-                activeCardPool[Random.Range(0, activeCardPool.Count)];
-            GameObject cardObj = Instantiate(cardPrefab, handPanel);
-            cardObj.GetComponent<CardUI>().LoadCard(drawn);
-            if (drawn.cardtype != CardType.Character)
-                CurrentSpellCount++;
-        }
-
-    }
-
-    public void DrawOneSpellCard()
-    {
-        if (activeCardPool == null ||
-            activeCardPool.Count == 0 ||
-            cardPrefab == null ||
-            handPanel == null)
-        {
-            Debug.LogWarning("[CARDS] Cannot draw spell card.");
-            return;
-        }
-
-        // Filter to spells only (exclude Character cards)
-        var spells = new List<CardData>();
-
-        foreach (var c in activeCardPool)
-        {
-            if (c != null && c.cardtype != CardType.Character)
-                spells.Add(c);
-        }
-
-        if (spells.Count == 0)
-        {
-            Debug.LogWarning("[CARDS] No spell cards available in active deck.");
-            return;
-        }
-
-        CardData drawn =
-            spells[Random.Range(0, spells.Count)];
-
-        GameObject cardObj = Instantiate(cardPrefab, handPanel);
-        cardObj.GetComponent<CardUI>().LoadCard(drawn);
-        CurrentSpellCount++;
-
-        Debug.Log($"[CARDS] Drew spell card: {drawn.cardName}");
-    }
-    private void ConfigureCardPool()
-    {
-        bool stockfishCampaign =
-            SoloSession.IsConfigured &&
-            SoloSession.Mode == SoloGameMode.Campaign &&
-            SoloSession.AIEnabled &&
+        bool campaign = !SpellRules.IsNet && SoloSession.IsConfigured &&
+            SoloSession.Mode == SoloGameMode.Campaign && SoloSession.AIEnabled &&
             SoloSession.Opponent == SoloOpponent.Stockfish;
-
-        activeCardPool = stockfishCampaign
-            ? stockfishCampaignPool
-            : defaultCardPool;
-
-        Debug.Log(
-            stockfishCampaign
-                ? "[CARDS] Using Stockfish Campaign deck."
-                : "[CARDS] Using default deck."
-        );
+        pool = campaign ? stockfishCampaignPool : defaultCardPool;
+        panel = CardChoicePanel.Create(handPanel);
+        magePicker = FindFirstObjectByType<CharacterChoicePanel>();
+        if (magePicker) magePicker.MageChosen += OnMageChosen;
+        if (SpellRules.IsNet)
+        {
+            session = NetworkManager.Singleton;
+            session.OnClientDisconnectCallback += HandleDisconnect;
+            if (!magePicker) panel.ShowMessage("Preparing your cards…");
+            SyncSpellCountToNetwork();
+        }
+        else if (!magePicker) DrawOneSpellCard();
     }
-    public void NotifySpellConsumed()
-    {
-        CurrentSpellCount = Mathf.Max(0, CurrentSpellCount - 1);
 
-        Debug.Log($"[MAGIC] Local spell count = {CurrentSpellCount}");
+    private void OnMageChosen()
+    {
+        magePicker.MageChosen -= OnMageChosen;
+        magePicker = null;
+        if (submitted) return;
+        if (!session) DrawOneSpellCard();
+        else if (choices.Length > 0) DisplayOffer();
+        else panel.ShowMessage("Preparing your cards.");
+    }
+
+    void OnDestroy()
+    {
+        if (magePicker) magePicker.MageChosen -= OnMageChosen;
+        if (session) session.OnClientDisconnectCallback -= HandleDisconnect;
+        if (panel) Destroy(panel.gameObject);
+        if (Instance == this) Instance = null;
+    }
+
+    private void HandleDisconnect(ulong clientId)
+    {
+        if (!blocked || !panel) return;
+        submitted = true;
+        choices = Array.Empty<int>();
+        panel.ShowMessage("Match disconnected");
+    }
+
+    void Update()
+    {
+        if (SpellRules.IsNet && !HandInitialized) SyncSpellCountToNetwork();
     }
 
     public void SyncSpellCountToNetwork()
     {
-        if (HandInitialized && SpellRules.IsNet && NetPlayer.Local != null &&
-            GameState.Instance != null && GameState.Instance.IsSpawned)
-            GameState.Instance.InitializeLocalHand(this);
+        if (panel && SpellRules.IsNet && NetPlayer.Local && NetPlayer.Local.IsSpawned &&
+            GameState.Instance && GameState.Instance.IsSpawned)
+            GameState.Instance.InitializeLocalHand();
     }
+
+    public int[] SampleOffer()
+    {
+        var indices = new List<int>();
+        var unique = new HashSet<CardData>();
+        if (pool != null)
+            for (int i = 0; i < pool.Count; i++)
+                if (pool[i] && pool[i].cardtype != CardType.Character && unique.Add(pool[i]))
+                    indices.Add(i);
+
+        int count = Mathf.Min(3, indices.Count);
+        for (int i = 0; i < count; i++)
+        {
+            int pick = UnityEngine.Random.Range(i, indices.Count);
+            (indices[i], indices[pick]) = (indices[pick], indices[i]);
+        }
+        return indices.GetRange(0, count).ToArray();
+    }
+
+    public void DrawOneSpellCard()
+    {
+        if (SpellRules.IsNet) return;
+        int[] indices = SampleOffer();
+        if (indices.Length == 0)
+        {
+            Debug.LogWarning("[Cards] No eligible cards in the active pool.");
+            FinishChoice();
+            return;
+        }
+        ShowOffer(++offerId, indices);
+    }
+
+    public void ShowOffer(int id, int[] indices)
+    {
+        blocked = true;
+        offerId = id;
+        submitted = false;
+        choices = indices;
+        if (!magePicker) DisplayOffer();
+    }
+
+    private void DisplayOffer()
+    {
+        int id = offerId;
+        var cards = Array.ConvertAll(choices, index => pool[index]);
+        panel.Show(cards, slot => Choose(id, slot));
+    }
+
+    public void Choose(int id, int slot)
+    {
+        if (magePicker || !blocked || submitted || id != offerId || slot < 0 || slot >= choices.Length) return;
+        submitted = true;
+        if (session || SpellRules.IsNet)
+        {
+            if (!SpellRules.IsNet || !GameState.Instance || !GameState.Instance.IsSpawned)
+            {
+                panel.ShowMessage("Match disconnected");
+                return;
+            }
+            panel.ShowMessage("Confirming card…");
+            GameState.Instance.PickCardRpc(id, choices[slot]);
+            return;
+        }
+        AddToHand(choices[slot]);
+        FinishChoice();
+    }
+
+    public void AddToHand(int index)
+    {
+        var card = Instantiate(cardPrefab, handPanel).GetComponent<CardUI>();
+        card.LoadCard(pool[index]);
+        CurrentSpellCount++;
+    }
+
+    public void WaitForOpponent()
+    {
+        blocked = true;
+        choices = Array.Empty<int>();
+        panel.ShowMessage("Waiting for opponent…");
+    }
+
+    public void FinishChoice()
+    {
+        blocked = false;
+        choices = Array.Empty<int>();
+        bool openingHand = !HandInitialized;
+        HandInitialized = true;
+        panel.gameObject.SetActive(false);
+        if (!openingHand && !SpellRules.IsNet && TurnManager.Instance)
+            StormEndgameEvaluator.TryResolveCheckmate(TurnManager.Instance.currentTurn);
+        ChoiceFinished?.Invoke();
+    }
+
+    public void NotifySpellConsumed() => CurrentSpellCount = Mathf.Max(0, CurrentSpellCount - 1);
 }

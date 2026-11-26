@@ -5,6 +5,7 @@ public static class StormEndgameEvaluator
 {
     public static bool TryResolveCheckmate(TeamColor defendingTeam)
     {
+        if (!IsNetworkGame() && CardDrawer.BlocksPlay) return false;
         if (ChessBoard.Instance == null || ChessBoard.Instance.gameOver) return false;
 
         // Multiplayer: only the server decides game over.

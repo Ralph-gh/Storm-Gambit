@@ -38,12 +38,14 @@ public class ComputerPlayer : MonoBehaviour
     private void OnEnable()
     {
         SubscribeToTurnManager();
+        CardDrawer.ChoiceFinished += TryStartAITurn;
         SpellCastState.CastingChanged += HandleCastingChanged;
     }
 
     private void OnDisable()
     {
         UnsubscribeFromTurnManager();
+        CardDrawer.ChoiceFinished -= TryStartAITurn;
         SpellCastState.CastingChanged -= HandleCastingChanged;
     }
 
@@ -92,7 +94,7 @@ public class ComputerPlayer : MonoBehaviour
 
     private bool CanAIActNow()
     {
-        if (this == null || isThinking || !isActiveAndEnabled || SpellRules.IsNet || SpellCastState.IsCasting)
+        if (this == null || CardDrawer.BlocksPlay || isThinking || !isActiveAndEnabled || SpellRules.IsNet || SpellCastState.IsCasting)
             return false;
 
         if (!SoloSession.IsConfigured ||

@@ -386,7 +386,7 @@ public class ChessPiece : NetworkBehaviour
             return false;
 
         // No normal chess selection while casting a spell.
-        if (SpellCastState.IsCasting)
+        if (CardDrawer.BlocksPlay || SpellCastState.IsCasting)
             return false;
 
         if (awaitingNetworkMove)
@@ -520,7 +520,7 @@ public class ChessPiece : NetworkBehaviour
         {
             return;
         }
-        if (SpellCastState.IsCasting)
+        if (CardDrawer.BlocksPlay || SpellCastState.IsCasting)
         {
             canDrag = false;
             isDragging = false;
@@ -572,7 +572,7 @@ public class ChessPiece : NetworkBehaviour
 
     void OnMouseDrag()
     {
-        if (SpellCastState.IsCasting)
+        if (CardDrawer.BlocksPlay || SpellCastState.IsCasting)
         {
             isDragging = false;
             canDrag = false;
@@ -594,7 +594,7 @@ public class ChessPiece : NetworkBehaviour
     }
     void OnMouseUp()
     {
-        if (SpellCastState.IsCasting)
+        if (CardDrawer.BlocksPlay || SpellCastState.IsCasting)
         {
             isDragging = false;
             canDrag = false;
@@ -900,7 +900,7 @@ public class ChessPiece : NetworkBehaviour
         if (audioSource != null && moveClip != null)
             audioSource.PlayOneShot(moveClip);
 
-        TurnManager.Instance.NextTurn();
+        TurnManager.Instance.CompleteChessMove();
     }
 
     Vector3 SnapToGrid(Vector3 rawPosition)
@@ -967,7 +967,7 @@ public class ChessPiece : NetworkBehaviour
         // 4. CONTINUE THE TURN
         // -----------------------------
         if (!ChessBoard.Instance.gameOver)
-            TurnManager.Instance.NextTurn();
+            TurnManager.Instance.CompleteChessMove();
     }
 
     bool IsValidMove(Vector3 targetPosition)
@@ -1044,7 +1044,7 @@ public class ChessPiece : NetworkBehaviour
 
     public void TryMoveFromTap(Vector2Int targetCell)
     {
-        if (SpellCastState.IsCasting)
+        if (CardDrawer.BlocksPlay || SpellCastState.IsCasting)
         {
             SnapBackToCurrentCell();
             return;

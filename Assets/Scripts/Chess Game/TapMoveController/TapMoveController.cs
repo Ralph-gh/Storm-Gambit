@@ -13,6 +13,11 @@ public class TapMoveController : MonoBehaviour
 
     void Update()
     {
+        if (CardDrawer.BlocksPlay)
+        {
+            trackingTap = false;
+            return;
+        }
         // ================================
         // MOBILE TOUCH
         // ================================

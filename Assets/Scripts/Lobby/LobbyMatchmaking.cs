@@ -14,7 +14,7 @@ using LobbyModel = Unity.Services.Lobbies.Models.Lobby;
 public class LobbyMatchmaking : MonoBehaviour
 {
     public const string RulesKey = "storm-rules";
-    public const string RulesVersion = "storm-gambit-v2";
+    public const string RulesVersion = "storm-gambit-v3";
     public const string RelayKey = "relay-code";
     public const string NameKey = "display-name";
     public static LobbyMatchmaking Instance { get; private set; }
