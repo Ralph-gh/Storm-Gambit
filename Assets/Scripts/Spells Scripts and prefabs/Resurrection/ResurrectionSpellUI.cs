@@ -113,6 +113,7 @@ public class ResurrectionSpellUI : MonoBehaviour
         BoardFlipController.Instance?.ApplyOrientation(newPiece);
 
         ChessBoard.Instance.PlacePiece(newPiece, spawn);
+        newPiece.ApplyStunOneTurn();
 
         // Use ChessBoard wrapper so OnGraveyardChanged is raised.
         ChessBoard.Instance.RemoveCapturedPiece(data);

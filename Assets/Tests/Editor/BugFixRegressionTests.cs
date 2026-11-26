@@ -93,6 +93,34 @@ public class BugFixRegressionTests
         return piece;
     }
 
+    [Test]
+    public void ResurrectedRookCannotCaptureUntilItsOwnersNextTurn()
+    {
+        ResurrectionSpellUI spell = New<ResurrectionSpellUI>("Resurrection");
+        ChessPiece template = New<ChessPiece>("White rook");
+        template.team = TeamColor.White;
+        template.pieceType = PieceType.Rook;
+        template.startingCell = Vector2Int.zero;
+        template.originalPrefab = template.gameObject;
+        var captured = new ChessBoard.CapturedPieceData(template);
+        board.graveyard.GetCapturedByTeam(template.team).Add(captured);
+        ChessPiece target = Piece(2, TeamColor.Black, PieceType.Pawn, 0, 2);
+
+        spell.Resurrect(captured);
+        ChessPiece rook = board.GetPieceAt(captured.originalPosition);
+        Assert.IsNotNull(rook);
+        created.Add(rook.gameObject);
+        Assert.IsTrue(rook.IsStunned);
+        rook.TryMoveFromTap(target.currentCell);
+        Assert.AreSame(target, board.GetPieceAt(target.currentCell));
+        Assert.AreSame(rook, board.GetPieceAt(captured.originalPosition));
+
+        turns.EndTurn();
+        Assert.IsTrue(rook.IsStunned);
+        turns.EndTurn();
+        Assert.IsFalse(rook.IsStunned);
+    }
+
     private GameState Host(out NetPlayer player)
     {
         manager = New<NetworkManager>("Test network");
